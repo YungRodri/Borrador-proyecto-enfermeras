@@ -1,0 +1,55 @@
+Aquí tienes el bloque de contexto estructurado con todas las restricciones técnicas y académicas extraídas directamente de las bases de tu proyecto.
+
+Copia y pega este texto tal cual al inicio de tu conversación con tu agente de IA para que comprenda el entorno de desarrollo y los límites estrictos del código:
+
+---
+
+**CONTEXTO DEL PROYECTO: SISTEMA DE INFORMACIÓN (SIA)**
+
+**1. Entorno de Desarrollo y Restricciones Generales**
+
+* **Lenguaje y Versión:** El proyecto debe ser desarrollado estrictamente en el lenguaje JAVA, utilizando el Oracle JDK 11 u Oracle JDK 8.
+* **IDE Soportados:** El código debe ser compatible con los editores Netbeans 21 (o inferior) o Eclipse.
+* **Originalidad:** El proyecto debe ser completamente nuevo y desarrollado desde cero. Queda estrictamente prohibido reutilizar códigos de proyectos pasados o de terceros.
+* **Restricción de Librerías (Implícita):** Solo se permite el uso de librerías nativas del JDK (como `java.util`, `java.io`, `javax.swing`). Prohibido usar frameworks externos (Spring, Hibernate, Maven) o estructuras ajenas a los contenidos de un curso de Programación Avanzada tradicional. a exepcion de la interfazgrafica que puede ser hecha con librerias que estenpresente en apache netbeans o en intelillenJ/Eclipse idea para la iterfaz.
+
+**2. Restricciones de Arquitectura y Buenas Prácticas (SIA-3)**
+
+* **Encapsulamiento:** Absolutamente todos los atributos de todas las clases deben ser declarados como privados (`private`).
+* **Accesadores:** Todo atributo debe poseer sus respectivos métodos de lectura y escritura (`getter` y `setter`).
+* **Datos de Prueba:** Se deben incluir datos iniciales obligatoriamente "hardcodeados" en el código, los cuales deben permitir la ejecución inmediata de cualquiera de las funcionalidades sin requerir ingreso manual previo.
+* **Legibilidad:** El código fuente debe estar modularizado y contar con documentación interna útil (comentarios).
+
+**3. Restricciones de Estructuras de Datos (SIA-4)**
+
+* **Uso del JCF:** Se deben diseñar y codificar exactamente 2 colecciones de objetos que pertenezcan estrictamente al Java Collections Framework (JCF). (Prohibido el uso de arreglos primitivos para esto).
+* **Anidación:** La segunda colección debe estar obligatoriamente anidada dentro de los elementos de la primera.
+* **Requisito de Mapa:** Al menos una de estas dos colecciones tiene que ser un mapa en cualquiera de sus variantes (ej. `HashMap` o `TreeMap`).
+
+**4. Restricciones de POO Avanzada (SIA-5 y SIA-6)**
+
+* **Sobrecarga (Overloading):** Se deben diseñar y codificar 2 clases distintas que utilicen sobrecarga de métodos. Esta sobrecarga **no** puede ser aplicada a los constructores, debe ser en métodos regulares, y ambas clases deben ser utilizadas efectivamente en el programa.
+* **Sobreescritura (Overriding):** Se deben diseñar y codificar 2 clases que utilicen sobreescritura de métodos (usando `@Override`), y ambas deben ser utilizadas en la ejecución.
+
+**5. Restricciones de Funcionalidad y Menú (SIA-7, SIA-8 y SIA-9)**
+
+* **CRUD Completo:** El sistema debe contar con un menú que ofrezca funcionalidades de inserción manual (agregar), listado (mostrar), edición (modificar), eliminación y búsqueda de elementos.
+* **Regla Crítica del CRUD:** Todas estas operaciones (Insertar, Mostrar, Editar, Eliminar y Buscar) deben estar implementadas **para ambas colecciones en opciones separadas** dentro del menú.
+* **Filtros de del programa:** Se debe implementar al menos 1 funcionalidad de utilidad para el programa (puede ser de inserción, edición, eliminación o reportes) que procese un subconjunto de datos filtrado por un criterio específico.
+
+**6. Restricciones de Interfaz de Usuario (SIA-10)**
+
+* **Doble Interfaz:** Absolutamente todas las funcionalidades deben estar implementadas mediante consola (ej. `Scanner`) y ventanas (ej. `JOptionPane` o interfaz gráfica).
+* **Selección Dinámica:** Al momento de lanzar la aplicación, el sistema debe solicitar al usuario que decida si usará la consola o las ventanas, y cargar la interfaz correspondiente.
+
+**7. Restricciones de Persistencia de Datos (SIA-11)**
+
+* **Formatos Permitidos:** La persistencia de datos debe realizarse utilizando un archivo de texto, CSV, Excel, o una conexión con un DBMS local.
+* **Sistema Batch:** La persistencia debe funcionar estrictamente mediante un sistema batch: debe cargar todos los datos a la memoria al iniciar la aplicación, y grabar/sobrescribir todos los datos al salir.
+
+**8. Restricciones de Control de Errores (SIA-12)**
+
+* **Excepciones Personalizadas:** Se deben diseñar y codificar 2 excepciones propias (heredando de `Exception` o `RuntimeException`), las cuales deben utilizarse dentro de la lógica del programa.
+* **Manejo Obligatorio:** El manejo de **todas** las excepciones del programa debe realizarse utilizando bloques `try-catch` para asegurar que la aplicación no se cierre abruptamente.
+
+
