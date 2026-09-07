@@ -12,7 +12,10 @@ import TurnosEnfermeria.modelo.Turno;
 import TurnosEnfermeria.modelo.TurnoConflictoException;
 import TurnosEnfermeria.modelo.TurnoRegular;
 import TurnosEnfermeria.modelo.Utilidades;
+import TurnosEnfermeria.vista.EstilosGUI;
+import TurnosEnfermeria.vista.VentanaPrincipal;
 
+import javax.swing.SwingUtilities;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
@@ -48,15 +51,23 @@ public class Main {
         Utilidades.imprimirSeparador();
         System.out.println("  Seleccione el modo de interfaz:");
         System.out.println("    1. Interfaz de Consola (CLI)");
-        System.out.println("    2. Interfaz Grafica  (GUI) [proximamente]");
+        System.out.println("    2. Interfaz Grafica  (GUI)");
         System.out.print("  Opcion: ");
 
         int modo = Utilidades.leerEntero(sc);
         if (modo == 2) {
-            System.out.println("  [INFO] Interfaz grafica aun no implementada.");
-            System.out.println("  Iniciando consola...");
+            // Lanzar la GUI en el Event Dispatch Thread de Swing (SIA-10)
+            EstilosGUI.aplicarLookAndFeel();
+            SwingUtilities.invokeLater(() -> {
+                VentanaPrincipal ventana = new VentanaPrincipal(
+                    // Callback de cierre: guardar datos CSV (SIA-11)
+                    () -> GestorArchivos.guardarEnfermeras(registroGlobal)
+                );
+                ventana.setVisible(true);
+            });
+        } else {
+            menuConsola();
         }
-        menuConsola();
     }
 
     // ===================================================================
