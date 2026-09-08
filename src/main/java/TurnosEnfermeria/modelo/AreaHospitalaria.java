@@ -10,8 +10,8 @@ import java.util.TreeMap;
  * Contiene el TreeMap principal del sistema (COLECCION 1 - SIA-4).
  *
  * Implementa sobrecarga del metodo listarEnfermeras() (SIA-5: Sobrecarga clase 2 de 2):
- *   - listarEnfermeras()                   -> lista todas las enfermeras del area
- *   - listarEnfermeras(String tipoTurno)   -> solo las que tienen al menos 1 turno del tipo
+ *   - listarEnfermeras() -- lista todas las enfermeras del area
+ *   - listarEnfermeras(String tipoTurno) -- solo las que tienen al menos 1 turno del tipo
  *
  * Todos los atributos son privados (SIA-3).
  */

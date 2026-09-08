@@ -111,7 +111,7 @@ public class Utilidades {
 
     /**
      * Verifica si dos intervalos de tiempo se solapan.
-     * Maneja correctamente los turnos nocturnos (horaFin < horaInicio).
+     * Maneja correctamente los turnos nocturnos (horaFin &lt; horaInicio).
      */
     public static boolean hayConflictoHorario(String ini1, String fin1,
                                               String ini2, String fin2) {

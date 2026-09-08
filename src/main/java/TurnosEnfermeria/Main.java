@@ -27,7 +27,7 @@ import java.util.TreeMap;
  *   1. Carga datos desde CSV (o semilla si no existen) - SIA-11
  *   2. Ofrece seleccion de interfaz: Consola o GUI - SIA-10
  *
- * registroGlobal es el TreeMap<RUT, Enfermera> que actua como base de datos en memoria.
+ * registroGlobal es el TreeMap&lt;RUT, Enfermera&gt; que actua como base de datos en memoria.
  * SOLO los Controladores deben acceder a este campo.
  */
 public class Main {

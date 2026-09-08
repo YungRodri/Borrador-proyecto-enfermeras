@@ -36,7 +36,7 @@ public class GestorArchivos {
     /**
      * Carga el registro global de enfermeras desde los archivos CSV.
      * Si los archivos no existen, llama a cargarDatosIniciales().
-     * @return TreeMap<RUT, Enfermera> listo para usarse como registro global
+     * @return TreeMap&lt;String, Enfermera&gt; listo para usarse como registro global
      */
     public static TreeMap<String, Enfermera> cargarEnfermeras() {
         crearCarpetaResources();

@@ -135,7 +135,7 @@ public class Enfermera extends Persona {
 
     /**
      * Calcula el total de horas trabajadas sumando los turnos regulares y cambios.
-     * Los turnos nocturnos (fin < inicio) se consideran de 8 horas.
+     * Los turnos nocturnos (fin &lt; inicio) se consideran de 8 horas.
      */
     public double getHorasTrabajadas() {
         double total = 0;
