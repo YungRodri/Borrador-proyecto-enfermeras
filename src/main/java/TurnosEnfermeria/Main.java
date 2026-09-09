@@ -126,7 +126,7 @@ public class Main {
         System.out.println("  -- ENFERMERAS (Coleccion 1) --");
         System.out.println("   1. Agregar Enfermera");
         System.out.println("   2. Listar Enfermeras");
-        System.out.println("   3. Buscar Enfermera por RUT");
+        System.out.println("   3. Buscar Enfermera por RUT o Nombre");
         System.out.println("   4. Editar Enfermera");
         System.out.println("   5. Eliminar Enfermera");
         Utilidades.imprimirLinea();
@@ -219,15 +219,16 @@ public class Main {
         System.out.println("\n  Total: " + lista.size() + " enfermeras registradas.");
     }
 
-    /** Opcion 3: Buscar Enfermera por RUT */
+    /** Opcion 3: Buscar Enfermera por RUT o nombre */
     private static void opcionBuscarEnfermera() {
         System.out.println("\n  === BUSCAR ENFERMERA ===");
-        System.out.print("  RUT a buscar: ");
-        String rut = sc.nextLine().trim();
-        Enfermera e = EnfermeraControlador.obtener(rut);
-        if (e == null) {
-            System.out.println("  [!] No se encontro enfermera con RUT: " + rut);
-        } else {
+        System.out.print("  RUT o Nombre a buscar: ");
+        String busqueda = sc.nextLine().trim();
+        
+        Enfermera e = EnfermeraControlador.obtener(busqueda);
+        
+        if (e != null) {
+        
             System.out.println("\n  Datos de la enfermera:");
             Utilidades.imprimirLinea();
             System.out.println("  RUT          : " + e.getRut());
@@ -239,7 +240,40 @@ public class Main {
             System.out.println("  Licencias    : " + e.contarLicencias());
             System.out.println("  Cambios      : " + e.contarCambios());
             System.out.printf( "  Horas trab.  : %.1f h%n", e.getHorasTrabajadas());
+            return;
         }
+
+        List<Enfermera> resultado = new java.util.ArrayList<>();
+
+        for (Enfermera enfermera : EnfermeraControlador.listar()){
+            if(enfermera.getNombreCompleto().toLowerCase().contains(busqueda.toLowerCase())){
+                resultado.add(enfermera);
+            }
+        }
+            if (resultado.isEmpty()) {
+            System.out.println(
+                "  [!] No se encontraron enfermeras con el criterio: "
+                        + busqueda);
+            return;
+        }
+
+        System.out.println("\n  Enfermeras encontradas:");
+        Utilidades.imprimirLinea();
+        System.out.printf("  %-15s %-25s %-22s %-18s %s%n", "RUT", "NOMBRE COMPLETO", "ESPECIALIDAD", "AREA", "TURNOS");
+        Utilidades.imprimirLinea();
+
+        for (Enfermera enfermera : resultado) {
+            System.out.printf("  %-15s %-25s %-22s %-18s %d%n",
+                enfermera.getRut(),
+                enfermera.getNombreCompleto(),
+                enfermera.getEspecialidad(),
+                enfermera.getAreaAsignada(),
+                enfermera.getListaTurnos().size());
+        }
+
+        System.out.println("\n  Total: " + resultado.size()
+            + " coincidencia(s).");
+    
     }
 
     /** Opcion 4: Editar Enfermera */
