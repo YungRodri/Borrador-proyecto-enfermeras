@@ -6,6 +6,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 
 /**
@@ -158,10 +160,31 @@ public final class EstilosGUI {
      */
     public static JComboBox<String> crearComboBox(String[] opciones) {
         JComboBox<String> combo = new JComboBox<>(opciones);
+        // Evita que el tema nativo de Windows pinte un fondo blanco.
+        combo.setUI(new BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                return new BasicArrowButton(SwingConstants.SOUTH,
+                    COLOR_TARJETA, COLOR_TARJETA, COLOR_ACENTO, COLOR_TARJETA);
+            }
+        });
         combo.setFont(FUENTE_NORMAL);
         combo.setBackground(COLOR_TARJETA);
         combo.setForeground(COLOR_TEXTO);
         combo.setBorder(new LineBorder(COLOR_BORDE, 1));
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> lista, Object valor,
+                    int indice, boolean seleccionado, boolean tieneFoco) {
+                super.getListCellRendererComponent(lista, valor, indice,
+                    seleccionado, tieneFoco);
+                setBackground(seleccionado ? COLOR_ACENTO : COLOR_TARJETA);
+                setForeground(seleccionado ? COLOR_FONDO : COLOR_TEXTO);
+                setBorder(new EmptyBorder(6, 10, 6, 10));
+                setOpaque(true);
+                return this;
+            }
+        });
         return combo;
     }
 

@@ -107,7 +107,7 @@ public class VentanaEstadisticas extends JFrame {
             }
         }
 
-        JPanel panel = new JPanel(new GridLayout(1, 5, 10, 0));
+        JPanel panel = new JPanel(new GridLayout(1, 6, 10, 0));
         panel.setBackground(EstilosGUI.COLOR_FONDO);
         panel.setBorder(new EmptyBorder(0, 16, 16, 16));
 
@@ -115,7 +115,8 @@ public class VentanaEstadisticas extends JFrame {
         panel.add(crearKPI("📋  Turnos Regulares", String.valueOf(totalTurnos),    EstilosGUI.COLOR_EXITO));
         panel.add(crearKPI("🌙  Turnos Noche",   String.valueOf(turnosNoche),      EstilosGUI.COLOR_ACENTO2));
         panel.add(crearKPI("📄  Licencias",       String.valueOf(totalLicencias),  EstilosGUI.COLOR_ADVERTENCIA));
-        panel.add(crearKPI("⏱  Total Horas",     String.format("%.0f h", totalHoras), EstilosGUI.COLOR_ERROR));
+        panel.add(crearKPI("🔄  Cambios",         String.valueOf(totalCambios),    new Color(236, 72, 153)));
+        panel.add(crearKPI("⏱  Total Horas",     String.format("%.1f h", totalHoras), EstilosGUI.COLOR_ERROR));
         return panel;
     }
 

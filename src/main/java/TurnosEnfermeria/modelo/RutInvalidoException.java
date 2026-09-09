@@ -9,7 +9,12 @@ public class RutInvalidoException extends Exception {
     private String rutIngresado;
 
     public RutInvalidoException(String rutIngresado) {
-        super("El RUT ingresado no es valido: " + rutIngresado);
+        this(rutIngresado,
+            "RUT inválido. Use el formato 12345678-5 o 10000013-K, sin puntos.");
+    }
+
+    public RutInvalidoException(String rutIngresado, String mensaje) {
+        super(mensaje);
         this.rutIngresado = rutIngresado;
     }
 

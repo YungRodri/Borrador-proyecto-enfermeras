@@ -160,10 +160,10 @@ public class Utilidades {
     }
 
     /**
-     * Valida que la edad sea razonable para una enfermera (18-70).
+     * Valida que la enfermera sea mayor de edad y no supere los 65 años.
      */
     public static boolean validarEdad(int edad) {
-        return edad >= 18 && edad <= 70;
+        return edad >= 18 && edad <= 65;
     }
 
     /**

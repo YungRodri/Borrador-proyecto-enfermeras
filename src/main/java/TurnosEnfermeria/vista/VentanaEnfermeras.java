@@ -2,7 +2,10 @@ package TurnosEnfermeria.vista;
 
 import TurnosEnfermeria.Main;
 import TurnosEnfermeria.controlador.EnfermeraControlador;
+import TurnosEnfermeria.modelo.EdadInvalidaException;
 import TurnosEnfermeria.modelo.Enfermera;
+import TurnosEnfermeria.modelo.NombreDuplicadoException;
+import TurnosEnfermeria.modelo.NombreInvalidoException;
 import TurnosEnfermeria.modelo.RutInvalidoException;
 import TurnosEnfermeria.modelo.Utilidades;
 
@@ -115,7 +118,7 @@ public class VentanaEnfermeras extends JFrame {
         panel.add(EstilosGUI.crearScrollPane(tabla), BorderLayout.CENTER);
 
         // Etiqueta de ayuda
-        JLabel ayuda = new JLabel("  💡 Doble clic en una fila para ver los turnos de la enfermera");
+        JLabel ayuda = new JLabel("  💡 Seleccione una enfermera y use Gestionar Turnos para asignarle uno o más turnos");
         ayuda.setFont(EstilosGUI.FUENTE_PEQUENA);
         ayuda.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
         ayuda.setBorder(new EmptyBorder(6, 0, 0, 0));
@@ -134,7 +137,7 @@ public class VentanaEnfermeras extends JFrame {
         JButton btnEditar   = EstilosGUI.crearBotonSecundario("✏️ Editar");
         JButton btnEliminar = EstilosGUI.crearBotonPeligro("🗑 Eliminar");
         JButton btnRefrescar= EstilosGUI.crearBotonSecundario("🔄 Refrescar");
-        JButton btnTurnos   = EstilosGUI.crearBotonSecundario("📋 Ver Turnos");
+        JButton btnTurnos   = EstilosGUI.crearBotonSecundario("📋 Gestionar Turnos");
 
         btnAgregar.addActionListener(e  -> mostrarDialogoAgregar());
         btnEditar.addActionListener(e   -> editarEnfermera());
@@ -265,7 +268,12 @@ public class VentanaEnfermeras extends JFrame {
         String rut = (String) modeloTabla.getValueAt(fila, 0);
         Enfermera e = EnfermeraControlador.obtener(rut);
         if (e == null) return;
-        new VentanaTurnos(e, this).setVisible(true);
+        abrirGestionTurnos(e);
+    }
+
+    /** Abre la pantalla donde una enfermera puede tener uno o mas turnos. */
+    private void abrirGestionTurnos(Enfermera enfermera) {
+        new VentanaTurnos(enfermera, this).setVisible(true);
     }
 
     // =====================================================================
@@ -302,6 +310,8 @@ public class VentanaEnfermeras extends JFrame {
         JTextField campoEdad        = EstilosGUI.crearCampoTexto(6);
         JComboBox<String> comboEsp  = EstilosGUI.crearComboBox(Utilidades.ESPECIALIDADES);
         JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
+        campoRut.setToolTipText("Formato: 12345678-5 o 10000013-K, sin puntos");
+        campoEdad.setToolTipText("Edad permitida: entre 18 y 65 años");
 
         // Si es edicion, pre-llenar campos (RUT no editable)
         boolean esEdicion = enfermeraExistente != null;
@@ -318,11 +328,11 @@ public class VentanaEnfermeras extends JFrame {
         }
 
         // Fila: RUT
-        agregarFilaFormulario(panelCampos, gbc, 0, "RUT:", campoRut);
+        agregarFilaFormulario(panelCampos, gbc, 0, "RUT (ej. 10000013-K):", campoRut);
         agregarFilaFormulario(panelCampos, gbc, 1, "Nombre:", campoNombre);
         agregarFilaFormulario(panelCampos, gbc, 2, "Apellido Paterno:", campoApellidoP);
         agregarFilaFormulario(panelCampos, gbc, 3, "Apellido Materno:", campoApellidoM);
-        agregarFilaFormulario(panelCampos, gbc, 4, "Edad:", campoEdad);
+        agregarFilaFormulario(panelCampos, gbc, 4, "Edad (18 a 65):", campoEdad);
         agregarFilaFormulario(panelCampos, gbc, 5, "Especialidad:", comboEsp);
         agregarFilaFormulario(panelCampos, gbc, 6, "Área:", comboArea);
 
@@ -358,6 +368,10 @@ public class VentanaEnfermeras extends JFrame {
                 } catch (NumberFormatException ex) {
                     mostrarMensaje("La edad debe ser un número válido.", "Error de validación",
                         JOptionPane.ERROR_MESSAGE);
+                } catch (EdadInvalidaException | NombreDuplicadoException
+                        | NombreInvalidoException ex) {
+                    mostrarMensaje(ex.getMessage(), "Error de validación",
+                        JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 // Agregar nueva enfermera
@@ -378,14 +392,31 @@ public class VentanaEnfermeras extends JFrame {
                         cargarTabla();
                         dialogo.dispose();
                     } else {
-                        mostrarMensaje("Ya existe una enfermera con el RUT ingresado.", "RUT duplicado",
-                            JOptionPane.WARNING_MESSAGE);
+                        Enfermera existente = EnfermeraControlador.obtener(
+                            campoRut.getText().trim());
+                        Object[] opciones = {"Gestionar turnos", "Cancelar"};
+                        int opcion = JOptionPane.showOptionDialog(dialogo,
+                            "Ya existe una enfermera con este RUT.\n"
+                            + "No debe crearla nuevamente para asignarle otro turno.\n"
+                            + "Abra Gestionar Turnos y agregue allí todos sus turnos.",
+                            "Enfermera ya registrada",
+                            JOptionPane.DEFAULT_OPTION,
+                            JOptionPane.INFORMATION_MESSAGE,
+                            null, opciones, opciones[0]);
+                        if (opcion == 0 && existente != null) {
+                            dialogo.dispose();
+                            abrirGestionTurnos(existente);
+                        }
                     }
                 } catch (NumberFormatException ex) {
                     mostrarMensaje("La edad debe ser un número válido.", "Error de validación",
                         JOptionPane.ERROR_MESSAGE);
+                } catch (EdadInvalidaException | NombreDuplicadoException
+                        | NombreInvalidoException ex) {
+                    mostrarMensaje(ex.getMessage(), "Error de validación",
+                        JOptionPane.ERROR_MESSAGE);
                 } catch (RutInvalidoException ex) {
-                    mostrarMensaje("El RUT ingresado no es válido.\n" + ex.getMessage(),
+                    mostrarMensaje(ex.getMessage(),
                         "RUT inválido", JOptionPane.ERROR_MESSAGE);
                 }
             }

@@ -26,7 +26,9 @@ public class Enfermera extends Persona {
 
     public Enfermera(String nombre, String apellidoP, String apellidoM,
                      String rut, int edad, String especialidad,
-                     String areaAsignada) throws RutInvalidoException {
+                     String areaAsignada)
+            throws RutInvalidoException, EdadInvalidaException,
+                   NombreInvalidoException {
         super(nombre, apellidoP, apellidoM, rut, edad);
         this.especialidad  = especialidad;
         this.areaAsignada  = areaAsignada;
@@ -42,6 +44,9 @@ public class Enfermera extends Persona {
      * @throws TurnoConflictoException si hay superposicion de horario en la misma fecha
      */
     public void agregarTurno(Turno turno) throws TurnoConflictoException {
+        if (turno.getEspecialidad().trim().isEmpty()) {
+            turno.setEspecialidad(especialidad);
+        }
         for (Turno existente : listaTurnos) {
             if (existente.getFecha().equals(turno.getFecha())
                     && !existente.getHoraInicio().isEmpty()
@@ -151,17 +156,15 @@ public class Enfermera extends Persona {
         return total;
     }
 
-    /**
-     * Cuenta cuantos turnos de tipo Noche tiene esta enfermera en un mes dado.
-     * @param mes formato MM (p.ej. "09")
-     * @param anio formato yyyy (p.ej. "2026")
-     */
-    public int contarTurnosNocheMes(String mes, String anio) {
+    /** Cuenta turnos regulares de un horario en un mes. "Todos" incluye los tres horarios. */
+    public int contarTurnosPorHorarioMes(String horario, String mes, String anio) {
         int c = 0;
         for (Turno t : listaTurnos) {
             if (t instanceof TurnoRegular) {
                 TurnoRegular tr = (TurnoRegular) t;
-                if (Utilidades.TURNO_NOCHE.equals(tr.getTipoTurno())) {
+                boolean coincideHorario = "Todos".equalsIgnoreCase(horario)
+                    || horario.equalsIgnoreCase(tr.getTipoTurno());
+                if (coincideHorario) {
                     // Fecha formato dd/MM/yyyy
                     String[] partes = t.getFecha().split("/");
                     if (partes.length == 3
@@ -173,6 +176,11 @@ public class Enfermera extends Persona {
             }
         }
         return c;
+    }
+
+    /** Conserva la operacion anterior para los reportes que filtran solo noches. */
+    public int contarTurnosNocheMes(String mes, String anio) {
+        return contarTurnosPorHorarioMes(Utilidades.TURNO_NOCHE, mes, anio);
     }
 
     // ========== GETTERS Y SETTERS (SIA-3) ==========

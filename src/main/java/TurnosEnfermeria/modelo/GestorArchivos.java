@@ -18,7 +18,7 @@ import java.util.TreeMap;
  *   RUT;Nombre;ApellidoP;ApellidoM;Edad;Especialidad;Area
  *
  * Formato turnos.csv:
- *   RUT;TIPO;ID;Fecha;HoraInicio;HoraFin;Observacion;DatoExtra
+ *   RUT;TIPO;ID;Fecha;HoraInicio;HoraFin;Observacion;DatoExtra;Especialidad
  *   - REGULAR : DatoExtra = TipoTurno (Manana/Tarde/Noche)
  *   - LICENCIA: DatoExtra = TipoLicencia; HoraInicio y HoraFin vacios
  *   - CAMBIO  : DatoExtra = RutSustituta|MotivoCambio (separados por |)
@@ -75,6 +75,10 @@ public class GestorArchivos {
                     registro.put(rut, e);
                 } catch (RutInvalidoException ex) {
                     System.err.println("[WARN] RUT invalido en CSV, linea ignorada: " + linea);
+                } catch (EdadInvalidaException ex) {
+                    System.err.println("[WARN] Edad fuera del rango 18-65 en CSV, linea ignorada: " + linea);
+                } catch (NombreInvalidoException ex) {
+                    System.err.println("[WARN] Nombre vacío en CSV, linea ignorada: " + linea);
                 } catch (NumberFormatException ex) {
                     System.err.println("[WARN] Edad invalida en CSV, linea ignorada: " + linea);
                 }
@@ -161,6 +165,10 @@ public class GestorArchivos {
                             System.err.println("[WARN] Tipo de turno desconocido: " + tipo);
                     }
                     if (turno != null) {
+                        String especialidadTurno = c.length >= 9
+                            ? c[8].trim() : enfermera.getEspecialidad();
+                        turno.setEspecialidad(especialidadTurno.isEmpty()
+                            ? enfermera.getEspecialidad() : especialidadTurno);
                         enfermera.agregarTurno(turno); // Puede lanzar TurnoConflictoException
                     }
                 } catch (TurnoConflictoException ex) {
@@ -197,7 +205,7 @@ public class GestorArchivos {
         try (BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(ARCHIVO_TURNOS),
                         StandardCharsets.UTF_8))) {
-            bw.write("RUT;TIPO;ID;Fecha;HoraInicio;HoraFin;Observacion;DatoExtra");
+            bw.write("RUT;TIPO;ID;Fecha;HoraInicio;HoraFin;Observacion;DatoExtra;Especialidad");
             bw.newLine();
             for (Enfermera e : registro.values()) {
                 for (Turno t : e.getListaTurnos()) {
@@ -213,7 +221,7 @@ public class GestorArchivos {
                     bw.write(String.join(";",
                         e.getRut(), t.getTipo(), t.getId(), t.getFecha(),
                         t.getHoraInicio(), t.getHoraFin(),
-                        t.getObservacion(), extra));
+                        t.getObservacion(), extra, t.getEspecialidad()));
                     bw.newLine();
                 }
             }
@@ -303,7 +311,8 @@ public class GestorArchivos {
                     "Vacaciones anuales", "Personal"));
             registro.put(e6.getRut(), e6);
 
-        } catch (RutInvalidoException | TurnoConflictoException ex) {
+        } catch (RutInvalidoException | EdadInvalidaException | NombreInvalidoException
+                | TurnoConflictoException ex) {
             System.err.println("[ERROR CRITICO] Fallo al crear datos iniciales: "
                     + ex.getMessage());
         }

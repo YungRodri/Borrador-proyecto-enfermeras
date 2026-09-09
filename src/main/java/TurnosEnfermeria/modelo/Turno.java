@@ -13,6 +13,7 @@ public abstract class Turno {
     private String horaInicio;
     private String horaFin;
     private String observacion;
+    private String especialidad;
 
     /**
      * Constructor para turnos con horario definido (TurnoRegular, CambioTurno).
@@ -24,6 +25,7 @@ public abstract class Turno {
         this.horaInicio  = (horaInicio  == null) ? "" : horaInicio;
         this.horaFin     = (horaFin     == null) ? "" : horaFin;
         this.observacion = (observacion == null) ? "" : observacion;
+        this.especialidad = "";
     }
 
     /**
@@ -61,6 +63,11 @@ public abstract class Turno {
 
     public String getObservacion()              { return observacion; }
     public void   setObservacion(String obs)    { this.observacion = obs; }
+
+    public String getEspecialidad()                 { return especialidad; }
+    public void   setEspecialidad(String especialidad) {
+        this.especialidad = especialidad == null ? "" : especialidad;
+    }
 
     @Override
     public String toString() {

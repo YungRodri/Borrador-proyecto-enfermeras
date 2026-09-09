@@ -22,7 +22,7 @@ public class VentanaTurnos extends JFrame {
     private DefaultTableModel modeloTabla;
 
     private static final String[] COLUMNAS = {
-        "ID", "Tipo", "Fecha", "Hora Inicio", "Hora Fin", "Resumen"
+        "ID", "Tipo", "Especialidad", "Fecha", "Hora Inicio", "Hora Fin", "Resumen"
     };
 
     /**
@@ -76,7 +76,7 @@ public class VentanaTurnos extends JFrame {
 
         JLabel titulo = EstilosGUI.crearLabelTitulo("📋  Turnos de " + enfermera.getNombreCompleto());
         JLabel subtitulo = EstilosGUI.crearLabel(
-            "RUT: " + enfermera.getRut() + "  |  Especialidad: " + enfermera.getEspecialidad()
+            "RUT: " + enfermera.getRut() + "  |  Especialidad principal: " + enfermera.getEspecialidad()
             + "  |  Área: " + enfermera.getAreaAsignada()
         );
         panelInfo.add(titulo);
@@ -130,10 +130,11 @@ public class VentanaTurnos extends JFrame {
         EstilosGUI.estilizarTabla(tabla);
         tabla.getColumnModel().getColumn(0).setPreferredWidth(90);
         tabla.getColumnModel().getColumn(1).setPreferredWidth(80);
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(90);
-        tabla.getColumnModel().getColumn(3).setPreferredWidth(80);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(150);
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(90);
         tabla.getColumnModel().getColumn(4).setPreferredWidth(80);
-        tabla.getColumnModel().getColumn(5).setPreferredWidth(360);
+        tabla.getColumnModel().getColumn(5).setPreferredWidth(80);
+        tabla.getColumnModel().getColumn(6).setPreferredWidth(300);
 
         panel.add(EstilosGUI.crearScrollPane(tabla), BorderLayout.CENTER);
         return panel;
@@ -145,7 +146,7 @@ public class VentanaTurnos extends JFrame {
         panel.setBackground(EstilosGUI.COLOR_PANEL);
 
         JButton btnAgregar  = EstilosGUI.crearBotonPrimario("➕ Agregar Turno");
-        JButton btnEditar   = EstilosGUI.crearBotonSecundario("✏️ Editar Observación");
+        JButton btnEditar   = EstilosGUI.crearBotonSecundario("✏️ Editar Turno");
         JButton btnEliminar = EstilosGUI.crearBotonPeligro("🗑 Eliminar Turno");
         JButton btnBuscar   = EstilosGUI.crearBotonSecundario("🔍 Buscar por ID");
         JButton btnRefrescar= EstilosGUI.crearBotonSecundario("🔄 Refrescar");
@@ -175,6 +176,7 @@ public class VentanaTurnos extends JFrame {
             modeloTabla.addRow(new Object[]{
                 t.getId(),
                 t.getTipo(),
+                t.getEspecialidad(),
                 t.getFecha(),
                 t.getHoraInicio().isEmpty() ? "—" : t.getHoraInicio(),
                 t.getHoraFin().isEmpty()    ? "—" : t.getHoraFin(),
@@ -206,7 +208,7 @@ public class VentanaTurnos extends JFrame {
     /** Formulario para agregar un TurnoRegular. */
     private void mostrarFormularioTurnoRegular() {
         JDialog d = new JDialog(this, "Agregar Turno Regular", true);
-        d.setSize(420, 280);
+        d.setSize(460, 330);
         d.setLocationRelativeTo(this);
         d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
         d.setLayout(new BorderLayout());
@@ -221,13 +223,17 @@ public class VentanaTurnos extends JFrame {
         JTextField campoFecha = EstilosGUI.crearCampoTexto(14);
         campoFecha.setToolTipText("Formato: dd/MM/yyyy");
         JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JComboBox<String> comboEspecialidad = EstilosGUI.crearComboBox(Utilidades.ESPECIALIDADES);
+        comboEspecialidad.setSelectedItem(enfermera.getEspecialidad());
         JTextField campoObs = EstilosGUI.crearCampoTexto(20);
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
         gbc.gridx=1; campos.add(campoFecha, gbc);
         gbc.gridx=0; gbc.gridy=1; campos.add(EstilosGUI.crearLabel("Tipo de Turno:"), gbc);
         gbc.gridx=1; campos.add(comboTipo, gbc);
-        gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
+        gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("Especialidad del turno:"), gbc);
+        gbc.gridx=1; campos.add(comboEspecialidad, gbc);
+        gbc.gridx=0; gbc.gridy=3; campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
         gbc.gridx=1; campos.add(campoObs, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -245,7 +251,11 @@ public class VentanaTurnos extends JFrame {
             String horaIni = Utilidades.horaInicioPorTipo(tipo);
             String horaFin = Utilidades.horaFinPorTipo(tipo);
             try {
-                enfermera.agregarTurno(fecha, horaIni, horaFin, tipo);
+                String id = Utilidades.generarIdTurno();
+                TurnoRegular turno = new TurnoRegular(id, fecha, horaIni, horaFin,
+                    tipo, campoObs.getText().trim());
+                turno.setEspecialidad((String) comboEspecialidad.getSelectedItem());
+                TurnoControlador.registrar(enfermera, turno);
                 cargarTabla();
                 actualizarEncabezado();
                 d.dispose();
@@ -321,7 +331,7 @@ public class VentanaTurnos extends JFrame {
     /** Formulario para agregar un CambioTurno. */
     private void mostrarFormularioCambioTurno() {
         JDialog d = new JDialog(this, "Agregar Cambio de Turno", true);
-        d.setSize(440, 320);
+        d.setSize(480, 390);
         d.setLocationRelativeTo(this);
         d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
         d.setLayout(new BorderLayout());
@@ -334,25 +344,27 @@ public class VentanaTurnos extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JTextField campoFecha     = EstilosGUI.crearCampoTexto(14);
-        JTextField campoHoraIni   = EstilosGUI.crearCampoTexto(8);
-        JTextField campoHoraFin   = EstilosGUI.crearCampoTexto(8);
         JTextField campoSustituta = EstilosGUI.crearCampoTexto(16);
         JTextField campoMotivo    = EstilosGUI.crearCampoTexto(20);
+        JTextField campoObservacion = EstilosGUI.crearCampoTexto(20);
+        JComboBox<String> comboHorario = EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JComboBox<String> comboEspecialidad = EstilosGUI.crearComboBox(Utilidades.ESPECIALIDADES);
+        comboEspecialidad.setSelectedItem(enfermera.getEspecialidad());
 
-        campoHoraIni.setToolTipText("HH:mm (ej: 07:00)");
-        campoHoraFin.setToolTipText("HH:mm (ej: 15:00)");
         campoSustituta.setToolTipText("RUT de la enfermera sustituta");
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
         gbc.gridx=1; campos.add(campoFecha, gbc);
-        gbc.gridx=0; gbc.gridy=1; campos.add(EstilosGUI.crearLabel("Hora inicio (HH:mm):"), gbc);
-        gbc.gridx=1; campos.add(campoHoraIni, gbc);
-        gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("Hora fin (HH:mm):"), gbc);
-        gbc.gridx=1; campos.add(campoHoraFin, gbc);
-        gbc.gridx=0; gbc.gridy=3; campos.add(EstilosGUI.crearLabel("RUT Sustituta:"), gbc);
+        gbc.gridx=0; gbc.gridy=1; campos.add(EstilosGUI.crearLabel("Horario:"), gbc);
+        gbc.gridx=1; campos.add(comboHorario, gbc);
+        gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("RUT Sustituta:"), gbc);
         gbc.gridx=1; campos.add(campoSustituta, gbc);
+        gbc.gridx=0; gbc.gridy=3; campos.add(EstilosGUI.crearLabel("Especialidad del turno:"), gbc);
+        gbc.gridx=1; campos.add(comboEspecialidad, gbc);
         gbc.gridx=0; gbc.gridy=4; campos.add(EstilosGUI.crearLabel("Motivo:"), gbc);
         gbc.gridx=1; campos.add(campoMotivo, gbc);
+        gbc.gridx=0; gbc.gridy=5; campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
+        gbc.gridx=1; campos.add(campoObservacion, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         btns.setBackground(EstilosGUI.COLOR_PANEL);
@@ -363,16 +375,15 @@ public class VentanaTurnos extends JFrame {
             if (!Utilidades.validarFecha(campoFecha.getText().trim())) {
                 JOptionPane.showMessageDialog(d, "Fecha inválida.", "Error", JOptionPane.ERROR_MESSAGE); return;
             }
-            if (!Utilidades.validarHora(campoHoraIni.getText().trim()) || !Utilidades.validarHora(campoHoraFin.getText().trim())) {
-                JOptionPane.showMessageDialog(d, "Hora inválida. Use formato HH:mm.", "Error", JOptionPane.ERROR_MESSAGE); return;
-            }
+            String horario = (String) comboHorario.getSelectedItem();
             String id = Utilidades.generarIdTurno();
             CambioTurno cambio = new CambioTurno(id,
                 campoFecha.getText().trim(),
-                campoHoraIni.getText().trim(),
-                campoHoraFin.getText().trim(),
+                Utilidades.horaInicioPorTipo(horario),
+                Utilidades.horaFinPorTipo(horario),
                 campoSustituta.getText().trim(),
-                campoMotivo.getText().trim(), "");
+                campoMotivo.getText().trim(), campoObservacion.getText().trim());
+            cambio.setEspecialidad((String) comboEspecialidad.getSelectedItem());
             try {
                 TurnoControlador.registrar(enfermera, cambio);
                 cargarTabla();
@@ -399,11 +410,22 @@ public class VentanaTurnos extends JFrame {
         Turno turno = enfermera.buscarTurno(id);
         if (turno == null) return;
 
-        String nuevaObs = JOptionPane.showInputDialog(this,
-            "Ingrese la nueva observación para el turno " + id + ":",
-            turno.getObservacion());
-        if (nuevaObs != null) {
-            TurnoControlador.editar(enfermera, id, nuevaObs.trim());
+        JPanel panelEdicion = new JPanel(new GridLayout(2, 2, 8, 8));
+        JComboBox<String> comboEspecialidad = EstilosGUI.crearComboBox(Utilidades.ESPECIALIDADES);
+        comboEspecialidad.setSelectedItem(turno.getEspecialidad());
+        JTextField campoObservacion = EstilosGUI.crearCampoTexto(20);
+        campoObservacion.setText(turno.getObservacion());
+        panelEdicion.add(new JLabel("Especialidad:"));
+        panelEdicion.add(comboEspecialidad);
+        panelEdicion.add(new JLabel("Observación:"));
+        panelEdicion.add(campoObservacion);
+
+        int respuesta = JOptionPane.showConfirmDialog(this, panelEdicion,
+            "Editar turno " + id, JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE);
+        if (respuesta == JOptionPane.OK_OPTION) {
+            TurnoControlador.editar(enfermera, id, campoObservacion.getText().trim(),
+                (String) comboEspecialidad.getSelectedItem());
             cargarTabla();
         }
     }
@@ -416,7 +438,7 @@ public class VentanaTurnos extends JFrame {
             return;
         }
         String id     = (String) modeloTabla.getValueAt(fila, 0);
-        String resumen= (String) modeloTabla.getValueAt(fila, 5);
+        String resumen= (String) modeloTabla.getValueAt(fila, 6);
 
         int confirm = JOptionPane.showConfirmDialog(this,
             "<html>¿Eliminar el turno <b>" + id + "</b>?<br><small>" + resumen + "</small></html>",
@@ -436,7 +458,6 @@ public class VentanaTurnos extends JFrame {
         String id = JOptionPane.showInputDialog(this, "Ingrese el ID del turno a buscar:", "Buscar Turno", JOptionPane.QUESTION_MESSAGE);
         if (id == null || id.trim().isEmpty()) return;
 
-
         Object[] resultado = TurnoControlador.buscarTurno(id.trim());
 
         // resaltar fila si pertenece a la enfermera
@@ -452,7 +473,17 @@ public class VentanaTurnos extends JFrame {
                     }
                 }
             }
-            JOptionPane.showMessageDialog(this, "Turno encontrado:\n" + t.getResumen() + "\nEnfermera:" + e.getNombreCompleto() + "\nRUT" + e.getRut(), "Resultado", JOptionPane.INFORMATION_MESSAGE);
+
+            JOptionPane.showMessageDialog(this,
+                "Turno encontrado:\n"
+                + "ID: " + t.getId() + "\n"
+                + "Tipo: " + t.getTipo() + "\n"
+                + "Especialidad: " + t.getEspecialidad() + "\n"
+                + "Resumen: " + t.getResumen() + "\n"
+                + "Observación: " + t.getObservacion() + "\n"
+                + "Enfermera: " + e.getNombreCompleto() + "\n"
+                + "RUT: " + e.getRut(),
+                "Resultado", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "No se encontró ningún turno con el ID: " + id, "Sin resultado", JOptionPane.WARNING_MESSAGE);
         }

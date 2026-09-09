@@ -1,7 +1,11 @@
 package TurnosEnfermeria.controlador;
 
 import TurnosEnfermeria.modelo.Enfermera;
-import TurnosEnfermeria.modelo.RutInvalidoException;
+import TurnosEnfermeria.modelo.EdadInvalidaException;
+import TurnosEnfermeria.modelo.GestorArchivos;
+import TurnosEnfermeria.modelo.NombreDuplicadoException;
+import TurnosEnfermeria.modelo.NombreInvalidoException;
+import TurnosEnfermeria.modelo.Utilidades;
 import TurnosEnfermeria.Main;
 
 import java.util.ArrayList;
@@ -23,12 +27,15 @@ public class EnfermeraControlador {
      * @param enfermera enfermera ya construida y validada
      * @return true si se agrego, false si ya existe un RUT igual
      */
-    public static boolean agregar(Enfermera enfermera) {
+    public static boolean agregar(Enfermera enfermera)
+            throws NombreDuplicadoException {
         String rut = enfermera.getRut();
         if (Main.registroGlobal.containsKey(rut)) {
             return false;
         }
+        validarNombreUnico(enfermera.getNombre(), null);
         Main.registroGlobal.put(rut, enfermera);
+        GestorArchivos.guardarEnfermeras(Main.registroGlobal);
         return true;
     }
 
@@ -45,7 +52,11 @@ public class EnfermeraControlador {
      * @return true si se elimino, false si no existia
      */
     public static boolean eliminar(String rut) {
-        return Main.registroGlobal.remove(rut.trim().toUpperCase()) != null;
+        boolean eliminado = Main.registroGlobal.remove(rut.trim().toUpperCase()) != null;
+        if (eliminado) {
+            GestorArchivos.guardarEnfermeras(Main.registroGlobal);
+        }
+        return eliminado;
     }
 
     /**
@@ -55,16 +66,50 @@ public class EnfermeraControlador {
      */
     public static boolean editar(String rut, String nombre, String apellidoP,
                                  String apellidoM, int edad,
-                                 String especialidad, String area) {
+                                 String especialidad, String area)
+            throws NombreDuplicadoException, EdadInvalidaException,
+                   NombreInvalidoException {
         Enfermera e = obtener(rut);
         if (e == null) return false;
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new NombreInvalidoException();
+        }
+        String nombreFinal = nombre.trim();
+        validarNombreUnico(nombreFinal, e.getRut());
+        if (!Utilidades.validarEdad(edad)) {
+            throw new EdadInvalidaException(edad);
+        }
         if (nombre     != null && !nombre.isEmpty())     e.setNombre(nombre);
         if (apellidoP  != null && !apellidoP.isEmpty())  e.setApellidoP(apellidoP);
         if (apellidoM  != null && !apellidoM.isEmpty())  e.setApellidoM(apellidoM);
         if (edad > 0)                                    e.setEdad(edad);
         if (especialidad != null && !especialidad.isEmpty()) e.setEspecialidad(especialidad);
         if (area != null && !area.isEmpty())             e.setAreaAsignada(area);
+        GestorArchivos.guardarEnfermeras(Main.registroGlobal);
         return true;
+    }
+
+    /** Verifica que ninguna otra enfermera tenga el mismo nombre. */
+    private static void validarNombreUnico(String nombre, String rutIgnorado)
+            throws NombreDuplicadoException {
+        String nombreBuscado = normalizarNombre(nombre);
+        for (Enfermera existente : Main.registroGlobal.values()) {
+            boolean mismaEnfermera = rutIgnorado != null
+                && existente.getRut().equalsIgnoreCase(rutIgnorado);
+            if (!mismaEnfermera
+                    && normalizarNombre(existente.getNombre()).equals(nombreBuscado)) {
+                throw new NombreDuplicadoException(nombre.trim());
+            }
+        }
+    }
+
+    /** Compara nombres ignorando mayusculas, tildes y espacios repetidos. */
+    private static String normalizarNombre(String nombre) {
+        String sinTildes = java.text.Normalizer.normalize(
+            nombre == null ? "" : nombre.trim(), java.text.Normalizer.Form.NFD)
+            .replaceAll("\\p{M}", "");
+        return sinTildes.toLowerCase(java.util.Locale.ROOT)
+            .replaceAll("\\s+", " ");
     }
 
     /**
@@ -87,21 +132,23 @@ public class EnfermeraControlador {
         return resultado;
     }
 
-    /**
-     * Retorna las enfermeras que superan el limite de turnos noche en un mes.
-     * @param limiteNoche maximo aceptable de turnos noche
-     * @param mes   formato MM (p.ej. "09")
-     * @param anio  formato yyyy (p.ej. "2026")
-     */
-    public static List<Enfermera> filtrarExcesoTurnosNoche(int limiteNoche,
-                                                            String mes, String anio) {
+    /** Retorna las enfermeras que superan el limite de un horario en un mes. */
+    public static List<Enfermera> filtrarExcesoTurnosPorHorario(
+            String horario, int limite, String mes, String anio) {
         List<Enfermera> resultado = new ArrayList<>();
         for (Enfermera e : Main.registroGlobal.values()) {
-            if (e.contarTurnosNocheMes(mes, anio) > limiteNoche) {
+            if (e.contarTurnosPorHorarioMes(horario, mes, anio) > limite) {
                 resultado.add(e);
             }
         }
         return resultado;
+    }
+
+    /** Conserva el filtro anterior para compatibilidad. */
+    public static List<Enfermera> filtrarExcesoTurnosNoche(
+            int limiteNoche, String mes, String anio) {
+        return filtrarExcesoTurnosPorHorario(
+            Utilidades.TURNO_NOCHE, limiteNoche, mes, anio);
     }
 
     /**

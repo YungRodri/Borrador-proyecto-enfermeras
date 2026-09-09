@@ -1,6 +1,7 @@
 package TurnosEnfermeria.controlador;
 
 import TurnosEnfermeria.modelo.Enfermera;
+import TurnosEnfermeria.modelo.GestorArchivos;
 import TurnosEnfermeria.modelo.Turno;
 import TurnosEnfermeria.modelo.TurnoConflictoException;
 import TurnosEnfermeria.Main;
@@ -22,7 +23,11 @@ public class TurnoControlador {
      */
     public static void registrar(Enfermera enfermera, Turno turno)
             throws TurnoConflictoException {
+        if (turno.getEspecialidad().trim().isEmpty()) {
+            turno.setEspecialidad(enfermera.getEspecialidad());
+        }
         enfermera.agregarTurno(turno);
+        GestorArchivos.guardarEnfermeras(Main.registroGlobal);
     }
 
     /**
@@ -30,7 +35,11 @@ public class TurnoControlador {
      * @return true si se elimino, false si no se encontro
      */
     public static boolean eliminar(Enfermera enfermera, String idTurno) {
-        return enfermera.eliminarTurno(idTurno);
+        boolean eliminado = enfermera.eliminarTurno(idTurno);
+        if (eliminado) {
+            GestorArchivos.guardarEnfermeras(Main.registroGlobal);
+        }
+        return eliminado;
     }
 
     /**
@@ -39,7 +48,21 @@ public class TurnoControlador {
      */
     public static boolean editar(Enfermera enfermera, String idTurno,
                                  String nuevaObservacion) {
-        return enfermera.editarTurno(idTurno, nuevaObservacion);
+        return editar(enfermera, idTurno, nuevaObservacion, null);
+    }
+
+    /** Edita la observacion y la especialidad asociada a un turno. */
+    public static boolean editar(Enfermera enfermera, String idTurno,
+                                 String nuevaObservacion,
+                                 String nuevaEspecialidad) {
+        Turno turno = enfermera.buscarTurno(idTurno);
+        if (turno == null) return false;
+        turno.setObservacion(nuevaObservacion);
+        if (nuevaEspecialidad != null && !nuevaEspecialidad.trim().isEmpty()) {
+            turno.setEspecialidad(nuevaEspecialidad);
+        }
+        GestorArchivos.guardarEnfermeras(Main.registroGlobal);
+        return true;
     }
 
     /**

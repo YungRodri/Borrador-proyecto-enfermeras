@@ -17,25 +17,27 @@ public abstract class Persona {
      * Constructor principal. Lanza RutInvalidoException si el RUT no es valido.
      */
     public Persona(String nombre, String apellidoP, String apellidoM,
-                   String rut, int edad) throws RutInvalidoException {
-        this.nombre    = nombre;
+                   String rut, int edad)
+            throws RutInvalidoException, EdadInvalidaException,
+                   NombreInvalidoException {
+        setNombre(nombre);
         this.apellidoP = apellidoP;
         this.apellidoM = apellidoM;
         setRut(rut); // Valida y asigna el RUT
-        this.edad = edad;
+        setEdad(edad);
     }
 
     // ========== METODOS DE NEGOCIO ==========
 
     /**
      * Valida un RUT chileno mediante el algoritmo Modulo 11.
-     * Acepta formato: 12345678-5 o 12345678-K (sin puntos).
+     * Acepta formato: 12345678-5 o 10000013-K (sin puntos).
      * @param rut RUT a validar
      * @return true si el RUT es valido segun Modulo 11
      */
     public static boolean validarRut(String rut) {
         if (rut == null || rut.trim().isEmpty()) return false;
-        String r = rut.trim().toUpperCase().replace(".", "");
+        String r = rut.trim().toUpperCase();
         // Validar formato: digitos seguidos de guion y digito verificador
         if (!r.matches("\\d{7,8}-[\\dK]")) return false;
         String[] partes = r.split("-");
@@ -67,7 +69,12 @@ public abstract class Persona {
     // ========== GETTERS Y SETTERS (SIA-3) ==========
 
     public String getNombre()              { return nombre; }
-    public void   setNombre(String n)      { this.nombre = n; }
+    public void setNombre(String n) throws NombreInvalidoException {
+        if (n == null || n.trim().isEmpty()) {
+            throw new NombreInvalidoException();
+        }
+        this.nombre = n.trim();
+    }
 
     public String getApellidoP()           { return apellidoP; }
     public void   setApellidoP(String ap)  { this.apellidoP = ap; }
@@ -81,14 +88,25 @@ public abstract class Persona {
      * Asigna el RUT validando Modulo 11. Lanza RutInvalidoException si invalido.
      */
     public void setRut(String rut) throws RutInvalidoException {
-        if (!validarRut(rut)) {
-            throw new RutInvalidoException(rut);
+        String rutNormalizado = rut == null ? "" : rut.trim().toUpperCase();
+        if (!rutNormalizado.matches("\\d{7,8}-[\\dK]")) {
+            throw new RutInvalidoException(rut,
+                "Formato de RUT incorrecto. Use 12345678-5 o 10000013-K, sin puntos.");
         }
-        this.rut = rut.trim().toUpperCase().replace(".", "");
+        if (!validarRut(rutNormalizado)) {
+            throw new RutInvalidoException(rut,
+                "El dígito verificador del RUT no es correcto.");
+        }
+        this.rut = rutNormalizado;
     }
 
     public int  getEdad()        { return edad; }
-    public void setEdad(int e)   { this.edad = e; }
+    public void setEdad(int e) throws EdadInvalidaException {
+        if (!Utilidades.validarEdad(e)) {
+            throw new EdadInvalidaException(e);
+        }
+        this.edad = e;
+    }
 
     @Override
     public String toString() {
