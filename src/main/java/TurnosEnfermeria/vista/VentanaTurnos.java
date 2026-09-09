@@ -436,17 +436,23 @@ public class VentanaTurnos extends JFrame {
         String id = JOptionPane.showInputDialog(this, "Ingrese el ID del turno a buscar:", "Buscar Turno", JOptionPane.QUESTION_MESSAGE);
         if (id == null || id.trim().isEmpty()) return;
 
-        Turno t = enfermera.buscarTurno(id.trim());
-        if (t != null) {
-            // Seleccionar y resaltar la fila en la tabla
-            for (int i = 0; i < modeloTabla.getRowCount(); i++) {
-                if (id.trim().equalsIgnoreCase((String) modeloTabla.getValueAt(i, 0))) {
-                    tabla.setRowSelectionInterval(i, i);
-                    tabla.scrollRectToVisible(tabla.getCellRect(i, 0, true));
-                    break;
+
+        Object[] resultado = TurnoControlador.buscarTurno(id.trim());
+
+        // resaltar fila si pertenece a la enfermera
+        if (resultado != null) {
+            Enfermera e = (Enfermera) resultado[0];
+            Turno t = (Turno) resultado[1];
+            if (e.getRut().equalsIgnoreCase(enfermera.getRut())){
+                for (int i = 0; i < modeloTabla.getRowCount(); i ++){
+                    if (id.trim().equalsIgnoreCase((String) modeloTabla.getValueAt(i, 0))){
+                        tabla.setRowSelectionInterval(i, i);
+                        tabla.scrollRectToVisible(tabla.getCellRect(i, 0, true));
+                        break;
+                    }
                 }
             }
-            JOptionPane.showMessageDialog(this, "Turno encontrado:\n" + t.getResumen(), "Resultado", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Turno encontrado:\n" + t.getResumen() + "\nEnfermera:" + e.getNombreCompleto() + "\nRUT" + e.getRut(), "Resultado", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "No se encontró ningún turno con el ID: " + id, "Sin resultado", JOptionPane.WARNING_MESSAGE);
         }
