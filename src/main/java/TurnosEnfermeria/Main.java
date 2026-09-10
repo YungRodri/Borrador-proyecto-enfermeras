@@ -289,7 +289,15 @@ public class Main {
 
         System.out.print("  Nueva edad [" + e.getEdad() + "]: ");
         String edadStr = sc.nextLine().trim();
-        int edad = edadStr.isEmpty() ? -1 : Integer.parseInt(edadStr);
+        int edad;
+        try {
+            edad = edadStr.isEmpty()
+                ? e.getEdad()
+                : Integer.parseInt(edadStr);
+        } catch (NumberFormatException ex) {
+                System.out.println("  [!] La edad debe ser un numero entero.");
+                return;
+        }
 
         System.out.println("  Nueva especialidad (0 = no cambiar):");
         System.out.println("  0. Mantener actual: " + e.getEspecialidad());
@@ -301,9 +309,17 @@ public class Main {
         int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
         String area = (areaIdx < 1) ? "" : Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
 
-        EnfermeraControlador.editar(rut, nombre, apP, apM, edad, esp, area);
-        System.out.println("  [OK] Enfermera actualizada: " + e.getNombreCompleto());
-    }
+        try {
+            boolean actualizado = EnfermeraControlador.editar(rut, nombre, apP, apM, edad, esp, area);
+            if (actualizado) {
+                System.out.println("  [OK] Enfermera actualizada: " + e.getNombreCompleto());
+            } else {
+                System.out.println("  [!] No se encontro la enfermera.");
+            }
+        } catch (IllegalArgumentException ex) {
+            System.out.println("  [!] " + ex.getMessage());
+            }
+        }
 
     /** Opcion 5: Eliminar Enfermera */
     private static void opcionEliminarEnfermera() {

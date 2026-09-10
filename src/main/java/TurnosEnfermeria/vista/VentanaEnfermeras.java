@@ -358,6 +358,9 @@ public class VentanaEnfermeras extends JFrame {
                 } catch (NumberFormatException ex) {
                     mostrarMensaje("La edad debe ser un número válido.", "Error de validación",
                         JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    mostrarMensaje(ex.getMessage(), "Error de validación",
+                        JOptionPane.ERROR_MESSAGE);
                 }
             } else {
                 // Agregar nueva enfermera
@@ -384,12 +387,14 @@ public class VentanaEnfermeras extends JFrame {
                 } catch (NumberFormatException ex) {
                     mostrarMensaje("La edad debe ser un número válido.", "Error de validación",
                         JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    mostrarMensaje(ex.getMessage(), "Error de validación",
+                        JOptionPane.ERROR_MESSAGE);
                 } catch (RutInvalidoException ex) {
                     mostrarMensaje("El RUT ingresado no es válido.\n" + ex.getMessage(),
                         "RUT inválido", JOptionPane.ERROR_MESSAGE);
                 }
-            }
-        });
+            });
 
         panelBotones.add(btnCancelar);
         panelBotones.add(btnGuardar);

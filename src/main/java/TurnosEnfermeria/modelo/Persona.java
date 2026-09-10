@@ -22,7 +22,7 @@ public abstract class Persona {
         this.apellidoP = apellidoP;
         this.apellidoM = apellidoM;
         setRut(rut); // Valida y asigna el RUT
-        this.edad = edad;
+        setEdad(edad);
     }
 
     // ========== METODOS DE NEGOCIO ==========
@@ -98,7 +98,16 @@ public abstract class Persona {
     }
 
     public int  getEdad()        { return edad; }
-    public void setEdad(int e)   { this.edad = e; }
+    /**
+    * Asigna la edad respetando el rango definido para el sistema.
+    * @throws IllegalArgumentException si la edad esta fuera del rango
+    */
+    public void setEdad(int edad) {
+        if (!Utilidades.validarEdad(edad)) {
+            throw new IllegalArgumentException("La edad debe estar entre 18 y 70 años.");
+        }
+        this.edad = edad;
+    }
 
     @Override
     public String toString() {

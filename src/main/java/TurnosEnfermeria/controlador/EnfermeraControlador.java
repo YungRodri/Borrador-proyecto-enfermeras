@@ -42,16 +42,32 @@ public class EnfermeraControlador {
      * @return true si se encontro y edito, false si el RUT no existe
      */
     public static boolean editar(String rut, String nombre, String apellidoP,
-                                 String apellidoM, int edad,
-                                 String especialidad, String area) {
+                             String apellidoM, int edad,
+                             String especialidad, String area) {
         Enfermera e = obtener(rut);
-        if (e == null) return false;
-        if (nombre     != null && !nombre.isEmpty())     e.setNombre(nombre);
-        if (apellidoP  != null && !apellidoP.isEmpty())  e.setApellidoP(apellidoP);
-        if (apellidoM  != null && !apellidoM.isEmpty())  e.setApellidoM(apellidoM);
-        if (edad > 0)                                    e.setEdad(edad);
-        if (especialidad != null && !especialidad.isEmpty()) e.setEspecialidad(especialidad);
-        if (area != null && !area.isEmpty())             e.setAreaAsignada(area);
+            if (e == null) {
+                return false;
+            }
+
+        // Valida y asigna la edad antes de modificar los demas campos.
+        e.setEdad(edad);
+
+        if (nombre != null && !nombre.isEmpty()) {
+            e.setNombre(nombre);
+        }
+        if (apellidoP != null && !apellidoP.isEmpty()) {
+            e.setApellidoP(apellidoP);
+        }
+        if (apellidoM != null && !apellidoM.isEmpty()) {
+            e.setApellidoM(apellidoM);
+        }
+        if (especialidad != null && !especialidad.isEmpty()) {
+            e.setEspecialidad(especialidad);
+        }
+        if (area != null && !area.isEmpty()) {
+            e.setAreaAsignada(area);
+        }
+
         return true;
     }
 

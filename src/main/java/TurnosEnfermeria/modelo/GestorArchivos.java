@@ -76,7 +76,9 @@ public class GestorArchivos {
                 } catch (RutInvalidoException ex) {
                     System.err.println("[WARN] RUT invalido en CSV, linea ignorada: " + linea);
                 } catch (NumberFormatException ex) {
-                    System.err.println("[WARN] Edad invalida en CSV, linea ignorada: " + linea);
+                    System.err.println("[WARN] Edad no numerica en CSV, linea ignorada: " + linea);
+                } catch (IllegalArgumentException ex) {
+                    System.err.println("[WARN] " + ex.getMessage() + " Linea ignorada: " + linea);
                 }
             }
         } catch (Exception ex) {
