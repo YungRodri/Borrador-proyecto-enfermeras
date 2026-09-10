@@ -124,6 +124,7 @@ public class Main {
                 case 13: opcionResumenPorArea();      break;
                 // ── SISTEMA ───────────────────────────────────────────
                 case 14: opcionValidarCobertura(); break;
+                case 15: opcionEstadisticas(); break;
                 case 0:
                     if (GestorArchivos.guardarEnfermeras(registroGlobal)) {
                         System.out.println("\n  Hasta luego. Datos guardados correctamente.");
@@ -134,7 +135,7 @@ public class Main {
                     }
                     break;
                 default:
-                    System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 14.");
+                    System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 15.");
             }
 
             if (opcion != 0) pausar();
@@ -142,6 +143,58 @@ public class Main {
         } while (opcion != 0);
 
         sc.close();
+    }
+
+        /** Muestra las estadisticas generales y las horas por enfermera. */
+    private static void opcionEstadisticas() {
+        int regulares = 0;
+        int licencias = 0;
+        int cambios = 0;
+        int noches = 0;
+        double horas = 0;
+
+        System.out.println("\n  === ESTADISTICAS DEL SISTEMA ===");
+        System.out.println("\n  Horas trabajadas por enfermera:");
+        Utilidades.imprimirLinea();
+
+        for (Enfermera enfermera : EnfermeraControlador.listar()) {
+            regulares += enfermera.contarTurnosRegulares();
+            licencias += enfermera.contarLicencias();
+            cambios += enfermera.contarCambios();
+
+            double horasEnfermera = TurnoControlador.calcularHorasTrabajadas(enfermera);
+            horas += horasEnfermera;
+
+            System.out.printf("  %s [%s]: %.1f h%n", enfermera.getNombreCompleto(), enfermera.getRut(), horasEnfermera);
+
+            for (Turno turno : enfermera.getListaTurnos()) {
+                if (turno instanceof TurnoRegular) {
+                    TurnoRegular regular = (TurnoRegular) turno;
+                    if (Utilidades.TURNO_NOCHE.equals(
+                            regular.getTipoTurno())) {
+                        noches++;
+                    }
+                }
+            }
+        }
+
+        int totalEventos = regulares + licencias + cambios;
+
+        Utilidades.imprimirLinea();
+        System.out.println( "  Enfermeras registradas: " + EnfermeraControlador.totalRegistradas());
+        System.out.println("  Turnos regulares: " + regulares);
+        System.out.println("  Turnos noche: " + noches);
+        System.out.println("  Licencias: " + licencias);
+        System.out.println("  Cambios de turno: " + cambios);
+        System.out.println("  Total de eventos: " + totalEventos);
+        System.out.printf("  Horas trabajadas: %.1f h%n", horas);
+
+        if (totalEventos > 0) {
+            System.out.println("\n  Distribucion de eventos:");
+            System.out.printf("  Regulares: %.1f%%%n", 100.0 * regulares / totalEventos);
+            System.out.printf("  Licencias: %.1f%%%n",100.0 * licencias / totalEventos);
+            System.out.printf("  Cambios: %.1f%%%n", 100.0 * cambios / totalEventos);
+        }
     }
 
     // ===================================================================
@@ -156,7 +209,7 @@ public class Main {
         System.out.println("  -- ENFERMERAS (Coleccion 1) --");
         System.out.println("   1. Agregar Enfermera");
         System.out.println("   2. Listar Enfermeras");
-        System.out.println("   3. Buscar Enfermera por RUT");
+        System.out.println("   3. Buscar Enfermera por RUT o nombre");
         System.out.println("   4. Editar Enfermera");
         System.out.println("   5. Eliminar Enfermera");
         Utilidades.imprimirLinea();
@@ -172,6 +225,7 @@ public class Main {
         System.out.println("  12. Filtro: Enfermeras con exceso turnos Noche");
         System.out.println("  13. Resumen por Area Hospitalaria");
         System.out.println("  14. Validar disponibilidad para nueva asignacion");
+        System.out.println("  15. Estadisticas del sistema");
         Utilidades.imprimirLinea();
         System.out.println("   0. Guardar y Salir");
         Utilidades.imprimirSeparador();
