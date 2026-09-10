@@ -105,6 +105,53 @@ public static void registrar(Enfermera enfermera, Turno turno)
             throw new TurnoConflictoException("Revise la fecha y el horario del evento. " + ex.getMessage());
         }
     }
+    
+    /**
+    * Evalua si hay suficientes enfermeras disponibles en un area
+    * para una nueva asignacion. No modifica los registros.
+    *
+    * @param minimo cantidad de enfermeras necesarias
+    * @return true si hay suficientes personas disponibles
+    */
+    public static boolean validarFactibilidadCobertura(
+            String area, String fecha, String horaInicio,
+            String horaFin, int minimo)
+            throws TurnoConflictoException {
+
+        if (area == null || area.trim().isEmpty()) {
+            throw new TurnoConflictoException("Debe seleccionar un area.");
+        }
+
+        if (minimo <= 0) {
+            throw new TurnoConflictoException("La cantidad requerida debe ser mayor que cero.");
+        }
+
+    // Evento temporal para comparar horarios. No se registra.
+        TurnoRegular consulta = new TurnoRegular("CONSULTA", fecha, horaInicio, horaFin, "Consulta", "");
+
+        // Validamos los datos antes de evaluar a las enfermeras.
+        try {
+            Utilidades.hayConflictoTurnos(consulta, consulta);
+        } catch (java.time.DateTimeException ex) {
+            throw new TurnoConflictoException("Fecha u horario invalido. Use dd/MM/yyyy y HH:mm.");
+        }
+
+        Map<String, Enfermera> registro = Main.getRegistroGlobal();
+        int disponibles = 0;
+
+        for (Enfermera enfermera : registro.values()) {
+            if (area.trim().equalsIgnoreCase(enfermera.getAreaAsignada())) {
+                try {
+                    comprobarDisponibilidad(enfermera, consulta, registro);
+                    disponibles++;
+                } catch (TurnoConflictoException ex) {
+                    // Tiene un evento incompatible y no se cuenta.
+                }
+            }
+        }
+
+        return disponibles >= minimo;
+    }
 
     /**
      * Elimina un turno de una enfermera especifica por ID.

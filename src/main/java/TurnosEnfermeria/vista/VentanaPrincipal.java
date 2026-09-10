@@ -4,6 +4,8 @@ import TurnosEnfermeria.controlador.EnfermeraControlador;
 import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.Utilidades;
 import java.util.function.BooleanSupplier;
+import TurnosEnfermeria.controlador.TurnoControlador;
+import TurnosEnfermeria.modelo.TurnoConflictoException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -35,8 +37,8 @@ public class VentanaPrincipal extends JFrame {
         this.alCerrar = alCerrar;
         setTitle("Sistema de Gestión de Turnos de Enfermeras – Hospital Central");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setSize(780, 580);
-        setMinimumSize(new Dimension(680, 500));
+        setSize(900, 760);
+        setMinimumSize(new Dimension(780, 680));
         setLocationRelativeTo(null);
         getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
         setLayout(new BorderLayout(0, 0));
@@ -129,7 +131,7 @@ public class VentanaPrincipal extends JFrame {
         wrapper.setBackground(EstilosGUI.COLOR_FONDO);
         wrapper.setBorder(new EmptyBorder(24, 48, 24, 48));
 
-        JPanel grid = new JPanel(new GridLayout(2, 3, 18, 18));
+        JPanel grid = new JPanel(new GridLayout(0, 3, 18, 18));
         grid.setBackground(EstilosGUI.COLOR_FONDO);
 
         grid.add(crearTarjetaMenu("👩‍⚕️", "Gestión de\nEnfermeras",
@@ -360,6 +362,109 @@ public class VentanaPrincipal extends JFrame {
             sb.append("<br><i>Total: ").append(resultado.size()).append(" enfermera(s)</i></html>");
             JOptionPane.showMessageDialog(this, sb.toString(),
                 "Área: " + area + " (" + resultado.size() + ")", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    grid.add(crearTarjetaMenu(
+    "✓",
+    "Validar\nDisponibilidad",
+    "Comprobar personal libre para\nuna nueva asignación.",
+    EstilosGUI.COLOR_ACENTO,
+    e -> mostrarValidacionCobertura()));
+
+    /**
+ * Consulta disponibilidad sin registrar ni modificar turnos.
+ */
+    private void mostrarValidacionCobertura() {
+        JComboBox<String> comboArea =
+            EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
+
+        JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
+        JTextField campoInicio = EstilosGUI.crearCampoTexto(5);
+        JTextField campoFin = EstilosGUI.crearCampoTexto(5);
+        JTextField campoCantidad = EstilosGUI.crearCampoTexto(4);
+
+        campoInicio.setText("07:00");
+        campoFin.setText("15:00");
+        campoCantidad.setText("1");
+
+        JPanel formulario = new JPanel(new GridLayout(5, 2, 8, 8));
+        formulario.setBackground(EstilosGUI.COLOR_PANEL);
+
+        formulario.add(EstilosGUI.crearLabel("Área:"));
+        formulario.add(comboArea);
+        formulario.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"));
+        formulario.add(campoFecha);
+        formulario.add(EstilosGUI.crearLabel("Inicio (HH:mm):"));
+        formulario.add(campoInicio);
+        formulario.add(EstilosGUI.crearLabel("Fin (HH:mm):"));
+        formulario.add(campoFin);
+        formulario.add(EstilosGUI.crearLabel("Enfermeras necesarias:"));
+        formulario.add(campoCantidad);
+
+        JPanel contenido = new JPanel(new BorderLayout(0, 10));
+        contenido.setBackground(EstilosGUI.COLOR_PANEL);
+        contenido.add(formulario, BorderLayout.CENTER);
+        contenido.add(
+            EstilosGUI.crearLabel(
+                "<html>Si el fin es anterior al inicio, "
+                + "el turno termina al día siguiente.</html>"
+            ),
+            BorderLayout.SOUTH
+        );
+
+        int respuesta = JOptionPane.showConfirmDialog(
+            this,
+            contenido,
+            "Disponibilidad para nueva asignación",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        try {
+            int cantidad = Integer.parseInt(campoCantidad.getText().trim());
+
+            boolean factible = TurnoControlador.validarFactibilidadCobertura(
+                (String) comboArea.getSelectedItem(),
+                campoFecha.getText().trim(),
+                campoInicio.getText().trim(),
+                campoFin.getText().trim(),
+                cantidad
+            );
+
+            String mensaje;
+
+            if (factible) {
+                mensaje = "Hay suficientes enfermeras disponibles en el área.";
+            } else {
+                mensaje = "No hay suficientes enfermeras disponibles en el área.";
+            }
+
+            JOptionPane.showMessageDialog(
+                this,
+                mensaje + "\nNo se asignaron turnos.",
+                "Resultado de disponibilidad",
+                factible
+                    ? JOptionPane.INFORMATION_MESSAGE
+                    : JOptionPane.WARNING_MESSAGE
+            );
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                "La cantidad debe ser un número entero.",
+                "Datos inválidos",
+                JOptionPane.ERROR_MESSAGE
+            );
+        } catch (TurnoConflictoException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                ex.getMessage(),
+                "Datos inválidos",
+                JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 

@@ -122,6 +122,7 @@ public class Main {
                 case 12: opcionFiltroExcesoNoche();   break; // SIA-9
                 case 13: opcionResumenPorArea();      break;
                 // ── SISTEMA ───────────────────────────────────────────
+                case 14: opcionValidarCobertura(); break;
                 case 0:
                     if (GestorArchivos.guardarEnfermeras(registroGlobal)) {
                         System.out.println("\n  Hasta luego. Datos guardados correctamente.");
@@ -132,7 +133,7 @@ public class Main {
                     }
                     break;
                 default:
-                    System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 13.");
+                    System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 14.");
             }
 
             if (opcion != 0) pausar();
@@ -169,6 +170,7 @@ public class Main {
         System.out.println("  11. Asignacion Grupal de Turnos por Area");
         System.out.println("  12. Filtro: Enfermeras con exceso turnos Noche");
         System.out.println("  13. Resumen por Area Hospitalaria");
+        System.out.println("  14. Validar disponibilidad para nueva asignacion");
         Utilidades.imprimirLinea();
         System.out.println("   0. Guardar y Salir");
         Utilidades.imprimirSeparador();
@@ -677,5 +679,53 @@ public class Main {
     private static void pausar() {
         System.out.print("\n  Presione ENTER para continuar...");
         sc.nextLine();
+    }
+
+    /**
+    * Comprueba si hay personal disponible para una nueva asignacion.
+    * No registra ni modifica turnos.
+    */
+    private static void opcionValidarCobertura() {
+        System.out.println("\n  === DISPONIBILIDAD PARA NUEVA ASIGNACION ===");
+
+        System.out.println("  Seleccione el area:");
+        int indice = Utilidades.seleccionarOpcion(
+            sc, Utilidades.AREAS_HOSPITALARIAS
+        );
+
+        if (indice < 1) {
+            System.out.println("  [!] Area invalida.");
+            return;
+        }
+
+        String area = Utilidades.AREAS_HOSPITALARIAS[indice - 1];
+
+        System.out.print("  Fecha (dd/MM/yyyy): ");
+        String fecha = sc.nextLine().trim();
+
+        System.out.print("  Hora de inicio (HH:mm): ");
+        String horaInicio = sc.nextLine().trim();
+
+        System.out.print("  Hora de fin (HH:mm): ");
+        String horaFin = sc.nextLine().trim();
+
+        System.out.println("  Si la hora de fin es anterior al inicio, termina al dia siguiente.");
+
+        System.out.print("  Cantidad de enfermeras necesarias: ");
+        int minimo = Utilidades.leerEntero(sc);
+
+        try {
+            boolean factible = TurnoControlador.validarFactibilidadCobertura(area, fecha, horaInicio, horaFin, minimo);
+
+            if (factible) {
+                System.out.println("  [OK] Hay suficientes enfermeras disponibles en el area.");
+            } else {
+                System.out.println("  [!] No hay suficientes enfermeras disponibles en el area.");
+            }
+
+            System.out.println("  Solo se verifico disponibilidad. No se asignaron turnos.");
+        } catch (TurnoConflictoException ex) {
+            System.out.println("  [!] " + ex.getMessage());
+        }
     }
 }
