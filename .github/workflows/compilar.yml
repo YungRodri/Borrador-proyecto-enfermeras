@@ -35,3 +35,11 @@ jobs:
           carpeta_prueba=$(mktemp -d)
           cd "$carpeta_prueba"
           java -cp "$GITHUB_WORKSPACE/build" PruebaLicencia
+
+      - name: Compilar la prueba de edad
+        run: |
+          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaEdad.java
+
+      - name: Probar validacion de edad
+        run: |
+          java -cp build PruebaEdad
