@@ -160,18 +160,15 @@ public class Utilidades {
     }
 
     /**
-     * Valida que la edad sea razonable para una enfermera (18-70).
+      Valida que la edad sea razonable para una enfermera (18-70).
      */
     public static boolean validarEdad(int edad) {
         return edad >= 18 && edad <= 70;
     }
 
-    /**
-     * Genera un ID unico para un turno basado en timestamp y un sufijo aleatorio.
-     */
+    /* Genera un identificador de turno usando UUID del JDK.*/
     public static String generarIdTurno() {
-        return "T" + (System.currentTimeMillis() % 1000000L)
-               + (int)(Math.random() * 100);
+        return "T" + java.util.UUID.randomUUID().toString();
     }
 
     /**
