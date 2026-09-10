@@ -66,8 +66,8 @@ public final class EstilosGUI {
         UIManager.put("Panel.background", COLOR_FONDO);
         UIManager.put("OptionPane.background", COLOR_PANEL);
         UIManager.put("OptionPane.messageForeground", COLOR_TEXTO);
-        UIManager.put("Button.background", COLOR_ACENTO);
-        UIManager.put("Button.foreground", COLOR_FONDO);
+        UIManager.put("Button.background", Color.WHITE);
+        UIManager.put("Button.foreground", Color.BLACK);
         UIManager.put("TextField.background", COLOR_TARJETA);
         UIManager.put("TextField.foreground", COLOR_TEXTO);
         UIManager.put("TextField.caretForeground", COLOR_ACENTO);
