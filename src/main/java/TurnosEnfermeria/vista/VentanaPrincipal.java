@@ -41,7 +41,7 @@ public class VentanaPrincipal extends JFrame {
         setSize(680, 480);
         setMinimumSize(new Dimension(620, 440));
         setLocationRelativeTo(null);
-        getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
+        getContentPane().setBackground(EstilosGUI.getColorFondo());
         setLayout(new BorderLayout(0, 0));
 
         // Interceptar el cierre para guardar datos
@@ -297,7 +297,7 @@ public class VentanaPrincipal extends JFrame {
         campoCantidad.setText("1");
 
         JPanel formulario = new JPanel(new GridLayout(5, 2, 8, 8));
-        formulario.setBackground(EstilosGUI.COLOR_PANEL);
+        formulario.setBackground(EstilosGUI.getColorPanel());
 
         formulario.add(EstilosGUI.crearLabel("Área:"));
         formulario.add(comboArea);
@@ -311,7 +311,7 @@ public class VentanaPrincipal extends JFrame {
         formulario.add(campoCantidad);
 
         JPanel contenido = new JPanel(new BorderLayout(0, 10));
-        contenido.setBackground(EstilosGUI.COLOR_PANEL);
+        contenido.setBackground(EstilosGUI.getColorPanel());
         contenido.add(formulario, BorderLayout.CENTER);
         contenido.add(
             EstilosGUI.crearLabel(

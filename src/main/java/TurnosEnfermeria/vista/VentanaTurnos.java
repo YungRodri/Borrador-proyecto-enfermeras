@@ -39,7 +39,7 @@ public class VentanaTurnos extends JFrame {
         setSize(860, 540);
         setMinimumSize(new Dimension(700, 420));
         setLocationRelativeTo(ventanaPadre);
-        getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
+        getContentPane().setBackground(EstilosGUI.getColorFondo());
         setLayout(new BorderLayout(0, 0));
 
         // Refrescar la ventana de enfermeras al cerrar esta
@@ -90,7 +90,7 @@ public class VentanaTurnos extends JFrame {
     /** Panel central con la tabla de turnos. */
     private JPanel crearPanelTabla() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(EstilosGUI.COLOR_FONDO);
+        panel.setBackground(EstilosGUI.getColorFondo());
         panel.setBorder(new EmptyBorder(12, 16, 0, 16));
 
         modeloTabla = new DefaultTableModel(COLUMNAS, 0) {
@@ -187,11 +187,11 @@ public class VentanaTurnos extends JFrame {
         JDialog d = new JDialog(this, "Agregar Turno Regular", true);
         d.setSize(420, 280);
         d.setLocationRelativeTo(this);
-        d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
 
         JPanel campos = new JPanel(new GridBagLayout());
-        campos.setBackground(EstilosGUI.COLOR_PANEL);
+        campos.setBackground(EstilosGUI.getColorPanel());
         campos.setBorder(new EmptyBorder(18, 24, 10, 24));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -210,7 +210,7 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(campoObs, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btns.setBackground(EstilosGUI.COLOR_PANEL);
+        btns.setBackground(EstilosGUI.getColorPanel());
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario("Agregar");
         btnCancelar.addActionListener(e -> d.dispose());
@@ -245,11 +245,11 @@ public class VentanaTurnos extends JFrame {
         JDialog d = new JDialog(this, "Agregar Licencia", true);
         d.setSize(420, 260);
         d.setLocationRelativeTo(this);
-        d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
 
         JPanel campos = new JPanel(new GridBagLayout());
-        campos.setBackground(EstilosGUI.COLOR_PANEL);
+        campos.setBackground(EstilosGUI.getColorPanel());
         campos.setBorder(new EmptyBorder(18, 24, 10, 24));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -267,7 +267,7 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(campoMotivo, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btns.setBackground(EstilosGUI.COLOR_PANEL);
+        btns.setBackground(EstilosGUI.getColorPanel());
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario("Agregar");
         btnCancelar.addActionListener(e -> d.dispose());
@@ -304,11 +304,11 @@ public class VentanaTurnos extends JFrame {
         JDialog d = new JDialog(this, "Agregar Cambio de Turno", true);
         d.setSize(440, 320);
         d.setLocationRelativeTo(this);
-        d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
 
         JPanel campos = new JPanel(new GridBagLayout());
-        campos.setBackground(EstilosGUI.COLOR_PANEL);
+        campos.setBackground(EstilosGUI.getColorPanel());
         campos.setBorder(new EmptyBorder(18, 24, 10, 24));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -336,7 +336,7 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(campoMotivo, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btns.setBackground(EstilosGUI.COLOR_PANEL);
+        btns.setBackground(EstilosGUI.getColorPanel());
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario("Agregar");
         btnCancelar.addActionListener(e -> d.dispose());

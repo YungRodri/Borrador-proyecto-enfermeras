@@ -19,22 +19,57 @@ public final class EstilosGUI {
     //  PALETA DE COLORES DEL SISTEMA
     // =====================================================================
 
-    public static final Color COLOR_FONDO       = Color.WHITE;
-    public static final Color COLOR_PANEL       = Color.WHITE;
-    public static final Color COLOR_TARJETA     = Color.WHITE;
+    public static Color getColorFondo() {
+        return Color.WHITE;
+    }
 
-    public static final Color COLOR_ACENTO      = Color.BLACK;
-    public static final Color COLOR_ACENTO2     = Color.BLACK;
-    public static final Color COLOR_TEXTO       = Color.BLACK;
-    public static final Color COLOR_TEXTO_SEC   = Color.BLACK;
+    public static Color getColorPanel() {
+        return Color.WHITE;
+    }
 
-    public static final Color COLOR_EXITO       = Color.BLACK;
-    public static final Color COLOR_ERROR       = Color.BLACK;
-    public static final Color COLOR_ADVERTENCIA = Color.BLACK;
-    public static final Color COLOR_BORDE       = Color.BLACK;
+    public static Color getColorTarjeta() {
+        return Color.WHITE;
+    }
 
-    public static final Color COLOR_FILA_ALT    = Color.WHITE;
-    public static final Color COLOR_SELECCION   = Color.BLACK;
+    public static Color getColorAcento() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorAcento2() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorTexto() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorTextoSecundario() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorExito() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorError() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorAdvertencia() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorBorde() {
+        return Color.BLACK;
+    }
+
+    public static Color getColorFilaAlternada() {
+        return Color.WHITE;
+    }
+
+    public static Color getColorSeleccion() {
+        return Color.BLACK;
+    }
 
     // =====================================================================
     //  FUENTES
@@ -63,16 +98,16 @@ public final class EstilosGUI {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}
         // Personalizar componentes globales de Swing
-        UIManager.put("Panel.background", COLOR_FONDO);
-        UIManager.put("OptionPane.background", COLOR_PANEL);
-        UIManager.put("OptionPane.messageForeground", COLOR_TEXTO);
+        UIManager.put("Panel.background", getColorFondo());
+        UIManager.put("OptionPane.background", getColorPanel());
+        UIManager.put("OptionPane.messageForeground", getColorTexto());
         UIManager.put("Button.background", Color.WHITE);
         UIManager.put("Button.foreground", Color.BLACK);
-        UIManager.put("TextField.background", COLOR_TARJETA);
-        UIManager.put("TextField.foreground", COLOR_TEXTO);
-        UIManager.put("TextField.caretForeground", COLOR_ACENTO);
-        UIManager.put("ComboBox.background", COLOR_TARJETA);
-        UIManager.put("ComboBox.foreground", COLOR_TEXTO);
+        UIManager.put("TextField.background", getColorTarjeta());
+        UIManager.put("TextField.foreground", getColorTexto());
+        UIManager.put("TextField.caretForeground", getColorAcento);
+        UIManager.put("ComboBox.background", getColorTarjeta());
+        UIManager.put("ComboBox.foreground", getColorTexto());
     }
 
     /**
@@ -81,8 +116,8 @@ public final class EstilosGUI {
     public static JButton crearBotonPrimario(String texto) {
         JButton btn = new JButton(texto);
         btn.setFont(FUENTE_BOTON);
-        btn.setBackground(COLOR_ACENTO);
-        btn.setForeground(COLOR_FONDO);
+        btn.setBackground(getColorAcento);
+        btn.setForeground(getColorFondo());
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -97,13 +132,13 @@ public final class EstilosGUI {
     public static JButton crearBotonSecundario(String texto) {
         JButton btn = new JButton(texto);
         btn.setFont(FUENTE_BOTON);
-        btn.setBackground(COLOR_TARJETA);
-        btn.setForeground(COLOR_ACENTO);
+        btn.setBackground(getColorTarjeta());
+        btn.setForeground(getColorAcento);
         btn.setFocusPainted(false);
-        btn.setBorder(new LineBorder(COLOR_ACENTO, 1));
+        btn.setBorder(new LineBorder(getColorAcento, 1));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(COLOR_ACENTO, 1),
+            new LineBorder(getColorAcento, 1),
             new EmptyBorder(7, 16, 7, 16)
         ));
         btn.setOpaque(true);
@@ -116,7 +151,7 @@ public final class EstilosGUI {
     public static JButton crearBotonPeligro(String texto) {
         JButton btn = new JButton(texto);
         btn.setFont(FUENTE_BOTON);
-        btn.setBackground(COLOR_ERROR);
+        btn.setBackground(getColorError());
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
@@ -132,11 +167,11 @@ public final class EstilosGUI {
     public static JTextField crearCampoTexto(int columnas) {
         JTextField campo = new JTextField(columnas);
         campo.setFont(FUENTE_NORMAL);
-        campo.setBackground(COLOR_TARJETA);
-        campo.setForeground(COLOR_TEXTO);
-        campo.setCaretColor(COLOR_ACENTO);
+        campo.setBackground(getColorTarjeta());
+        campo.setForeground(getColorTexto());
+        campo.setCaretColor(getColorAcento);
         campo.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(COLOR_BORDE, 1),
+            new LineBorder(getColorBorde(), 1),
             new EmptyBorder(6, 10, 6, 10)
         ));
         campo.setOpaque(true);
@@ -149,9 +184,9 @@ public final class EstilosGUI {
     public static JComboBox<String> crearComboBox(String[] opciones) {
         JComboBox<String> combo = new JComboBox<>(opciones);
         combo.setFont(FUENTE_NORMAL);
-        combo.setBackground(COLOR_TARJETA);
-        combo.setForeground(COLOR_TEXTO);
-        combo.setBorder(new LineBorder(COLOR_BORDE, 1));
+        combo.setBackground(getColorTarjeta());
+        combo.setForeground(getColorTexto());
+        combo.setBorder(new LineBorder(getColorBorde(), 1));
         return combo;
     }
 
@@ -161,7 +196,7 @@ public final class EstilosGUI {
     public static JLabel crearLabelTitulo(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(FUENTE_TITULO);
-        lbl.setForeground(COLOR_ACENTO);
+        lbl.setForeground(getColorAcento);
         lbl.setBorder(new EmptyBorder(0, 0, 4, 0));
         return lbl;
     }
@@ -172,7 +207,7 @@ public final class EstilosGUI {
     public static JLabel crearLabel(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(FUENTE_NORMAL);
-        lbl.setForeground(COLOR_TEXTO_SEC);
+        lbl.setForeground(getColorTexto()_SEC);
         return lbl;
     }
 
@@ -181,11 +216,11 @@ public final class EstilosGUI {
      */
     public static void estilizarTabla(JTable tabla) {
         tabla.setFont(FUENTE_TABLA);
-        tabla.setForeground(COLOR_TEXTO);
-        tabla.setBackground(COLOR_PANEL);
-        tabla.setSelectionBackground(COLOR_SELECCION);
+        tabla.setForeground(getColorTexto());
+        tabla.setBackground(getColorPanel());
+        tabla.setSelectionBackground(getColorSeleccion());
         tabla.setSelectionForeground(Color.WHITE);
-        tabla.setGridColor(COLOR_BORDE);
+        tabla.setGridColor(getColorBorde());
         tabla.setRowHeight(28);
         tabla.setShowHorizontalLines(true);
         tabla.setShowVerticalLines(false);
@@ -195,9 +230,9 @@ public final class EstilosGUI {
         // Estilizar encabezado
         JTableHeader header = tabla.getTableHeader();
         header.setFont(FUENTE_ENCABEZADO);
-        header.setBackground(COLOR_TARJETA);
-        header.setForeground(COLOR_ACENTO);
-        header.setBorder(new LineBorder(COLOR_BORDE, 1));
+        header.setBackground(getColorTarjeta());
+        header.setForeground(getColorAcento);
+        header.setBorder(new LineBorder(COLOR_getColorBorde(), 1));
         header.setReorderingAllowed(false);
 
         // Renderer con filas alternadas
@@ -209,11 +244,11 @@ public final class EstilosGUI {
                 setFont(FUENTE_TABLA);
                 setBorder(new EmptyBorder(0, 8, 0, 8));
                 if (sel) {
-                    setBackground(COLOR_SELECCION);
+                    setBackground(getColorSeleccion());
                     setForeground(Color.WHITE);
                 } else {
-                    setBackground(row % 2 == 0 ? COLOR_PANEL : COLOR_FILA_ALT);
-                    setForeground(COLOR_TEXTO);
+                    setBackground(row % 2 == 0 ? getColorPanel() : getColorFilaAlternada());
+                    setForeground(getColorTexto());
                 }
                 setOpaque(true);
                 return this;
@@ -226,9 +261,9 @@ public final class EstilosGUI {
      */
     public static JPanel crearPanelTarjeta() {
         JPanel panel = new JPanel();
-        panel.setBackground(COLOR_TARJETA);
+        panel.setBackground(getColorTarjeta());
         panel.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(COLOR_BORDE, 1),
+            new LineBorder(getColorBorde(), 1),
             new EmptyBorder(16, 20, 16, 20)
         ));
         return panel;
@@ -239,10 +274,10 @@ public final class EstilosGUI {
      */
     public static JScrollPane crearScrollPane(Component comp) {
         JScrollPane scroll = new JScrollPane(comp);
-        scroll.setBackground(COLOR_PANEL);
-        scroll.getViewport().setBackground(COLOR_PANEL);
-        scroll.setBorder(new LineBorder(COLOR_BORDE, 1));
-        scroll.getVerticalScrollBar().setBackground(COLOR_PANEL);
+        scroll.setBackground(getColorPanel());
+        scroll.getViewport().setBackground(getColorPanel());
+        scroll.setBorder(new LineBorder(getColorBorde(), 1));
+        scroll.getVerticalScrollBar().setBackground(getColorPanel());
         return scroll;
     }
 
@@ -251,11 +286,11 @@ public final class EstilosGUI {
      */
     public static Border crearBordeTitulo(String titulo) {
         return BorderFactory.createTitledBorder(
-            new LineBorder(COLOR_BORDE, 1),
+            new LineBorder(getColorBorde(), 1),
             titulo,
             0, 0,
             FUENTE_SUBTITULO,
-            COLOR_ACENTO
+            getColorAcento
         );
     }
 }

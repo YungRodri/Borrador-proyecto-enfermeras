@@ -36,7 +36,7 @@ public class VentanaEnfermeras extends JFrame {
         setSize(900, 600);
         setMinimumSize(new Dimension(750, 480));
         setLocationRelativeTo(null);
-        getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
+        getContentPane().setBackground(EstilosGUI.getColorFondo());
         setLayout(new BorderLayout(0, 0));
 
         construirUI();
@@ -95,7 +95,7 @@ public class VentanaEnfermeras extends JFrame {
     /** Panel central con la tabla de enfermeras. */
     private JPanel crearPanelTabla() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(EstilosGUI.COLOR_FONDO);
+        panel.setBackground(EstilosGUI.getColorFondo());
         panel.setBorder(new EmptyBorder(12, 16, 0, 16));
 
         modeloTabla = new DefaultTableModel(COLUMNAS, 0) {
@@ -125,7 +125,7 @@ public class VentanaEnfermeras extends JFrame {
         // Etiqueta de ayuda
         JLabel ayuda = new JLabel("Doble clic en una fila para consultar los turnos.");
         ayuda.setFont(EstilosGUI.FUENTE_PEQUENA);
-        ayuda.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
+        ayuda.setForeground(EstilosGUI.getColorTexto()_SEC);
         ayuda.setBorder(new EmptyBorder(6, 0, 0, 0));
         panel.add(ayuda, BorderLayout.SOUTH);
 
@@ -298,13 +298,13 @@ public class VentanaEnfermeras extends JFrame {
         JDialog dialogo = new JDialog(this, titulo, true);
         dialogo.setSize(480, 460);
         dialogo.setLocationRelativeTo(this);
-        dialogo.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        dialogo.getContentPane().setBackground(EstilosGUI.getColorPanel());
         dialogo.setLayout(new BorderLayout());
         dialogo.setResizable(false);
 
         // ------ Panel de campos ------
         JPanel panelCampos = new JPanel(new GridBagLayout());
-        panelCampos.setBackground(EstilosGUI.COLOR_PANEL);
+        panelCampos.setBackground(EstilosGUI.getColorPanel());
         panelCampos.setBorder(new EmptyBorder(20, 28, 10, 28));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -325,7 +325,7 @@ public class VentanaEnfermeras extends JFrame {
         if (esEdicion) {
             campoRut.setText(enfermeraExistente.getRut());
             campoRut.setEditable(false);
-            campoRut.setBackground(EstilosGUI.COLOR_FONDO);
+            campoRut.setBackground(EstilosGUI.getColorFondo());
             campoNombre.setText(enfermeraExistente.getNombre());
             campoApellidoP.setText(enfermeraExistente.getApellidoP());
             campoApellidoM.setText(enfermeraExistente.getApellidoM());
@@ -345,7 +345,7 @@ public class VentanaEnfermeras extends JFrame {
 
         // ------ Panel de botones ------
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 14));
-        panelBotones.setBackground(EstilosGUI.COLOR_PANEL);
+        panelBotones.setBackground(EstilosGUI.getColorPanel());
 
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario(esEdicion ? "Guardar Cambios" : "Agregar");

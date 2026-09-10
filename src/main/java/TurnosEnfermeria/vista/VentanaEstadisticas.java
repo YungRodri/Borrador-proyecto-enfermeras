@@ -34,7 +34,7 @@ public class VentanaEstadisticas extends JFrame {
         setSize(1000, 680);
         setMinimumSize(new Dimension(800, 560));
         setLocationRelativeTo(null);
-        getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
+        getContentPane().setBackground(EstilosGUI.getColorFondo());
         setLayout(new BorderLayout(0, 0));
 
         construirUI();
@@ -49,7 +49,7 @@ public class VentanaEstadisticas extends JFrame {
 
         // Panel central con graficos lado a lado
         JPanel panelGraficos = new JPanel(new GridLayout(1, 2, 16, 0));
-        panelGraficos.setBackground(EstilosGUI.COLOR_FONDO);
+        panelGraficos.setBackground(EstilosGUI.getColorFondo());
         panelGraficos.setBorder(new EmptyBorder(12, 16, 12, 16));
         panelGraficos.add(new PanelGraficoBarras());
         panelGraficos.add(new PanelGraficoTorta());
@@ -62,7 +62,7 @@ public class VentanaEstadisticas extends JFrame {
     /** Panel de encabezado de la ventana. */
     private JPanel crearPanelEncabezado() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
+        panel.setBackground(EstilosGUI.getColorPanel());
         panel.setBorder(new EmptyBorder(16, 24, 16, 24));
 
         JLabel titulo = EstilosGUI.crearLabelTitulo("📊  Estadísticas del Sistema");
@@ -101,27 +101,27 @@ public class VentanaEstadisticas extends JFrame {
             for (Turno t : e.getListaTurnos()) {
                 if (t instanceof TurnoRegular) {
                     TurnoRegular tr = (TurnoRegular) t;
-                    if (Utilidades.getTurnoNoche().equals(tr.getTipoTurno())) turnosNoche++;
+                    if (Utilidades.TURNO_NOCHE.equals(tr.getTipoTurno())) turnosNoche++;
                 }
             }
         }
 
         JPanel panel = new JPanel(new GridLayout(1, 5, 10, 0));
-        panel.setBackground(EstilosGUI.COLOR_FONDO);
+        panel.setBackground(EstilosGUI.getColorFondo());
         panel.setBorder(new EmptyBorder(0, 16, 16, 16));
 
-        panel.add(crearKPI("👩‍⚕️  Enfermeras", String.valueOf(todas.size()), EstilosGUI.COLOR_ACENTO));
-        panel.add(crearKPI("📋  Turnos Regulares", String.valueOf(totalTurnos), EstilosGUI.COLOR_EXITO));
-        panel.add(crearKPI("🌙  Turnos Noche", String.valueOf(turnosNoche), EstilosGUI.COLOR_ACENTO2));
-        panel.add(crearKPI("📄  Licencias",String.valueOf(totalLicencias), EstilosGUI.COLOR_ADVERTENCIA));
-        panel.add(crearKPI("⏱  Total Horas", String.format("%.1f h", totalHoras), EstilosGUI.COLOR_ERROR));
+        panel.add(crearKPI("👩‍⚕️  Enfermeras", String.valueOf(todas.size()), EstilosGUI.getColorAcento()));
+        panel.add(crearKPI("📋  Turnos Regulares", String.valueOf(totalTurnos), EstilosGUI.getColorExito()));
+        panel.add(crearKPI("🌙  Turnos Noche", String.valueOf(turnosNoche), EstilosGUI.getColorAcento2()));
+        panel.add(crearKPI("📄  Licencias",String.valueOf(totalLicencias), EstilosGUI.getColorAdvertencia()));
+        panel.add(crearKPI("⏱  Total Horas", String.format("%.1f h", totalHoras), EstilosGUI.getColorError()));
         return panel;
     }
 
     /** Crea una tarjeta de KPI con icono, valor y etiqueta. */
     private JPanel crearKPI(String etiqueta, String valor, Color color) {
         JPanel kpi = new JPanel(new BorderLayout(4, 4));
-        kpi.setBackground(EstilosGUI.COLOR_TARJETA);
+        kpi.setBackground(EstilosGUI.getColorTarjeta());
         kpi.setBorder(BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(color, 1), new EmptyBorder(10, 16, 10, 16)));
 
         JLabel lblValor = new JLabel(valor, SwingConstants.CENTER);
@@ -130,7 +130,7 @@ public class VentanaEstadisticas extends JFrame {
 
         JLabel lblEtiqueta = new JLabel("<html><center>" + etiqueta + "</center></html>", SwingConstants.CENTER);
         lblEtiqueta.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblEtiqueta.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
+        lblEtiqueta.setForeground(EstilosGUI.getColorTextoSecundario());
 
         kpi.add(lblValor,    BorderLayout.CENTER);
         kpi.add(lblEtiqueta, BorderLayout.SOUTH);
@@ -149,9 +149,9 @@ public class VentanaEstadisticas extends JFrame {
     private static class PanelGraficoBarras extends JPanel {
 
         public PanelGraficoBarras() {
-            setBackground(EstilosGUI.COLOR_TARJETA);
+            setBackground(EstilosGUI.getColorTarjeta());
             setBorder(BorderFactory.createCompoundBorder(
-                new javax.swing.border.LineBorder(EstilosGUI.COLOR_BORDE, 1),
+                new javax.swing.border.LineBorder(EstilosGUI.getColorBorde(), 1),
                 new EmptyBorder(16, 16, 16, 16)
             ));
         }
@@ -176,12 +176,12 @@ public class VentanaEstadisticas extends JFrame {
 
             // --- Titulo ---
             g2.setFont(EstilosGUI.FUENTE_SUBTITULO);
-            g2.setColor(EstilosGUI.COLOR_ACENTO);
+            g2.setColor(EstilosGUI.getColorAcento());
             g2.drawString("Horas Trabajadas por Enfermera", margenIzq, 28);
 
             if (todas.isEmpty()) {
                 g2.setFont(EstilosGUI.FUENTE_NORMAL);
-                g2.setColor(EstilosGUI.COLOR_TEXTO_SEC);
+                g2.setColor(EstilosGUI.getColorTextoSecundario());
                 g2.drawString("Sin datos para mostrar", w / 2 - 70, h / 2);
                 return;
             }
@@ -199,15 +199,15 @@ public class VentanaEstadisticas extends JFrame {
             for (int i = 0; i <= guias; i++) {
                 double valorGuia = (maxHoras / guias) * i;
                 int y = margenSup + altoGraf - (int)(altoGraf * i / guias);
-                g2.setColor(EstilosGUI.COLOR_BORDE);
+                g2.setColor(EstilosGUI.getColorBorde());
                 g2.drawLine(margenIzq, y, margenIzq + anchoGraf, y);
-                g2.setColor(EstilosGUI.COLOR_TEXTO_SEC);
+                g2.setColor(EstilosGUI.getColorTextoSecundario());
                 g2.drawString(String.format("%.0f", valorGuia), 2, y + 4);
             }
             g2.setStroke(new BasicStroke(1f));
 
             // Dibujar eje Y
-            g2.setColor(EstilosGUI.COLOR_BORDE);
+            g2.setColor(EstilosGUI.getColorBorde());
             g2.drawLine(margenIzq, margenSup, margenIzq, margenSup + altoGraf);
             g2.drawLine(margenIzq, margenSup + altoGraf, margenIzq + anchoGraf, margenSup + altoGraf);
 
@@ -238,7 +238,7 @@ public class VentanaEstadisticas extends JFrame {
 
                 // Nombre debajo del eje (apellido para ahorrar espacio)
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 9));
-                g2.setColor(EstilosGUI.COLOR_TEXTO_SEC);
+                g2.setColor(EstilosGUI.getColorTextoSecundario());
                 String nombreCorto = e.getApellidoP().length() > 8 ? e.getApellidoP().substring(0, 7) + "." : e.getApellidoP();
                 int xNom = x + (anchoBarra - fm.stringWidth(nombreCorto)) / 2;
 
@@ -264,8 +264,8 @@ public class VentanaEstadisticas extends JFrame {
     private static class PanelGraficoTorta extends JPanel {
 
         public PanelGraficoTorta() {
-            setBackground(EstilosGUI.COLOR_TARJETA);
-            setBorder(BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(EstilosGUI.COLOR_BORDE, 1),new EmptyBorder(16, 16, 16, 16)));
+            setBackground(EstilosGUI.getColorTarjeta());
+            setBorder(BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(EstilosGUI.getColorBorde(), 1),new EmptyBorder(16, 16, 16, 16)));
         }
 
         @Override
@@ -280,7 +280,7 @@ public class VentanaEstadisticas extends JFrame {
 
             // --- Titulo ---
             g2.setFont(EstilosGUI.FUENTE_SUBTITULO);
-            g2.setColor(EstilosGUI.COLOR_ACENTO);
+            g2.setColor(EstilosGUI.getColorAcento());
             g2.drawString("Distribución de Tipos de Evento", 16, 28);
 
             // Recopilar datos de TODAS las enfermeras
@@ -295,7 +295,7 @@ public class VentanaEstadisticas extends JFrame {
 
             if (total == 0) {
                 g2.setFont(EstilosGUI.FUENTE_NORMAL);
-                g2.setColor(EstilosGUI.COLOR_TEXTO_SEC);
+                g2.setColor(EstilosGUI.getColorTextoSecundario());
                 g2.drawString("Sin datos para mostrar", w / 2 - 70, h / 2);
                 return;
             }
@@ -328,7 +328,7 @@ public class VentanaEstadisticas extends JFrame {
                 g2.fill(new Arc2D.Double(xCentro, yCentro, diametro, diametro, angulo, porcion, Arc2D.PIE));
 
                 // Borde de separacion
-                g2.setColor(EstilosGUI.COLOR_TARJETA);
+                g2.setColor(EstilosGUI.getColorTarjeta());
                 g2.setStroke(new BasicStroke(2f));
                 g2.draw(new Arc2D.Double(xCentro, yCentro, diametro, diametro, angulo, porcion, Arc2D.PIE));
                 g2.setStroke(new BasicStroke(1f));
@@ -338,18 +338,18 @@ public class VentanaEstadisticas extends JFrame {
             }
 
             // Circulo interior para efecto "donut" moderno
-            g2.setColor(EstilosGUI.COLOR_TARJETA);
+            g2.setColor(EstilosGUI.getColorTarjeta());
             int innerD = (int)(diametro * 0.45);
             g2.fillOval(xCentro + (diametro - innerD) / 2, yCentro + (diametro - innerD) / 2, innerD, innerD);
 
             // Texto central
             g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            g2.setColor(EstilosGUI.COLOR_TEXTO);
+            g2.setColor(EstilosGUI.getColorTexto());
             String textoTotal = String.valueOf(total);
             FontMetrics fm = g2.getFontMetrics();
             g2.drawString(textoTotal, xCentro + diametro / 2 - fm.stringWidth(textoTotal) / 2, yCentro + diametro / 2 + 5);
             g2.setFont(EstilosGUI.FUENTE_PEQUENA);
-            g2.setColor(EstilosGUI.COLOR_TEXTO_SEC);
+            g2.setColor(EstilosGUI.getColorTextoSecundario());
             g2.drawString("eventos", xCentro + diametro / 2 - g2.getFontMetrics().stringWidth("eventos") / 2, yCentro + diametro / 2 + 18);
 
             // Leyenda
@@ -366,7 +366,7 @@ public class VentanaEstadisticas extends JFrame {
                 g2.fillRoundRect(xLeyenda, yLeyenda + idx * 24 - 10, 12, 12, 3, 3);
 
                 // Texto de leyenda
-                g2.setColor(EstilosGUI.COLOR_TEXTO);
+                g2.setColor(EstilosGUI.getColorTexto());
                 g2.drawString(String.format("%s: %d (%.1f%%)", entry.getKey(), entry.getValue(), pct),
                     xLeyenda + 18, yLeyenda + idx * 24);
                 idx++;
