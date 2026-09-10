@@ -31,7 +31,7 @@ public final class EstilosGUI {
         return Color.WHITE;
     }
 
-    public static Color btn.setBackground(getColorAcento()); {
+    public static Color getColorAcento() {
         return Color.BLACK;
     }
 
@@ -105,7 +105,7 @@ public final class EstilosGUI {
         UIManager.put("Button.foreground", Color.BLACK);
         UIManager.put("TextField.background", getColorTarjeta());
         UIManager.put("TextField.foreground", getColorTexto());
-        UIManager.put("TextField.caretForeground",btn.setBackground(getColorAcento()););
+        UIManager.put("TextField.caretForeground", getColorAcento());
         UIManager.put("ComboBox.background", getColorTarjeta());
         UIManager.put("ComboBox.foreground", getColorTexto());
     }
@@ -285,6 +285,6 @@ public final class EstilosGUI {
      * Crea un borde de titulo con el color del acento.
      */
     public static Border crearBordeTitulo(String titulo) {
-        return BorderFactory.createTitledBorder(new LineBorder(getColorBorde(), 1),titulo,0, 0,FUENTE_SUBTITULO,getColorAcento();)
+        return BorderFactory.createTitledBorder(new LineBorder(getColorBorde(), 1),titulo,0,0,FUENTE_SUBTITULO,getColorAcento());
     }
 }
