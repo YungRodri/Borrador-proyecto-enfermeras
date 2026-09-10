@@ -225,7 +225,7 @@ public class GestorArchivos {
                 }
             }
         } catch (Exception ex) {
-           throw new IllegalStateException("No se pudo escribir turnos.csv.", eX);
+           throw new IllegalStateException("No se pudo escribir turnos.csv.", ex);
         }
     }
 
