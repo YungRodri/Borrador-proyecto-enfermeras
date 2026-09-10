@@ -51,3 +51,13 @@ jobs:
       - name: Probar conflictos de turnos
         run: |
           java -cp build PruebaConflictos
+
+      - name: Compilar la prueba de sustituciones
+        run: |
+          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaSustituciones.java
+
+      - name: Probar sustituciones y persistencia
+        run: |
+          carpeta_sustituciones=$(mktemp -d)
+          cd "$carpeta_sustituciones"
+          java -cp "$GITHUB_WORKSPACE/build" PruebaSustituciones
