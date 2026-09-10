@@ -5,6 +5,7 @@ import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.Turno;
 import TurnosEnfermeria.modelo.TurnoRegular;
 import TurnosEnfermeria.modelo.Utilidades;
+import TurnosEnfermeria.controlador.TurnoControlador;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
