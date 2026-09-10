@@ -62,13 +62,18 @@ public class Utilidades {
         };
     }
 
-    // Formatos de fecha y hora (no lenient para validacion estricta)
-    private static final SimpleDateFormat FORMATO_FECHA = new SimpleDateFormat("dd/MM/yyyy");
-    private static final SimpleDateFormat FORMATO_HORA  = new SimpleDateFormat("HH:mm");
+        /** Crea el formato utilizado para leer fechas. */
+    private static SimpleDateFormat crearFormatoFecha() {
+        SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+        formato.setLenient(false);
+        return formato;
+    }
 
-    static {
-        FORMATO_FECHA.setLenient(false);
-        FORMATO_HORA.setLenient(false);
+    /** Crea el formato utilizado para leer horas. */
+    private static SimpleDateFormat crearFormatoHora() {
+        SimpleDateFormat formato = new SimpleDateFormat("HH:mm");
+        formato.setLenient(false);
+        return formato;
     }
 
     /**
@@ -79,7 +84,7 @@ public class Utilidades {
     public static boolean validarFecha(String fecha) {
         if (fecha == null || fecha.trim().isEmpty()) return false;
         try {
-            FORMATO_FECHA.parse(fecha.trim());
+            crearFormatoFecha().parse(fecha.trim());
             return true;
         } catch (ParseException e) {
             return false;
@@ -94,7 +99,7 @@ public class Utilidades {
     public static boolean validarHora(String hora) {
         if (hora == null || hora.trim().isEmpty()) return false;
         try {
-            FORMATO_HORA.parse(hora.trim());
+            crearFormatoHora().parse(hora.trim());
             return true;
         } catch (ParseException e) {
             return false;
@@ -107,8 +112,8 @@ public class Utilidades {
      */
     public static int compararFechas(String a, String b) {
         try {
-            Date da = FORMATO_FECHA.parse(a.trim());
-            Date db = FORMATO_FECHA.parse(b.trim());
+            Date da =crearFormatoFecha().parse(a.trim());
+            Date db = crearFormatoFecha().parse(b.trim());
             return da.compareTo(db);
         } catch (ParseException e) {
             return 0;
