@@ -54,33 +54,41 @@ public class VentanaEnfermeras extends JFrame {
     }
 
     /** Panel superior con titulo y barra de busqueda. */
+        /** Muestra el titulo y los controles de busqueda. */
     private JPanel crearPanelEncabezado() {
-        JPanel panel = new JPanel(new BorderLayout(20, 0));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(16, 24, 16, 24));
+        JPanel panel = new JPanel(new BorderLayout(0, 12));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(16, 20, 12, 20));
 
-        JLabel titulo = EstilosGUI.crearLabelTitulo("👩‍⚕️  Gestión de Enfermeras");
-        titulo.setFont(EstilosGUI.FUENTE_TITULO);
+        JLabel titulo = new JLabel("Gestión de enfermeras");
+        titulo.setFont(new Font("Dialog", Font.BOLD, 20));
+        titulo.setForeground(Color.BLACK);
 
-        // Panel busqueda a la derecha
-        JPanel panelBusqueda = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        panelBusqueda.setOpaque(false);
-        campoBusqueda = EstilosGUI.crearCampoTexto(16);
-        campoBusqueda.putClientProperty("JTextField.placeholderText", "Buscar por RUT o nombre...");
+        JPanel panelBusqueda =
+            new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        panelBusqueda.setBackground(Color.WHITE);
 
-        JButton btnBuscar = EstilosGUI.crearBotonSecundario("🔍 Buscar");
+        campoBusqueda = EstilosGUI.crearCampoTexto(18);
+        campoBusqueda.addActionListener(e -> buscarEnfermera());
+
+        JButton btnBuscar =
+            EstilosGUI.crearBotonSecundario("Buscar");
         btnBuscar.addActionListener(e -> buscarEnfermera());
 
-        JButton btnLimpiar = EstilosGUI.crearBotonSecundario("✕ Limpiar");
-        btnLimpiar.addActionListener(e -> { campoBusqueda.setText(""); cargarTabla(); });
+        JButton btnLimpiar =
+            EstilosGUI.crearBotonSecundario("Limpiar");
+        btnLimpiar.addActionListener(e -> {
+            campoBusqueda.setText("");
+            cargarTabla();
+        });
 
-        panelBusqueda.add(EstilosGUI.crearLabel("Buscar:"));
+        panelBusqueda.add(EstilosGUI.crearLabel("RUT o nombre:"));
         panelBusqueda.add(campoBusqueda);
         panelBusqueda.add(btnBuscar);
         panelBusqueda.add(btnLimpiar);
 
-        panel.add(titulo,        BorderLayout.WEST);
-        panel.add(panelBusqueda, BorderLayout.EAST);
+        panel.add(titulo, BorderLayout.NORTH);
+        panel.add(panelBusqueda, BorderLayout.CENTER);
         return panel;
     }
 
@@ -115,7 +123,7 @@ public class VentanaEnfermeras extends JFrame {
         panel.add(EstilosGUI.crearScrollPane(tabla), BorderLayout.CENTER);
 
         // Etiqueta de ayuda
-        JLabel ayuda = new JLabel("  💡 Doble clic en una fila para ver los turnos de la enfermera");
+        JLabel ayuda = new JLabel("Doble clic en una fila para consultar los turnos.");
         ayuda.setFont(EstilosGUI.FUENTE_PEQUENA);
         ayuda.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
         ayuda.setBorder(new EmptyBorder(6, 0, 0, 0));
@@ -125,28 +133,37 @@ public class VentanaEnfermeras extends JFrame {
     }
 
     /** Panel inferior con botones de accion. */
+        /** Muestra las operaciones disponibles para las enfermeras. */
     private JPanel crearPanelBotones() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 14));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        JPanel panel = new JPanel(new GridLayout(1, 5, 8, 0));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        JButton btnAgregar  = EstilosGUI.crearBotonPrimario("➕ Agregar Enfermera");
-        JButton btnEditar   = EstilosGUI.crearBotonSecundario("✏️ Editar");
-        JButton btnEliminar = EstilosGUI.crearBotonPeligro("🗑 Eliminar");
-        JButton btnRefrescar= EstilosGUI.crearBotonSecundario("🔄 Refrescar");
-        JButton btnTurnos   = EstilosGUI.crearBotonSecundario("📋 Ver Turnos");
+        JButton btnAgregar =
+            EstilosGUI.crearBotonSecundario("Agregar");
+        JButton btnEditar =
+            EstilosGUI.crearBotonSecundario("Editar");
+        JButton btnEliminar =
+            EstilosGUI.crearBotonSecundario("Eliminar");
+        JButton btnTurnos =
+            EstilosGUI.crearBotonSecundario("Ver turnos");
+        JButton btnListar =
+            EstilosGUI.crearBotonSecundario("Mostrar todas");
 
-        btnAgregar.addActionListener(e  -> mostrarDialogoAgregar());
-        btnEditar.addActionListener(e   -> editarEnfermera());
+        btnAgregar.addActionListener(e -> mostrarDialogoAgregar());
+        btnEditar.addActionListener(e -> editarEnfermera());
         btnEliminar.addActionListener(e -> eliminarEnfermera());
-        btnRefrescar.addActionListener(e-> cargarTabla());
-        btnTurnos.addActionListener(e   -> verTurnosEnfermera());
+        btnTurnos.addActionListener(e -> verTurnosEnfermera());
+        btnListar.addActionListener(e -> {
+            campoBusqueda.setText("");
+            cargarTabla();
+        });
 
         panel.add(btnAgregar);
         panel.add(btnEditar);
         panel.add(btnEliminar);
         panel.add(btnTurnos);
-        panel.add(btnRefrescar);
+        panel.add(btnListar);
         return panel;
     }
 
