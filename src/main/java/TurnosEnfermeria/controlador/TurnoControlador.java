@@ -60,8 +60,8 @@ public class TurnoControlador {
      * @param idTurno ID del turno a buscar globalmente
      * @return array {Enfermera, Turno} o null si no se encuentra
      */
-    public static Object[] buscarTurno(String idTurno) {
-        for (Enfermera e : Main.getRegistroGlobal().values()) {{
+    public static Object[] buscarTurno(String idTurno){
+        for (Enfermera e : Main.getRegistroGlobal().values()){
             Turno t = e.buscarTurno(idTurno);
             if (t != null) {
                 return new Object[]{e, t};
