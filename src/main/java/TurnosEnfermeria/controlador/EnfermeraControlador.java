@@ -3,6 +3,7 @@ package TurnosEnfermeria.controlador;
 import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.RutInvalidoException;
 import TurnosEnfermeria.Main;
+import TurnosEnfermeria.modelo.Persona;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,20 +26,14 @@ public class EnfermeraControlador {
         return Main.registrarEnfermera(enfermera);
     }
 
-    /**
-     * Busca una enfermera por su RUT.
-     * @return la Enfermera encontrada o null si no existe
-     */
+    /* Busca una enfermera por su RUT. */
     public static Enfermera obtener(String rut) {
-        return Main.getRegistroGlobal().get(rut.trim().toUpperCase());
+        return Main.getRegistroGlobal().get(Persona.normalizarRut(rut));
     }
 
-    /**
-     * Elimina una enfermera del registro global por su RUT.
-     * @return true si se elimino, false si no existia
-     */
+    /*Elimina una enfermera del registro global por su RUT.*/
     public static boolean eliminar(String rut) {
-        return Main.eliminarEnfermera(rut.trim().toUpperCase());
+        return Main.eliminarEnfermera(Persona.normalizarRut(rut));
     }
 
     /**

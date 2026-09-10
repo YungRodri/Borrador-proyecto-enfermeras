@@ -72,7 +72,7 @@ public class GestorArchivos {
                     String area       = campos[6].trim();
                     Enfermera e = new Enfermera(nombre, apellidoP, apellidoM,
                                                rut, edad, esp, area);
-                    registro.put(rut, e);
+                    registro.put(e.getRut(), e);
                 } catch (RutInvalidoException ex) {
                     System.err.println("[WARN] RUT invalido en CSV, linea ignorada: " + linea);
                 } catch (NumberFormatException ex) {
@@ -124,7 +124,7 @@ public class GestorArchivos {
                     System.err.println("[WARN] Linea malformada en turnos.csv: " + linea);
                     continue;
                 }
-                String rutEnf   = c[0].trim();
+                String rutEnf = Persona.normalizarRut(c[0]);
                 String tipo     = c[1].trim();
                 String id       = c[2].trim();
                 String fecha    = c[3].trim();
@@ -152,7 +152,7 @@ public class GestorArchivos {
                             break;
                         case "CAMBIO":
                             String[] partes = extra.split("\\|", 2);
-                            String rutSust  = partes.length > 0 ? partes[0] : "";
+                            String rutSust = partes.length > 0 ? Persona.normalizarRut(partes[0]) : "";
                             String motivo   = partes.length > 1 ? partes[1] : "";
                             turno = new CambioTurno(id, fecha, horaIni,
                                                     horaFin, rutSust, motivo, obs);

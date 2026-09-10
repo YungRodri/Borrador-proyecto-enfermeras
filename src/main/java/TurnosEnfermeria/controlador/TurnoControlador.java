@@ -49,7 +49,8 @@ public class TurnoControlador {
      * @return el Turno encontrado o null
      */
     public static Turno buscarTurno(String rut, String idTurno) {
-        Enfermera e = Main.getRegistroGlobal().get(rut.trim().toUpperCase());        if (e == null) return null;
+        Enfermera e = EnfermeraControlador.obtener(rut);
+        if (e == null) return null;
         return e.buscarTurno(idTurno);
     }
 

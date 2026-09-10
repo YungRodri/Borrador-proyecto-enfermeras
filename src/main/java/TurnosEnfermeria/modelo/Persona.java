@@ -26,6 +26,16 @@ public abstract class Persona {
     }
 
     // ========== METODOS DE NEGOCIO ==========
+    /**
+    * Normaliza el RUT quitando puntos y espacios exteriores,
+    * y convirtiendo el digito verificador a mayuscula.
+    */
+    public static String normalizarRut(String rut) {
+        if (rut == null) {
+            return "";
+        }
+        return rut.trim().toUpperCase(java.util.Locale.ROOT).replace(".", "");
+    }
 
     /**
      * Valida un RUT chileno mediante el algoritmo Modulo 11.
@@ -35,7 +45,7 @@ public abstract class Persona {
      */
     public static boolean validarRut(String rut) {
         if (rut == null || rut.trim().isEmpty()) return false;
-        String r = rut.trim().toUpperCase().replace(".", "");
+        String r = normalizarRut(rut);
         // Validar formato: digitos seguidos de guion y digito verificador
         if (!r.matches("\\d{7,8}-[\\dK]")) return false;
         String[] partes = r.split("-");
@@ -84,7 +94,7 @@ public abstract class Persona {
         if (!validarRut(rut)) {
             throw new RutInvalidoException(rut);
         }
-        this.rut = rut.trim().toUpperCase().replace(".", "");
+        this.rut = normalizarRut(rut);
     }
 
     public int  getEdad()        { return edad; }
