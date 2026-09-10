@@ -20,16 +20,9 @@ public class EnfermeraControlador {
 
     /**
      * Agrega una nueva enfermera al registro global.
-     * @param enfermera enfermera ya construida y validada
-     * @return true si se agrego, false si ya existe un RUT igual
-     */
+    **/
     public static boolean agregar(Enfermera enfermera) {
-        String rut = enfermera.getRut();
-        if (Main.registroGlobal.containsKey(rut)) {
-            return false;
-        }
-        Main.registroGlobal.put(rut, enfermera);
-        return true;
+        return Main.registrarEnfermera(enfermera);
     }
 
     /**
@@ -37,7 +30,7 @@ public class EnfermeraControlador {
      * @return la Enfermera encontrada o null si no existe
      */
     public static Enfermera obtener(String rut) {
-        return Main.registroGlobal.get(rut.trim().toUpperCase());
+        return Main.getRegistroGlobal().get(rut.trim().toUpperCase());
     }
 
     /**
@@ -45,7 +38,7 @@ public class EnfermeraControlador {
      * @return true si se elimino, false si no existia
      */
     public static boolean eliminar(String rut) {
-        return Main.registroGlobal.remove(rut.trim().toUpperCase()) != null;
+        return Main.eliminarEnfermera(rut.trim().toUpperCase());
     }
 
     /**
@@ -71,7 +64,7 @@ public class EnfermeraControlador {
      * Retorna una lista con todas las enfermeras del registro.
      */
     public static List<Enfermera> listar() {
-        return new ArrayList<>(Main.registroGlobal.values());
+        return new ArrayList<>(Main.getRegistroGlobal().values());
     }
 
     /**
@@ -79,7 +72,7 @@ public class EnfermeraControlador {
      */
     public static List<Enfermera> listarPorArea(String area) {
         List<Enfermera> resultado = new ArrayList<>();
-        for (Enfermera e : Main.registroGlobal.values()) {
+        for (Enfermera e : Main.getRegistroGlobal().values()) {
             if (area.equalsIgnoreCase(e.getAreaAsignada())) {
                 resultado.add(e);
             }
@@ -96,7 +89,7 @@ public class EnfermeraControlador {
     public static List<Enfermera> filtrarExcesoTurnosNoche(int limiteNoche,
                                                             String mes, String anio) {
         List<Enfermera> resultado = new ArrayList<>();
-        for (Enfermera e : Main.registroGlobal.values()) {
+        for (Enfermera e : Main.getRegistroGlobal().values()) {
             if (e.contarTurnosNocheMes(mes, anio) > limiteNoche) {
                 resultado.add(e);
             }
@@ -108,6 +101,6 @@ public class EnfermeraControlador {
      * Retorna el numero total de enfermeras registradas.
      */
     public static int totalRegistradas() {
-        return Main.registroGlobal.size();
+        return Main.getRegistroGlobal().size();
     }
 }

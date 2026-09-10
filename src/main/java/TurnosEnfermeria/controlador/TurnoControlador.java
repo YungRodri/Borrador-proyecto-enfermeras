@@ -49,8 +49,7 @@ public class TurnoControlador {
      * @return el Turno encontrado o null
      */
     public static Turno buscarTurno(String rut, String idTurno) {
-        Enfermera e = Main.registroGlobal.get(rut.trim().toUpperCase());
-        if (e == null) return null;
+        Enfermera e = Main.getRegistroGlobal().get(rut.trim().toUpperCase());        if (e == null) return null;
         return e.buscarTurno(idTurno);
     }
 
@@ -61,7 +60,7 @@ public class TurnoControlador {
      * @return array {Enfermera, Turno} o null si no se encuentra
      */
     public static Object[] buscarTurno(String idTurno) {
-        for (Enfermera e : Main.registroGlobal.values()) {
+        for (Enfermera e : Main.getRegistroGlobal().values()) {{
             Turno t = e.buscarTurno(idTurno);
             if (t != null) {
                 return new Object[]{e, t};

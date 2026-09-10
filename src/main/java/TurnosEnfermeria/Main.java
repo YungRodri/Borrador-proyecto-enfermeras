@@ -33,7 +33,30 @@ import java.util.TreeMap;
 public class Main {
 
     /** COLECCION 1 (Mapa principal del sistema) - SIA-4 */
-    public static TreeMap<String, Enfermera> registroGlobal;
+    private static TreeMap<String, Enfermera> registroGlobal = new TreeMap<>();
+
+    public static java.util.Map<String, Enfermera> getRegistroGlobal() {
+        return java.util.Collections.unmodifiableMap(registroGlobal);
+    }
+
+    public static void setRegistroGlobal(TreeMap<String, Enfermera> registro) {
+        registroGlobal = new TreeMap<>(registro);
+    }
+
+    public static boolean registrarEnfermera(Enfermera enfermera) {
+        String rut = enfermera.getRut();
+
+        if (registroGlobal.containsKey(rut)) {
+            return false;
+        }
+
+        registroGlobal.put(rut, enfermera);
+            return true;
+    }
+
+    public static boolean eliminarEnfermera(String rut) {
+        return registroGlobal.remove(rut) != null;
+    }
 
     private static Scanner sc = new Scanner(System.in);
 
@@ -43,7 +66,7 @@ public class Main {
 
     public static void main(String[] args) {
         // Cargar datos batch al inicio (SIA-11)
-        registroGlobal = GestorArchivos.cargarEnfermeras();
+        setRegistroGlobal(GestorArchivos.cargarEnfermeras());
 
         Utilidades.imprimirSeparador();
         System.out.println("  SISTEMA DE GESTION DE TURNOS DE ENFERMERAS");
