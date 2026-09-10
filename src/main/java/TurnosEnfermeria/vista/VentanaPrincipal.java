@@ -6,6 +6,7 @@ import TurnosEnfermeria.modelo.Utilidades;
 import java.util.function.BooleanSupplier;
 import TurnosEnfermeria.controlador.TurnoControlador;
 import TurnosEnfermeria.modelo.TurnoConflictoException;
+import TurnosEnfermeria.modelo.TurnoRegular;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -166,7 +167,10 @@ public class VentanaPrincipal extends JFrame {
 
         grid.add(crearTarjetaMenu("✓","Validar\nDisponibilidad","Comprobar personal libre para\nuna nueva asignación.",EstilosGUI.COLOR_ACENTO,
             e -> mostrarValidacionCobertura()));
-
+        
+        grid.add(crearTarjetaMenu("G","Asignación\nGrupal","Asignar turnos por área.\nSe omiten los conflictos.",EstilosGUI.COLOR_ACENTO2,
+            e -> mostrarAsignacionGrupal()));
+            
         wrapper.add(grid, new GridBagConstraints());
         return wrapper;
     }
@@ -464,6 +468,75 @@ public class VentanaPrincipal extends JFrame {
                 JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+    private void mostrarAsignacionGrupal() {
+        JComboBox<String> campoArea = EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
+        JComboBox<String> campoTipo =EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
+        JTextField campoObs = EstilosGUI.crearCampoTexto(20);
+
+        JPanel formulario = new JPanel(new GridLayout(4, 2, 8, 8));
+        formulario.add(new JLabel("Área:"));
+        formulario.add(campoArea);
+        formulario.add(new JLabel("Fecha (dd/MM/yyyy):"));
+        formulario.add(campoFecha);
+        formulario.add(new JLabel("Tipo de turno:"));
+        formulario.add(campoTipo);
+        formulario.add(new JLabel("Observación:"));
+        formulario.add(campoObs);
+
+        int respuesta = JOptionPane.showConfirmDialog(this, formulario, "Asignación grupal por área",JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (respuesta != JOptionPane.OK_OPTION) return;
+
+        String fecha = campoFecha.getText().trim();
+        if (!Utilidades.validarFecha(fecha)) {
+            JOptionPane.showMessageDialog( this, "Fecha inválida. Use dd/MM/yyyy.","Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String area = (String) campoArea.getSelectedItem();
+        List<Enfermera> enfermeras = EnfermeraControlador.listarPorArea(area);
+
+        if (enfermeras.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this, "No hay enfermeras en el área seleccionada.","Sin datos", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String tipo = (String) campoTipo.getSelectedItem();
+        String horaInicio = Utilidades.horaInicioPorTipo(tipo);
+        String horaFin = Utilidades.horaFinPorTipo(tipo);
+
+        int asignadas = 0;
+        int conflictos = 0;
+        StringBuilder detalle = new StringBuilder();
+
+        for (Enfermera enfermera : enfermeras) {
+            try {
+                TurnoRegular turno = new TurnoRegular(
+                    Utilidades.generarIdTurno(), fecha,
+                    horaInicio, horaFin, tipo, campoObs.getText().trim());
+                TurnoControlador.registrar(enfermera, turno);
+                asignadas++;
+            } catch (TurnoConflictoException ex) {
+                conflictos++;
+                detalle.append(enfermera.getNombreCompleto())
+                       .append(": ").append(ex.getMessage()).append("\n");
+            }
+        }
+
+        JTextArea resultado = new JTextArea("Turnos asignados: " + asignadas + "\nEnfermeras con conflicto: " + conflictos + "\n\n" + detalle.toString(), 10, 45);
+        resultado.setEditable(false);
+        resultado.setLineWrap(true);
+        resultado.setWrapStyleWord(true);
+        resultado.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(
+            this, new JScrollPane(resultado), "Resultado de asignación grupal",
+            conflictos > 0
+                ? JOptionPane.WARNING_MESSAGE
+                : JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     // =====================================================================
