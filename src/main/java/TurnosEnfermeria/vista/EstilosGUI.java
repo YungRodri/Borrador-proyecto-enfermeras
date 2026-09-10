@@ -19,32 +19,22 @@ public final class EstilosGUI {
     //  PALETA DE COLORES DEL SISTEMA
     // =====================================================================
 
-    /** Color de fondo principal (azul oscuro muy profundo) */
-    public static final Color COLOR_FONDO        = new Color(13, 17, 35);
-    /** Color de fondo de paneles secundarios */
-    public static final Color COLOR_PANEL        = new Color(22, 28, 54);
-    /** Color de fondo de paneles de tarjeta */
-    public static final Color COLOR_TARJETA      = new Color(30, 38, 72);
-    /** Color acento primario (azul cian vibrante) */
-    public static final Color COLOR_ACENTO       = new Color(0, 188, 212);
-    /** Color acento secundario (indigo suave) */
-    public static final Color COLOR_ACENTO2      = new Color(99, 102, 241);
-    /** Color de texto principal */
-    public static final Color COLOR_TEXTO        = new Color(224, 230, 255);
-    /** Color de texto secundario / placeholder */
-    public static final Color COLOR_TEXTO_SEC    = new Color(130, 140, 180);
-    /** Color de exito / verde */
-    public static final Color COLOR_EXITO        = new Color(52, 211, 153);
-    /** Color de error / rojo */
-    public static final Color COLOR_ERROR        = new Color(248, 113, 113);
-    /** Color de advertencia / amarillo */
-    public static final Color COLOR_ADVERTENCIA  = new Color(251, 191, 36);
-    /** Color de borde sutil */
-    public static final Color COLOR_BORDE        = new Color(55, 65, 120);
-    /** Color de fila alternada en tablas */
-    public static final Color COLOR_FILA_ALT     = new Color(18, 23, 46);
-    /** Color de seleccion en tablas */
-    public static final Color COLOR_SELECCION    = new Color(0, 188, 212, 60);
+    public static final Color COLOR_FONDO       = Color.WHITE;
+    public static final Color COLOR_PANEL       = Color.WHITE;
+    public static final Color COLOR_TARJETA     = Color.WHITE;
+
+    public static final Color COLOR_ACENTO      = Color.BLACK;
+    public static final Color COLOR_ACENTO2     = Color.BLACK;
+    public static final Color COLOR_TEXTO       = Color.BLACK;
+    public static final Color COLOR_TEXTO_SEC   = Color.BLACK;
+
+    public static final Color COLOR_EXITO       = Color.BLACK;
+    public static final Color COLOR_ERROR       = Color.BLACK;
+    public static final Color COLOR_ADVERTENCIA = Color.BLACK;
+    public static final Color COLOR_BORDE       = Color.BLACK;
+
+    public static final Color COLOR_FILA_ALT    = Color.WHITE;
+    public static final Color COLOR_SELECCION   = Color.BLACK;
 
     // =====================================================================
     //  FUENTES
@@ -193,7 +183,7 @@ public final class EstilosGUI {
         tabla.setFont(FUENTE_TABLA);
         tabla.setForeground(COLOR_TEXTO);
         tabla.setBackground(COLOR_PANEL);
-        tabla.setSelectionBackground(new Color(0, 188, 212, 80));
+        tabla.setSelectionBackground(COLOR_SELECCION);
         tabla.setSelectionForeground(Color.WHITE);
         tabla.setGridColor(COLOR_BORDE);
         tabla.setRowHeight(28);
@@ -219,7 +209,7 @@ public final class EstilosGUI {
                 setFont(FUENTE_TABLA);
                 setBorder(new EmptyBorder(0, 8, 0, 8));
                 if (sel) {
-                    setBackground(new Color(0, 188, 212, 80));
+                    setBackground(COLOR_SELECCION);
                     setForeground(Color.WHITE);
                 } else {
                     setBackground(row % 2 == 0 ? COLOR_PANEL : COLOR_FILA_ALT);
