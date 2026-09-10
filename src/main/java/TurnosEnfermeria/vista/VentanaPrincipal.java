@@ -38,8 +38,8 @@ public class VentanaPrincipal extends JFrame {
         this.alCerrar = alCerrar;
         setTitle("Sistema de Gestión de Turnos de Enfermeras – Hospital Central");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setSize(900, 760);
-        setMinimumSize(new Dimension(780, 680));
+        setSize(680, 480);
+        setMinimumSize(new Dimension(620, 440));
         setLocationRelativeTo(null);
         getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
         setLayout(new BorderLayout(0, 0));
@@ -59,209 +59,83 @@ public class VentanaPrincipal extends JFrame {
     //  CONSTRUCCION DE UI
     // =====================================================================
 
-    private void construirUI() {
+        private void construirUI() {
         add(crearPanelEncabezado(), BorderLayout.NORTH);
         add(crearPanelMenuCentral(), BorderLayout.CENTER);
-        add(crearPanelPie(),        BorderLayout.SOUTH);
+        add(crearPanelPie(), BorderLayout.SOUTH);
     }
 
-    /** Panel superior con logo, nombre del sistema y estadisticas rapidas. */
+    /** Muestra el nombre del sistema. */
     private JPanel crearPanelEncabezado() {
-        JPanel panel = new JPanel(new BorderLayout(16, 0));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(20, 32, 20, 32));
+        JPanel panel = new JPanel(new GridLayout(2, 1, 0, 8));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 20, 10, 20));
 
-        // Columna izquierda: icono + titulo
-        JPanel izq = new JPanel(new BorderLayout(10, 4));
-        izq.setOpaque(false);
+        JLabel titulo = new JLabel("Gestión de turnos de enfermería",SwingConstants.CENTER);
+        titulo.setFont(new Font("Dialog", Font.BOLD, 20));
+        titulo.setForeground(Color.BLACK);
 
-        JLabel icono = new JLabel("🏥");
-        icono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
-        icono.setVerticalAlignment(SwingConstants.CENTER);
+        JLabel subtitulo = new JLabel("Seleccione una opción",SwingConstants.CENTER);
+        subtitulo.setFont(new Font("Dialog", Font.PLAIN, 14));
+        subtitulo.setForeground(Color.BLACK);
 
-        JPanel textoTitulo = new JPanel(new GridLayout(2, 1, 0, 2));
-        textoTitulo.setOpaque(false);
-
-        JLabel titulo = new JLabel("Sistema de Turnos de Enfermería");
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        titulo.setForeground(EstilosGUI.COLOR_ACENTO);
-
-        JLabel subtitulo = EstilosGUI.crearLabel("Hospital Central  ·  v1.0");
-        subtitulo.setFont(EstilosGUI.FUENTE_NORMAL);
-
-        textoTitulo.add(titulo);
-        textoTitulo.add(subtitulo);
-
-        izq.add(icono,       BorderLayout.WEST);
-        izq.add(textoTitulo, BorderLayout.CENTER);
-
-        // Columna derecha: resumen de enfermeras registradas
-        JPanel der = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
-        der.setOpaque(false);
-
-        int total = EnfermeraControlador.totalRegistradas();
-        der.add(crearIndicador("Enfermeras\nRegistradas", String.valueOf(total), EstilosGUI.COLOR_EXITO));
-
-        panel.add(izq, BorderLayout.WEST);
-        panel.add(der, BorderLayout.EAST);
+        panel.add(titulo);
+        panel.add(subtitulo);
         return panel;
     }
 
-    /** Crea un indicador numerico para el encabezado. */
-    private JPanel crearIndicador(String etiqueta, String valor, Color color) {
-        JPanel ind = new JPanel(new BorderLayout(0, 4));
-        ind.setBackground(EstilosGUI.COLOR_TARJETA);
-        ind.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(color, 1),
-            new EmptyBorder(8, 18, 8, 18)
-        ));
-        JLabel lblValor = new JLabel(valor, SwingConstants.CENTER);
-        lblValor.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblValor.setForeground(color);
-        JLabel lblEtiqueta = new JLabel("<html><center>" + etiqueta.replace("\n", "<br>") + "</center></html>", SwingConstants.CENTER);
-        lblEtiqueta.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblEtiqueta.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
-        ind.add(lblValor, BorderLayout.CENTER);
-        ind.add(lblEtiqueta, BorderLayout.SOUTH);
-        return ind;
-    }
-
-    /** Panel central con los botones del menu principal agrupados en tarjetas. */
+    /** Organiza las opciones en cuatro filas y dos columnas. */
     private JPanel crearPanelMenuCentral() {
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(EstilosGUI.COLOR_FONDO);
-        wrapper.setBorder(new EmptyBorder(24, 48, 24, 48));
+        JPanel panel = new JPanel(new GridLayout(4, 2, 12, 12));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 24, 20, 24));
 
-        JPanel grid = new JPanel(new GridLayout(0, 3, 18, 18));
-        grid.setBackground(EstilosGUI.COLOR_FONDO);
+        panel.add(crearBotonMenu("Gestión de enfermeras",e -> new VentanaEnfermeras().setVisible(true)));
 
-        grid.add(crearTarjetaMenu("👩‍⚕️", "Gestión de\nEnfermeras",
-            "Agregar, editar, eliminar y\nbuscar enfermeras registradas.",
-            EstilosGUI.COLOR_ACENTO,
-            e -> new VentanaEnfermeras().setVisible(true)));
+        panel.add(crearBotonMenu("Gestión de turnos",e -> abrirGestionTurnos()));
 
-        grid.add(crearTarjetaMenu("📋", "Gestión de\nTurnos",
-            "Administrar turnos de una\nenfermera seleccionada.",
-            EstilosGUI.COLOR_ACENTO2,
-            e -> abrirGestionTurnos()));
+        panel.add(crearBotonMenu("Asignación grupal",e -> mostrarAsignacionGrupal()));
 
-        grid.add(crearTarjetaMenu("📊", "Estadísticas\ny Reportes",
-            "Gráficos de horas y\ndistribución de eventos.",
-            EstilosGUI.COLOR_EXITO,
-            e -> new VentanaEstadisticas().setVisible(true)));
+        panel.add(crearBotonMenu("Consultar disponibilidad",e -> mostrarValidacionCobertura()));
 
-        grid.add(crearTarjetaMenu("🌙", "Filtrar Turnos\nNocturnos",
-            "Ver enfermeras con exceso\nde turnos noche en el mes.",
-            EstilosGUI.COLOR_ADVERTENCIA,
-            e -> mostrarFiltroNocturnos()));
+        panel.add(crearBotonMenu("Filtrar por área",e -> mostrarFiltroPorArea()));
 
-        grid.add(crearTarjetaMenu("🏥", "Filtrar por\nÁrea",
-            "Listar enfermeras según\nel área hospitalaria.",
-            new Color(236, 72, 153),
-            e -> mostrarFiltroPorArea()));
+        panel.add(crearBotonMenu("Exceso de turnos nocturnos",e -> mostrarFiltroNocturnos()));
 
-        grid.add(crearTarjetaMenu("🚪", "Cerrar\nSistema",
-            "Guardar datos y salir\ndel sistema de forma segura.",
-            EstilosGUI.COLOR_ERROR,
-            e -> cerrarSistema()));
+        panel.add(crearBotonMenu("Estadísticas",e -> new VentanaEstadisticas().setVisible(true)));
 
-        grid.add(crearTarjetaMenu("✓","Validar\nDisponibilidad","Comprobar personal libre para\nuna nueva asignación.",EstilosGUI.COLOR_ACENTO,
-            e -> mostrarValidacionCobertura()));
-        
-        grid.add(crearTarjetaMenu("G","Asignación\nGrupal","Asignar turnos por área.\nSe omiten los conflictos.",EstilosGUI.COLOR_ACENTO2,
-            e -> mostrarAsignacionGrupal()));
-            
-        wrapper.add(grid, new GridBagConstraints());
-        return wrapper;
+        panel.add(crearBotonMenu("Guardar y salir",e -> cerrarSistema()));
+
+        return panel;
     }
 
-    /**
-     * Crea una tarjeta de menu con icono, titulo, descripcion y accion.
-     */
-    private JPanel crearTarjetaMenu(String icono, String titulo, String descripcion,
-                                    Color colorAcento,
-                                    java.awt.event.ActionListener accion) {
-        JPanel tarjeta = new JPanel(new BorderLayout(0, 8));
-        tarjeta.setBackground(EstilosGUI.COLOR_TARJETA);
-        tarjeta.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(new Color(
-                colorAcento.getRed(), colorAcento.getGreen(), colorAcento.getBlue(), 60), 1),
-            new EmptyBorder(18, 16, 14, 16)
+    /** Crea un botón con texto negro y fondo blanco. */
+    private JButton crearBotonMenu(
+            String texto, java.awt.event.ActionListener accion) {
+        JButton boton = new JButton(texto);
+        boton.setFont(new Font("Dialog", Font.PLAIN, 14));
+        boton.setBackground(Color.WHITE);
+        boton.setForeground(Color.BLACK);
+        boton.setOpaque(true);
+        boton.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.BLACK),
+            new EmptyBorder(12, 12, 12, 12)
         ));
-        tarjeta.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        top.setOpaque(false);
-
-        JLabel lblIcono = new JLabel(icono);
-        lblIcono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 26));
-
-        JLabel lblTitulo = new JLabel("<html>" + titulo.replace("\n", "<br>") + "</html>");
-        lblTitulo.setFont(EstilosGUI.FUENTE_SUBTITULO);
-        lblTitulo.setForeground(colorAcento);
-
-        top.add(lblIcono);
-        top.add(lblTitulo);
-
-        JLabel lblDesc = new JLabel("<html><small>" + descripcion.replace("\n", "<br>") + "</small></html>");
-        lblDesc.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblDesc.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
-        lblDesc.setBorder(new EmptyBorder(0, 4, 0, 0));
-
-        // Boton de accion
-        JButton btn = new JButton("Abrir →");
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btn.setForeground(colorAcento);
-        btn.setBackground(EstilosGUI.COLOR_FONDO);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(colorAcento, 1),
-            new EmptyBorder(5, 12, 5, 12)
-        ));
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setOpaque(true);
-        btn.addActionListener(accion);
-
-        // Hover de la tarjeta
-        tarjeta.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseEntered(java.awt.event.MouseEvent e) {
-                tarjeta.setBackground(EstilosGUI.COLOR_PANEL);
-                tarjeta.setBorder(BorderFactory.createCompoundBorder(
-                    new javax.swing.border.LineBorder(colorAcento, 1),
-                    new EmptyBorder(18, 16, 14, 16)
-                ));
-            }
-            @Override public void mouseExited(java.awt.event.MouseEvent e) {
-                tarjeta.setBackground(EstilosGUI.COLOR_TARJETA);
-                tarjeta.setBorder(BorderFactory.createCompoundBorder(
-                    new javax.swing.border.LineBorder(new Color(
-                        colorAcento.getRed(), colorAcento.getGreen(), colorAcento.getBlue(), 60), 1),
-                    new EmptyBorder(18, 16, 14, 16)
-                ));
-            }
-        });
-
-        JPanel botPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        botPanel.setOpaque(false);
-        botPanel.add(btn);
-
-        tarjeta.add(top,      BorderLayout.NORTH);
-        tarjeta.add(lblDesc,  BorderLayout.CENTER);
-        tarjeta.add(botPanel, BorderLayout.SOUTH);
-        return tarjeta;
+        boton.addActionListener(accion);
+        return boton;
     }
 
-    /** Panel inferior con informacion de version y botones de acceso rapido. */
+    /** Indica cuándo se guardan los datos. */
     private JPanel crearPanelPie() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(8, 24, 8, 24));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(5, 10, 12, 10));
 
-        JLabel info = new JLabel("Sistema de Gestión de Turnos  ·  Programación Avanzada 2026  ·  Datos guardados automáticamente al cerrar");
-        info.setFont(EstilosGUI.FUENTE_PEQUENA);
-        info.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
+        JLabel informacion = new JLabel("Los datos se guardan al cerrar el sistema.");
+        informacion.setFont(new Font("Dialog", Font.PLAIN, 12));
+        informacion.setForeground(Color.BLACK);
 
-        panel.add(info, BorderLayout.WEST);
+        panel.add(informacion);
         return panel;
     }
 
