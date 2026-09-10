@@ -42,6 +42,10 @@ public class Enfermera extends Persona {
      * @throws TurnoConflictoException si hay superposicion de horario en la misma fecha
      */
     public void agregarTurno(Turno turno) throws TurnoConflictoException {
+        if (buscarTurno(turno.getId()) != null) {
+            throw new TurnoConflictoException("La enfermera ya tiene un turno con ID: " + turno.getId());
+        }
+        
         for (Turno existente : listaTurnos) {
             if (existente.getFecha().equals(turno.getFecha())
                     && !existente.getHoraInicio().isEmpty()
