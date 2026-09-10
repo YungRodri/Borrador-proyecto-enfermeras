@@ -394,7 +394,8 @@ public class VentanaEnfermeras extends JFrame {
                     mostrarMensaje("El RUT ingresado no es válido.\n" + ex.getMessage(),
                         "RUT inválido", JOptionPane.ERROR_MESSAGE);
                 }
-            });
+            }
+        });
 
         panelBotones.add(btnCancelar);
         panelBotones.add(btnGuardar);
