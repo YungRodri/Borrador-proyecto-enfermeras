@@ -64,57 +64,27 @@ public class VentanaTurnos extends JFrame {
         add(crearPanelBotones(),    BorderLayout.SOUTH);
     }
 
-    /** Panel superior con datos de la enfermera y estadisticas rapidas. */
+       /** Muestra los datos de la enfermera y el resumen de sus turnos. */
     private JPanel crearPanelEncabezado() {
-        JPanel panel = new JPanel(new BorderLayout(20, 0));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(14, 24, 14, 24));
+        JPanel panel = new JPanel(new GridLayout(4, 1, 0, 6));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(14, 20, 14, 20));
 
-        // Informacion de la enfermera
-        JPanel panelInfo = new JPanel(new GridLayout(2, 1, 0, 2));
-        panelInfo.setOpaque(false);
+        JLabel titulo = new JLabel("Turnos de " + enfermera.getNombreCompleto());
+        titulo.setFont(new Font("Dialog", Font.BOLD, 20));
+        titulo.setForeground(Color.BLACK);
 
-        JLabel titulo = EstilosGUI.crearLabelTitulo("📋  Turnos de " + enfermera.getNombreCompleto());
-        JLabel subtitulo = EstilosGUI.crearLabel(
-            "RUT: " + enfermera.getRut() + "  |  Especialidad: " + enfermera.getEspecialidad()
-            + "  |  Área: " + enfermera.getAreaAsignada()
-        );
-        panelInfo.add(titulo);
-        panelInfo.add(subtitulo);
+        JLabel datos = EstilosGUI.crearLabel("RUT: " + enfermera.getRut()+ " | Área: " + enfermera.getAreaAsignada());
 
-        // Estadisticas rapidas
-        JPanel panelStats = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
-        panelStats.setOpaque(false);
-        panelStats.add(crearBadge("Regulares", String.valueOf(enfermera.contarTurnosRegulares()), EstilosGUI.COLOR_ACENTO));
-        panelStats.add(crearBadge("Licencias", String.valueOf(enfermera.contarLicencias()), EstilosGUI.COLOR_ADVERTENCIA));
-        panelStats.add(crearBadge("Cambios",   String.valueOf(enfermera.contarCambios()),   EstilosGUI.COLOR_ACENTO2));
-        panelStats.add(crearBadge("Horas",     String.format("%.1f", TurnoControlador.calcularHorasTrabajadas(enfermera)), EstilosGUI.COLOR_EXITO));
+        JLabel especialidad = EstilosGUI.crearLabel("Especialidad: " + enfermera.getEspecialidad());
 
-        panel.add(panelInfo,   BorderLayout.CENTER);
-        panel.add(panelStats,  BorderLayout.EAST);
+        JLabel resumen = EstilosGUI.crearLabel("Regulares: " + enfermera.contarTurnosRegulares() + " | Licencias: " + enfermera.contarLicencias() + " | Cambios: " + enfermera.contarCambios()+ " | Horas trabajadas: "+ String.format("%.1f",                 TurnoControlador.calcularHorasTrabajadas(enfermera)));
+
+        panel.add(titulo);
+        panel.add(datos);
+        panel.add(especialidad);
+        panel.add(resumen);
         return panel;
-    }
-
-    /** Crea un pequeño badge de estadistica con etiqueta y valor. */
-    private JPanel crearBadge(String etiqueta, String valor, Color color) {
-        JPanel badge = new JPanel(new BorderLayout(0, 2));
-        badge.setBackground(EstilosGUI.COLOR_TARJETA);
-        badge.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(color, 1),
-            new EmptyBorder(6, 12, 6, 12)
-        ));
-
-        JLabel lblValor = new JLabel(valor, SwingConstants.CENTER);
-        lblValor.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblValor.setForeground(color);
-
-        JLabel lblEtiqueta = new JLabel(etiqueta, SwingConstants.CENTER);
-        lblEtiqueta.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblEtiqueta.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
-
-        badge.add(lblValor,    BorderLayout.CENTER);
-        badge.add(lblEtiqueta, BorderLayout.SOUTH);
-        return badge;
     }
 
     /** Panel central con la tabla de turnos. */
@@ -139,28 +109,37 @@ public class VentanaTurnos extends JFrame {
         return panel;
     }
 
-    /** Panel inferior con botones de accion. */
+        /** Muestra las operaciones disponibles para los turnos. */
     private JPanel crearPanelBotones() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 14));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
+        JPanel panel = new JPanel(new GridLayout(1, 5, 8, 0));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        JButton btnAgregar  = EstilosGUI.crearBotonPrimario("➕ Agregar Turno");
-        JButton btnEditar   = EstilosGUI.crearBotonSecundario("✏️ Editar Observación");
-        JButton btnEliminar = EstilosGUI.crearBotonPeligro("🗑 Eliminar Turno");
-        JButton btnBuscar   = EstilosGUI.crearBotonSecundario("🔍 Buscar por ID");
-        JButton btnRefrescar= EstilosGUI.crearBotonSecundario("🔄 Refrescar");
+        JButton btnAgregar =
+            EstilosGUI.crearBotonSecundario("Agregar");
+        JButton btnEditar =
+            EstilosGUI.crearBotonSecundario("Editar observación");
+        JButton btnEliminar =
+            EstilosGUI.crearBotonSecundario("Eliminar");
+        JButton btnBuscar =
+            EstilosGUI.crearBotonSecundario("Buscar por ID");
+        JButton btnMostrar =
+            EstilosGUI.crearBotonSecundario("Mostrar todos");
 
-        btnAgregar.addActionListener(e  -> mostrarDialogoAgregarTurno());
-        btnEditar.addActionListener(e   -> editarObservacion());
+        btnAgregar.addActionListener(e -> mostrarDialogoAgregarTurno());
+        btnEditar.addActionListener(e -> editarObservacion());
         btnEliminar.addActionListener(e -> eliminarTurno());
-        btnBuscar.addActionListener(e   -> buscarPorId());
-        btnRefrescar.addActionListener(e-> cargarTabla());
+        btnBuscar.addActionListener(e -> buscarPorId());
+        btnMostrar.addActionListener(e -> {
+            cargarTabla();
+            actualizarEncabezado();
+        });
 
         panel.add(btnAgregar);
         panel.add(btnEditar);
         panel.add(btnEliminar);
         panel.add(btnBuscar);
-        panel.add(btnRefrescar);
+        panel.add(btnMostrar);
         return panel;
     }
 
@@ -245,7 +224,7 @@ public class VentanaTurnos extends JFrame {
             String horaIni = Utilidades.horaInicioPorTipo(tipo);
             String horaFin = Utilidades.horaFinPorTipo(tipo);
             try {
-                TurnoRegular nuevo = new TurnoRegular(Utilidades.generarIdTurno(),fecha,horaIni,horaFin,tipo,"");
+                TurnoRegular nuevo = new TurnoRegular(Utilidades.generarIdTurno(),fecha,horaIni,horaFin,tipo,campoObs.getText().trim());
 
                 TurnoControlador.registrar(enfermera, nuevo);
                 cargarTabla();
