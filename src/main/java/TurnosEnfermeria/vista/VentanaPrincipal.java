@@ -31,7 +31,7 @@ public class VentanaPrincipal extends JFrame {
      * Constructor principal.
      * @param alCerrar accion a ejecutar al cerrar la ventana (guardar datos CSV)
      */
-    public VentanaPrincipal(BooleanSupplier alCerrar) {{
+    public VentanaPrincipal(BooleanSupplier alCerrar) {
         this.alCerrar = alCerrar;
         setTitle("Sistema de Gestión de Turnos de Enfermeras – Hospital Central");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
