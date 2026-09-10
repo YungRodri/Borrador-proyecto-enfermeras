@@ -207,7 +207,7 @@ public final class EstilosGUI {
     public static JLabel crearLabel(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(FUENTE_NORMAL);
-        lbl.setForeground(getColorTexto()_SEC);
+        lbl.setForeground(getColorTextoSecundario());
         return lbl;
     }
 
