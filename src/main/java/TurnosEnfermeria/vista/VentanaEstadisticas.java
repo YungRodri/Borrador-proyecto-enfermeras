@@ -67,7 +67,7 @@ public class VentanaEstadisticas extends JFrame {
 
         JLabel titulo = EstilosGUI.crearLabelTitulo("📊  Estadísticas del Sistema");
         JLabel subtitulo = EstilosGUI.crearLabel("Total de enfermeras registradas: " + EnfermeraControlador.totalRegistradas());
-        subtitulo.setFont(EstilosGUI.FUENTE_NORMAL);
+        subtitulo.setFont(EstilosGUI.getFuenteNormal());
 
         JButton btnActualizar = EstilosGUI.crearBotonSecundario("🔄 Actualizar");
         btnActualizar.addActionListener(e -> {
@@ -129,7 +129,7 @@ public class VentanaEstadisticas extends JFrame {
         lblValor.setForeground(color);
 
         JLabel lblEtiqueta = new JLabel("<html><center>" + etiqueta + "</center></html>", SwingConstants.CENTER);
-        lblEtiqueta.setFont(EstilosGUI.FUENTE_PEQUENA);
+        lblEtiqueta.setFont(EstilosGUI.getFuentePequena());
         lblEtiqueta.setForeground(EstilosGUI.getColorTextoSecundario());
 
         kpi.add(lblValor,    BorderLayout.CENTER);
@@ -175,12 +175,12 @@ public class VentanaEstadisticas extends JFrame {
             int altoGraf   = h - margenSup - margenInf;
 
             // --- Titulo ---
-            g2.setFont(EstilosGUI.FUENTE_SUBTITULO);
+            g2.setFont(EstilosGUI.getFuenteSubtitulo());
             g2.setColor(EstilosGUI.getColorAcento());
             g2.drawString("Horas Trabajadas por Enfermera", margenIzq, 28);
 
             if (todas.isEmpty()) {
-                g2.setFont(EstilosGUI.FUENTE_NORMAL);
+                g2.setFont(EstilosGUI.getFuenteNormal());
                 g2.setColor(EstilosGUI.getColorTextoSecundario());
                 g2.drawString("Sin datos para mostrar", w / 2 - 70, h / 2);
                 return;
@@ -279,7 +279,7 @@ public class VentanaEstadisticas extends JFrame {
             int h = getHeight();
 
             // --- Titulo ---
-            g2.setFont(EstilosGUI.FUENTE_SUBTITULO);
+            g2.setFont(EstilosGUI.getFuenteSubtitulo());
             g2.setColor(EstilosGUI.getColorAcento());
             g2.drawString("Distribución de Tipos de Evento", 16, 28);
 
@@ -294,7 +294,7 @@ public class VentanaEstadisticas extends JFrame {
             int total = regulares + licencias + cambios;
 
             if (total == 0) {
-                g2.setFont(EstilosGUI.FUENTE_NORMAL);
+                g2.setFont(EstilosGUI.getFuenteNormal());
                 g2.setColor(EstilosGUI.getColorTextoSecundario());
                 g2.drawString("Sin datos para mostrar", w / 2 - 70, h / 2);
                 return;
@@ -348,7 +348,7 @@ public class VentanaEstadisticas extends JFrame {
             String textoTotal = String.valueOf(total);
             FontMetrics fm = g2.getFontMetrics();
             g2.drawString(textoTotal, xCentro + diametro / 2 - fm.stringWidth(textoTotal) / 2, yCentro + diametro / 2 + 5);
-            g2.setFont(EstilosGUI.FUENTE_PEQUENA);
+            g2.setFont(EstilosGUI.getFuentePequena());
             g2.setColor(EstilosGUI.getColorTextoSecundario());
             g2.drawString("eventos", xCentro + diametro / 2 - g2.getFontMetrics().stringWidth("eventos") / 2, yCentro + diametro / 2 + 18);
 
@@ -356,7 +356,7 @@ public class VentanaEstadisticas extends JFrame {
             int yLeyenda = yCentro + diametro + 16;
             int xLeyenda = 16;
             idx = 0;
-            g2.setFont(EstilosGUI.FUENTE_NORMAL);
+            g2.setFont(EstilosGUI.getFuenteNormal());
             for (Map.Entry<String, Integer> entry : datos.entrySet()) {
                 Color color = colores[idx % colores.length];
                 double pct = (double) entry.getValue() / total * 100;

@@ -75,13 +75,33 @@ public final class EstilosGUI {
     //  FUENTES
     // =====================================================================
 
-    public static final Font FUENTE_TITULO    = new Font("Segoe UI", Font.BOLD, 22);
-    public static final Font FUENTE_SUBTITULO = new Font("Segoe UI", Font.BOLD, 14);
-    public static final Font FUENTE_NORMAL    = new Font("Segoe UI", Font.PLAIN, 13);
-    public static final Font FUENTE_PEQUENA   = new Font("Segoe UI", Font.PLAIN, 11);
-    public static final Font FUENTE_BOTON     = new Font("Segoe UI", Font.BOLD, 12);
-    public static final Font FUENTE_TABLA     = new Font("Segoe UI", Font.PLAIN, 12);
-    public static final Font FUENTE_ENCABEZADO= new Font("Segoe UI", Font.BOLD, 12);
+    public static Font getFuenteTitulo() {
+        return new Font("Segoe UI", Font.BOLD, 22);
+    }
+
+    public static Font getFuenteSubtitulo() {
+        return new Font("Segoe UI", Font.BOLD, 14);
+    }
+
+    public static Font getFuenteNormal() {
+        return new Font("Segoe UI", Font.PLAIN, 13);
+    }
+
+    public static Font getFuentePequena() {
+        return new Font("Segoe UI", Font.PLAIN, 11);
+    }
+
+    public static Font getFuenteBoton() {
+        return new Font("Segoe UI", Font.BOLD, 12);
+    }
+
+    public static Font getFuenteTabla() {
+        return new Font("Segoe UI", Font.PLAIN, 12);
+    }
+
+    public static Font getFuenteEncabezado() {
+        return new Font("Segoe UI", Font.BOLD, 12);
+    }
 
     // Constructor privado - solo metodos estaticos
     private EstilosGUI() {}
@@ -115,7 +135,7 @@ public final class EstilosGUI {
      */
     public static JButton crearBotonPrimario(String texto) {
         JButton btn = new JButton(texto);
-        btn.setFont(FUENTE_BOTON);
+        btn.setFont(getFuenteBoton());
         btn.setBackground(getColorAcento());
         btn.setForeground(getColorFondo());
         btn.setFocusPainted(false);
@@ -131,7 +151,7 @@ public final class EstilosGUI {
      */
     public static JButton crearBotonSecundario(String texto) {
         JButton btn = new JButton(texto);
-        btn.setFont(FUENTE_BOTON);
+        btn.setFont(getFuenteBoton());
         btn.setBackground(getColorTarjeta());
         btn.setForeground(getColorAcento());
         btn.setFocusPainted(false);
@@ -150,7 +170,7 @@ public final class EstilosGUI {
      */
     public static JButton crearBotonPeligro(String texto) {
         JButton btn = new JButton(texto);
-        btn.setFont(FUENTE_BOTON);
+        btn.setFont(getFuenteBoton());
         btn.setBackground(getColorError());
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
@@ -166,7 +186,7 @@ public final class EstilosGUI {
      */
     public static JTextField crearCampoTexto(int columnas) {
         JTextField campo = new JTextField(columnas);
-        campo.setFont(FUENTE_NORMAL);
+        campo.setFont(getFuenteNormal());
         campo.setBackground(getColorTarjeta());
         campo.setForeground(getColorTexto());
         campo.setCaretColor(getColorAcento());
@@ -183,7 +203,7 @@ public final class EstilosGUI {
      */
     public static JComboBox<String> crearComboBox(String[] opciones) {
         JComboBox<String> combo = new JComboBox<>(opciones);
-        combo.setFont(FUENTE_NORMAL);
+        combo.setFont(getFuenteNormal());
         combo.setBackground(getColorTarjeta());
         combo.setForeground(getColorTexto());
         combo.setBorder(new LineBorder(getColorBorde(), 1));
@@ -195,7 +215,7 @@ public final class EstilosGUI {
      */
     public static JLabel crearLabelTitulo(String texto) {
         JLabel lbl = new JLabel(texto);
-        lbl.setFont(FUENTE_TITULO);
+        lbl.setFont(getFuenteTitulo());
         lbl.setForeground(getColorAcento());
         lbl.setBorder(new EmptyBorder(0, 0, 4, 0));
         return lbl;
@@ -206,7 +226,7 @@ public final class EstilosGUI {
      */
     public static JLabel crearLabel(String texto) {
         JLabel lbl = new JLabel(texto);
-        lbl.setFont(FUENTE_NORMAL);
+        lbl.setFont(getFuenteNormal());
         lbl.setForeground(getColorTextoSecundario());
         return lbl;
     }
@@ -215,7 +235,7 @@ public final class EstilosGUI {
      * Aplica estilos a un JTable con tema oscuro.
      */
     public static void estilizarTabla(JTable tabla) {
-        tabla.setFont(FUENTE_TABLA);
+        tabla.setFont(getFuenteTabla());
         tabla.setForeground(getColorTexto());
         tabla.setBackground(getColorPanel());
         tabla.setSelectionBackground(getColorSeleccion());
@@ -229,7 +249,7 @@ public final class EstilosGUI {
 
         // Estilizar encabezado
         JTableHeader header = tabla.getTableHeader();
-        header.setFont(FUENTE_ENCABEZADO);
+        header.setFont(getFuenteEncabezado());
         header.setBackground(getColorTarjeta());
         header.setForeground(getColorAcento());
         header.setBorder(new LineBorder(getColorBorde(), 1));
@@ -241,7 +261,7 @@ public final class EstilosGUI {
             public Component getTableCellRendererComponent(JTable t, Object val,
                     boolean sel, boolean foc, int row, int col) {
                 super.getTableCellRendererComponent(t, val, sel, foc, row, col);
-                setFont(FUENTE_TABLA);
+                setFont(getFuenteTabla());
                 setBorder(new EmptyBorder(0, 8, 0, 8));
                 if (sel) {
                     setBackground(getColorSeleccion());
@@ -285,6 +305,6 @@ public final class EstilosGUI {
      * Crea un borde de titulo con el color del acento.
      */
     public static Border crearBordeTitulo(String titulo) {
-        return BorderFactory.createTitledBorder(new LineBorder(getColorBorde(), 1),titulo,0,0,FUENTE_SUBTITULO,getColorAcento());
+        return BorderFactory.createTitledBorder(new LineBorder(getColorBorde(), 1),titulo,0,0,getFuenteSubtitulo(),getColorAcento());
     }
 }

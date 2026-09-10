@@ -124,7 +124,7 @@ public class VentanaEnfermeras extends JFrame {
 
         // Etiqueta de ayuda
         JLabel ayuda = new JLabel("Doble clic en una fila para consultar los turnos.");
-        ayuda.setFont(EstilosGUI.FUENTE_PEQUENA);
+        ayuda.setFont(EstilosGUI.getFuentePequena());
         ayuda.setForeground(EstilosGUI.getColorTextoSecundario());
         ayuda.setBorder(new EmptyBorder(6, 0, 0, 0));
         panel.add(ayuda, BorderLayout.SOUTH);
