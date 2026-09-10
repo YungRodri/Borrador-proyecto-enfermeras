@@ -101,7 +101,7 @@ public class VentanaEstadisticas extends JFrame {
             for (Turno t : e.getListaTurnos()) {
                 if (t instanceof TurnoRegular) {
                     TurnoRegular tr = (TurnoRegular) t;
-                    if (Utilidades.TURNO_NOCHE.equals(tr.getTipoTurno())) turnosNoche++;
+                    if (Utilidades.getTurnoNoche().equals(tr.getTipoTurno())) turnosNoche++;
                 }
             }
         }

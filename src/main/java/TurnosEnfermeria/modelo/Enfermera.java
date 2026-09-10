@@ -193,7 +193,7 @@ public class Enfermera extends Persona {
     /** Cuenta los turnos nocturnos usando el conteo por horario. */
     public int contarTurnosNocheMes(String mes, String anio) {
         return contarTurnosPorHorarioMes(
-            Utilidades.TURNO_NOCHE, mes, anio
+            Utilidades.getTurnoNoche(), mes, anio
         );
     }
 

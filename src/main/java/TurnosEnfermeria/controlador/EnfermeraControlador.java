@@ -101,7 +101,7 @@ public class EnfermeraControlador {
         /** Filtra enfermeras que superan el limite del horario indicado. */
     public static List<Enfermera> filtrarExcesoTurnosPorHorario(String horario, int limite, String mes, String anio) {
 
-        boolean horarioValido = Utilidades.TURNO_MANANA.equals(horario) || Utilidades.TURNO_TARDE.equals(horario) || Utilidades.TURNO_NOCHE.equals(horario);
+        boolean horarioValido = Utilidades.getTurnoManana().equals(horario) || Utilidades.getTurnoTarde().equals(horario) || Utilidades.getTurnoNoche().equals(horario);
 
         if (!horarioValido) {
             throw new IllegalArgumentException("Seleccione un horario: mañana, tarde o noche.");
@@ -134,7 +134,7 @@ public class EnfermeraControlador {
     public static List<Enfermera> filtrarExcesoTurnosNoche(
             int limiteNoche, String mes, String anio) {
         return filtrarExcesoTurnosPorHorario(
-            Utilidades.TURNO_NOCHE, limiteNoche, mes, anio
+            Utilidades.getTurnoNoche(), limiteNoche, mes, anio
         );
     }
 

@@ -17,17 +17,17 @@ import java.time.format.ResolverStyle;
  */
 public class Utilidades {
 
-    // ---- Constantes de tipos de turno ----
-    public static final String TURNO_MANANA = "Manana";
-    public static final String TURNO_TARDE  = "Tarde";
-    public static final String TURNO_NOCHE  = "Noche";
+    public static String getTurnoManana() {
+        return "Manana";
+    }
 
-    public static final String HORA_MANANA_INI = "07:00";
-    public static final String HORA_MANANA_FIN = "15:00";
-    public static final String HORA_TARDE_INI  = "15:00";
-    public static final String HORA_TARDE_FIN  = "23:00";
-    public static final String HORA_NOCHE_INI  = "23:00";
-    public static final String HORA_NOCHE_FIN  = "07:00";
+    public static String getTurnoTarde() {
+        return "Tarde";
+    }
+
+    public static String getTurnoNoche() {
+        return "Noche";
+    }
 
        /** Devuelve las areas disponibles. */
     public static String[] getAreasHospitalarias() {
@@ -58,7 +58,7 @@ public class Utilidades {
     /** Devuelve los horarios disponibles. */
     public static String[] getTiposTurno() {
         return new String[]{
-            TURNO_MANANA, TURNO_TARDE, TURNO_NOCHE
+            getTurnoManana(), getTurnoTarde(), getTurnoNoche()
         };
     }
 
@@ -190,27 +190,27 @@ public class Utilidades {
         return "T" + java.util.UUID.randomUUID().toString();
     }
 
-    /**
-     * Retorna la hora de inicio predefinida para un tipo de turno.
-     */
+    /** Devuelve la hora inicial del horario seleccionado. */
     public static String horaInicioPorTipo(String tipoTurno) {
+        if (tipoTurno == null) return "";
+
         switch (tipoTurno) {
-            case TURNO_MANANA: return HORA_MANANA_INI;
-            case TURNO_TARDE:  return HORA_TARDE_INI;
-            case TURNO_NOCHE:  return HORA_NOCHE_INI;
-            default:           return "";
+            case "Manana": return "07:00";
+            case "Tarde":  return "15:00";
+            case "Noche":  return "23:00";
+            default:      return "";
         }
     }
 
-    /**
-     * Retorna la hora de fin predefinida para un tipo de turno.
-     */
+    /** Devuelve la hora final del horario seleccionado. */
     public static String horaFinPorTipo(String tipoTurno) {
+        if (tipoTurno == null) return "";
+
         switch (tipoTurno) {
-            case TURNO_MANANA: return HORA_MANANA_FIN;
-            case TURNO_TARDE:  return HORA_TARDE_FIN;
-            case TURNO_NOCHE:  return HORA_NOCHE_FIN;
-            default:           return "";
+            case "Manana": return "15:00";
+            case "Tarde":  return "23:00";
+            case "Noche":  return "07:00";
+            default:      return "";
         }
     }
 

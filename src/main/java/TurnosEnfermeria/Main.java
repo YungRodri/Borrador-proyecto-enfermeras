@@ -170,8 +170,7 @@ public class Main {
             for (Turno turno : enfermera.getListaTurnos()) {
                 if (turno instanceof TurnoRegular) {
                     TurnoRegular regular = (TurnoRegular) turno;
-                    if (Utilidades.TURNO_NOCHE.equals(
-                            regular.getTipoTurno())) {
+                    if (Utilidades.getTurnoNoche().equals(regular.getTipoTurno())) {
                         noches++;
                     }
                 }

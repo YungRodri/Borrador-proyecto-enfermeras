@@ -289,99 +289,53 @@ public class GestorArchivos {
             registro.put(e6.getRut(), e6);
 
             // Maria: tres turnos nocturnos.
-            TurnoControlador.registrar(e1, new TurnoRegular(
-                "T000001", "01/09/2026", "23:00", "07:00",
-                Utilidades.TURNO_NOCHE, "Guardia nocturna"
-            ), registro);
+            TurnoControlador.registrar(e1, new TurnoRegular("T000001", "01/09/2026", "23:00", "07:00",Utilidades.getTurnoNoche(), "Guardia nocturna"), registro);
 
-            TurnoControlador.registrar(e1, new TurnoRegular(
-                "T000002", "02/09/2026", "23:00", "07:00",
-                Utilidades.TURNO_NOCHE, "Guardia nocturna"
-            ), registro);
+            TurnoControlador.registrar(e1, new TurnoRegular("T000002", "02/09/2026", "23:00", "07:00",Utilidades.getTurnoNoche(), "Guardia nocturna"), registro);
 
-            TurnoControlador.registrar(e1, new TurnoRegular(
-                "T000003", "04/09/2026", "23:00", "07:00",
-                Utilidades.TURNO_NOCHE, "Guardia nocturna"
-            ), registro);
+            TurnoControlador.registrar(e1, new TurnoRegular("T000003", "04/09/2026", "23:00", "07:00",Utilidades.getTurnoNoche(), "Guardia nocturna"), registro);
 
             // Carlos: turnos propios.
-            TurnoControlador.registrar(e2, new TurnoRegular(
-                "T000004", "01/09/2026", "07:00", "15:00",
-                Utilidades.TURNO_MANANA, "Sin novedad"
-            ), registro);
+            TurnoControlador.registrar(e2, new TurnoRegular("T000004", "01/09/2026", "07:00", "15:00",Utilidades.getTurnoManana(), "Sin novedad"), registro);
 
-            TurnoControlador.registrar(e2, new TurnoRegular(
-                "T000005", "03/09/2026", "15:00", "23:00",
-                Utilidades.TURNO_TARDE, "Sin novedad"
-            ), registro);
+            TurnoControlador.registrar(e2, new TurnoRegular("T000005", "03/09/2026", "15:00", "23:00",Utilidades.getTurnoTarde(), "Sin novedad"), registro);
 
             // Ana: licencia y posterior regreso.
-            TurnoControlador.registrar(e3, new Licencia(
-                "T000006", "05/09/2026", "Reposo medico", "Medica"
-            ), registro);
+            TurnoControlador.registrar(e3, new Licencia("T000006", "05/09/2026", "Reposo medico", "Medica"), registro);
 
-            TurnoControlador.registrar(e3, new TurnoRegular(
-                "T000007", "07/09/2026", "07:00", "15:00",
-                Utilidades.TURNO_MANANA, "Regreso de licencia"
-            ), registro);
+            TurnoControlador.registrar(e3, new TurnoRegular("T000007", "07/09/2026", "07:00", "15:00",Utilidades.getTurnoManana(), "Regreso de licencia"), registro);
 
             // Pedro: turno original que sera cubierto por Carlos.
-            TurnoControlador.registrar(e4, new TurnoRegular(
-                "T000015", "02/09/2026", "07:00", "15:00",
-                Utilidades.TURNO_MANANA, "Asignacion original"
-            ), registro);
+            TurnoControlador.registrar(e4, new TurnoRegular("T000015", "02/09/2026", "07:00", "15:00",Utilidades.getTurnoManana(), "Asignacion original"), registro);
 
             // El cambio reemplaza T000015 y atribuye sus horas a Carlos.
-            TurnoControlador.registrar(e4, new CambioTurno(
-                "T000008", "02/09/2026", "07:00", "15:00",
-                e2.getRut(), "Compromiso personal", "Cubierto por Munoz"
-            ), registro);
+            TurnoControlador.registrar(e4, new CambioTurno("T000008", "02/09/2026", "07:00", "15:00",e2.getRut(), "Compromiso personal", "Cubierto por Munoz"), registro);
 
-            TurnoControlador.registrar(e4, new TurnoRegular(
-                "T000009", "04/09/2026", "23:00", "07:00",
-                Utilidades.TURNO_NOCHE, "Guardia"
-            ), registro);
+            TurnoControlador.registrar(e4, new TurnoRegular("T000009", "04/09/2026", "23:00", "07:00",Utilidades.getTurnoNoche(), "Guardia"), registro);
 
             // Sofia: turnos de distintos tipos.
-            TurnoControlador.registrar(e5, new TurnoRegular(
-                "T000010", "01/09/2026", "07:00", "15:00",
-                Utilidades.TURNO_MANANA, "Primer dia"
-            ), registro);
+            TurnoControlador.registrar(e5, new TurnoRegular("T000010", "01/09/2026", "07:00", "15:00",Utilidades.getTurnoManana(), "Primer dia"), registro);
 
             TurnoControlador.registrar(e5, new TurnoRegular(
-                "T000011", "03/09/2026", "15:00", "23:00",
-                Utilidades.TURNO_TARDE, ""
-            ), registro);
+                "T000011", "03/09/2026", "15:00", "23:00",Utilidades.getTurnoTarde(), ""), registro);
 
             TurnoControlador.registrar(e5, new TurnoRegular(
-                "T000012", "05/09/2026", "23:00", "07:00",
-                Utilidades.TURNO_NOCHE, ""
-            ), registro);
+                "T000012", "05/09/2026", "23:00", "07:00",Utilidades.getTurnoNoche(), ""), registro);
 
             // Laura: turno regular y licencia.
             TurnoControlador.registrar(e6, new TurnoRegular(
-                "T000013", "02/09/2026", "07:00", "15:00",
-                Utilidades.TURNO_MANANA, "Preparacion quirurgica"
-            ), registro);
+                "T000013", "02/09/2026", "07:00", "15:00",Utilidades.getTurnoManana(), "Preparacion quirurgica"), registro);
 
-            TurnoControlador.registrar(e6, new Licencia(
-                "T000014", "08/09/2026", "Vacaciones anuales", "Personal"
-            ), registro);
+            TurnoControlador.registrar(e6, new Licencia("T000014", "08/09/2026", "Vacaciones anuales", "Personal"), registro);
 
         } catch (RutInvalidoException | TurnoConflictoException
                 | IllegalArgumentException ex) {
-            System.err.println(
-                "[ERROR CRITICO] Fallo al crear datos iniciales: "
-                + ex.getMessage()
-            );
+            System.err.println("[ERROR CRITICO] Fallo al crear datos iniciales: " + ex.getMessage());
             registro.clear();
             return registro;
         }
 
-        System.out.println(
-            "[INFO] Datos iniciales cargados: "
-            + registro.size() + " enfermeras."
-        );
+        System.out.println("[INFO] Datos iniciales cargados: " + registro.size() + " enfermeras.");
         return registro;
     }
 }

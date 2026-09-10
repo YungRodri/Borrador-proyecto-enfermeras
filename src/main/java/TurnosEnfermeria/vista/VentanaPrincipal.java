@@ -177,7 +177,7 @@ public class VentanaPrincipal extends JFrame {
         JTextField campoAnio = EstilosGUI.crearCampoTexto(6);
         JTextField campoLimite = EstilosGUI.crearCampoTexto(4);
 
-        campoHorario.setSelectedItem(Utilidades.TURNO_NOCHE);
+        campoHorario.setSelectedItem(Utilidades.getTurnoNoche());
         campoMes.setText("09");
         campoAnio.setText("2026");
         campoLimite.setText("3");
