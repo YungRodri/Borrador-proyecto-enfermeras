@@ -4,6 +4,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 
 /**
  * Clase de utilidades con metodos estaticos para validaciones y operaciones comunes.
@@ -207,5 +212,73 @@ public class Utilidades {
      */
     public static void imprimirLinea() {
         System.out.println("---------------------------------------------------");
+    }
+
+    /**
+ * Obtiene el inicio del evento.
+ * Una licencia comienza a las 00:00 del dia indicado.
+ */
+private static LocalDateTime obtenerInicio(Turno turno) {
+    DateTimeFormatter formatoFecha = DateTimeFormatter
+        .ofPattern("dd/MM/uuuu")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    LocalDate fecha = LocalDate.parse(turno.getFecha(), formatoFecha);
+
+    if (turno instanceof Licencia) {
+        return fecha.atStartOfDay();
+    }
+
+    DateTimeFormatter formatoHora = DateTimeFormatter
+        .ofPattern("HH:mm")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    LocalTime hora = LocalTime.parse(turno.getHoraInicio(), formatoHora);
+    return fecha.atTime(hora);
+}
+
+/**
+ * Obtiene el fin del evento.
+ * Si la hora final es anterior a la inicial, termina al dia siguiente.
+ */
+private static LocalDateTime obtenerFin(Turno turno, LocalDateTime inicio) {
+    if (turno instanceof Licencia) {
+        return inicio.plusDays(1);
+    }
+
+    DateTimeFormatter formatoHora = DateTimeFormatter
+        .ofPattern("HH:mm")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    LocalTime horaFin = LocalTime.parse(turno.getHoraFin(), formatoHora);
+
+    if (horaFin.equals(inicio.toLocalTime())) {
+        throw new java.time.DateTimeException(
+            "La hora de inicio y fin no pueden ser iguales."
+        );
+    }
+
+    LocalDateTime fin = inicio.toLocalDate().atTime(horaFin);
+
+    if (fin.isBefore(inicio)) {
+        fin = fin.plusDays(1);
+    }
+
+    return fin;
+}
+
+    /**
+    * Comprueba solapamiento usando fechas y horas completas.
+    * Dos eventos contiguos no se consideran en conflicto.
+    */
+    public static boolean hayConflictoTurnos(Turno primero, Turno segundo) {
+        LocalDateTime inicioPrimero = obtenerInicio(primero);
+        LocalDateTime finPrimero = obtenerFin(primero, inicioPrimero);
+
+        LocalDateTime inicioSegundo = obtenerInicio(segundo);
+        LocalDateTime finSegundo = obtenerFin(segundo, inicioSegundo);
+
+        return inicioPrimero.isBefore(finSegundo)
+            && inicioSegundo.isBefore(finPrimero);
     }
 }

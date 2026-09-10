@@ -42,27 +42,38 @@ public class Enfermera extends Persona {
      * @throws TurnoConflictoException si hay superposicion de horario en la misma fecha
      */
     public void agregarTurno(Turno turno) throws TurnoConflictoException {
-        if (buscarTurno(turno.getId()) != null) {
-            throw new TurnoConflictoException("La enfermera ya tiene un turno con ID: " + turno.getId());
-        }
-        
+    if (turno == null) {
+        throw new TurnoConflictoException("El turno no puede ser nulo.");
+    }
+
+    if (buscarTurno(turno.getId()) != null) {
+        throw new TurnoConflictoException(
+            "La enfermera ya tiene un turno con ID: " + turno.getId()
+        );
+    }
+
+    try {
+        // Comprueba fecha y horario incluso si la lista esta vacia.
+        Utilidades.hayConflictoTurnos(turno, turno);
+
         for (Turno existente : listaTurnos) {
-            if (existente.getFecha().equals(turno.getFecha())
-                    && !existente.getHoraInicio().isEmpty()
-                    && !turno.getHoraInicio().isEmpty()
-                    && Utilidades.hayConflictoHorario(
-                            existente.getHoraInicio(), existente.getHoraFin(),
-                            turno.getHoraInicio(),     turno.getHoraFin())) {
+            if (Utilidades.hayConflictoTurnos(existente, turno)) {
                 throw new TurnoConflictoException(
                     "La enfermera " + getNombreCompleto()
-                    + " ya tiene turno de " + existente.getHoraInicio()
-                    + " a " + existente.getHoraFin()
-                    + " el dia " + turno.getFecha()
+                    + " tiene un evento incompatible: "
+                    + existente.getResumen()
                 );
             }
         }
-        listaTurnos.add(turno);
+    } catch (java.time.DateTimeException ex) {
+        throw new TurnoConflictoException(
+            "Revise las fechas y horas. Use dd/MM/yyyy y HH:mm. "
+            + ex.getMessage()
+        );
     }
+
+    listaTurnos.add(turno);
+}
 
     /**
      * [SOBRECARGA 2] Crea un TurnoRegular a partir de datos primitivos y lo agrega.
