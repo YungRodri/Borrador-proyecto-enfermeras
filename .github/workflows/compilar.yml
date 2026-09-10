@@ -25,3 +25,12 @@ jobs:
           mkdir -p build
           find src/main/java -name "*.java" > fuentes.txt
           javac --release 11 -encoding UTF-8 -d build @fuentes.txt
+            - name: Compilar la prueba de licencia
+        run: |
+          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaLicencia.java
+
+      - name: Probar edicion y persistencia de licencia
+        run: |
+          carpeta_prueba=$(mktemp -d)
+          cd "$carpeta_prueba"
+          java -cp "$GITHUB_WORKSPACE/build" PruebaLicencia
