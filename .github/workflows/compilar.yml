@@ -25,7 +25,8 @@ jobs:
           mkdir -p build
           find src/main/java -name "*.java" > fuentes.txt
           javac --release 11 -encoding UTF-8 -d build @fuentes.txt
-            - name: Compilar la prueba de licencia
+
+      - name: Compilar la prueba de licencia
         run: |
           javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaLicencia.java
 
