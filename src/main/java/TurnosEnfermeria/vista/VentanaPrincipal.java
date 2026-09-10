@@ -377,7 +377,7 @@ public class VentanaPrincipal extends JFrame {
         }
     }
     private void mostrarAsignacionGrupal() {
-        JComboBox<String> campoArea = EstilosGUI.crearComboBoxUtilidades.getAreasHospitalarias();
+        JComboBox<String> campoArea = EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
         JComboBox<String> campoTipo =EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
         JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
         JTextField campoObs = EstilosGUI.crearCampoTexto(20);
