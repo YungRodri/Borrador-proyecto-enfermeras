@@ -4,6 +4,7 @@ import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.RutInvalidoException;
 import TurnosEnfermeria.Main;
 import TurnosEnfermeria.modelo.Persona;
+import TurnosEnfermeria.modelo.Utilidades;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,15 +98,44 @@ public class EnfermeraControlador {
      * @param mes   formato MM (p.ej. "09")
      * @param anio  formato yyyy (p.ej. "2026")
      */
-    public static List<Enfermera> filtrarExcesoTurnosNoche(int limiteNoche,
-                                                            String mes, String anio) {
+        /** Filtra enfermeras que superan el limite del horario indicado. */
+    public static List<Enfermera> filtrarExcesoTurnosPorHorario(String horario, int limite, String mes, String anio) {
+
+        boolean horarioValido = Utilidades.TURNO_MANANA.equals(horario) || Utilidades.TURNO_TARDE.equals(horario) || Utilidades.TURNO_NOCHE.equals(horario);
+
+        if (!horarioValido) {
+            throw new IllegalArgumentException("Seleccione un horario: mañana, tarde o noche.");
+        }
+
+        if (limite < 0) {
+            throw new IllegalArgumentException("El limite debe ser igual o mayor que cero.");
+        }
+
+        if (mes == null || !mes.matches("0[1-9]|1[0-2]")) {
+            throw new IllegalArgumentException("El mes debe estar entre 01 y 12.");
+        }
+
+        if (anio == null || !anio.matches("[0-9]{4}") || anio.equals("0000")) {
+            throw new IllegalArgumentException("El año debe tener cuatro digitos y ser mayor que cero.");
+        }
+
         List<Enfermera> resultado = new ArrayList<>();
-        for (Enfermera e : Main.getRegistroGlobal().values()) {
-            if (e.contarTurnosNocheMes(mes, anio) > limiteNoche) {
-                resultado.add(e);
+
+        for (Enfermera enfermera : Main.getRegistroGlobal().values()) {
+            if (enfermera.contarTurnosPorHorarioMes(horario, mes, anio) > limite) {
+                resultado.add(enfermera);
             }
         }
+
         return resultado;
+    }
+
+    /** Conserva el filtro nocturno usando el filtro por horario. */
+    public static List<Enfermera> filtrarExcesoTurnosNoche(
+            int limiteNoche, String mes, String anio) {
+        return filtrarExcesoTurnosPorHorario(
+            Utilidades.TURNO_NOCHE, limiteNoche, mes, anio
+        );
     }
 
     /**

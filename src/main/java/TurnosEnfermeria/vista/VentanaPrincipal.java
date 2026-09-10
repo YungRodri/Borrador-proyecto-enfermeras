@@ -100,7 +100,7 @@ public class VentanaPrincipal extends JFrame {
 
         panel.add(crearBotonMenu("Filtrar por área",e -> mostrarFiltroPorArea()));
 
-        panel.add(crearBotonMenu("Exceso de turnos nocturnos",e -> mostrarFiltroNocturnos()));
+        panel.add(crearBotonMenu("Exceso de turnos por horario",e -> mostrarFiltroNocturnos()));
 
         panel.add(crearBotonMenu("Estadísticas",e -> new VentanaEstadisticas().setVisible(true)));
 
@@ -169,52 +169,85 @@ public class VentanaPrincipal extends JFrame {
         if (e != null) new VentanaTurnos(e, null).setVisible(true);
     }
 
-    /** Muestra un dialogo de filtro de turnos nocturnos por mes y anio. */
+        /** Consulta el exceso de turnos regulares por horario, mes y año. */
     private void mostrarFiltroNocturnos() {
-        JTextField campoMes  = EstilosGUI.crearCampoTexto(4);
+        JComboBox<String> campoHorario =
+            EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JTextField campoMes = EstilosGUI.crearCampoTexto(4);
         JTextField campoAnio = EstilosGUI.crearCampoTexto(6);
-        JTextField campoLim  = EstilosGUI.crearCampoTexto(4);
+        JTextField campoLimite = EstilosGUI.crearCampoTexto(4);
 
+        campoHorario.setSelectedItem(Utilidades.TURNO_NOCHE);
         campoMes.setText("09");
         campoAnio.setText("2026");
-        campoLim.setText("3");
+        campoLimite.setText("3");
 
-        JPanel form = new JPanel(new GridLayout(3, 2, 8, 8));
-        form.setBackground(EstilosGUI.COLOR_PANEL);
-        form.add(EstilosGUI.crearLabel("Mes (MM):")); form.add(campoMes);
-        form.add(EstilosGUI.crearLabel("Año (yyyy):")); form.add(campoAnio);
-        form.add(EstilosGUI.crearLabel("Límite de turnos noche:")); form.add(campoLim);
+        JPanel formulario = new JPanel(new GridLayout(4, 2, 8, 8));
+        formulario.setBackground(Color.WHITE);
 
-        int res = JOptionPane.showConfirmDialog(this, form,
-            "Filtrar Exceso de Turnos Nocturnos",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (res != JOptionPane.OK_OPTION) return;
+        formulario.add(EstilosGUI.crearLabel("Horario:"));
+        formulario.add(campoHorario);
+        formulario.add(EstilosGUI.crearLabel("Mes (MM):"));
+        formulario.add(campoMes);
+        formulario.add(EstilosGUI.crearLabel("Año (yyyy):"));
+        formulario.add(campoAnio);
+        formulario.add(EstilosGUI.crearLabel("Máximo permitido:"));
+        formulario.add(campoLimite);
+
+        int respuesta = JOptionPane.showConfirmDialog(
+            this, formulario, "Exceso de turnos por horario",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.OK_OPTION) return;
 
         try {
-            int limite = Integer.parseInt(campoLim.getText().trim());
+            String horario = (String) campoHorario.getSelectedItem();
             String mes = campoMes.getText().trim();
-            String anio= campoAnio.getText().trim();
-            List<Enfermera> resultado = EnfermeraControlador.filtrarExcesoTurnosNoche(limite, mes, anio);
+            String anio = campoAnio.getText().trim();
+            int limite = Integer.parseInt(campoLimite.getText().trim());
+
+            List<Enfermera> resultado =
+                EnfermeraControlador.filtrarExcesoTurnosPorHorario(horario, limite, mes, anio);
 
             if (resultado.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
-                    "Ninguna enfermera supera el límite de " + limite + " turnos noche en " + mes + "/" + anio,
-                    "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                StringBuilder sb = new StringBuilder("<html><b>Enfermeras con más de " + limite + " turnos noche en " + mes + "/" + anio + ":</b><br><br>");
-                for (Enfermera e : resultado) {
-                    int n = e.contarTurnosNocheMes(mes, anio);
-                    sb.append("• ").append(e.getNombreCompleto())
-                      .append(" [").append(e.getRut()).append("]")
-                      .append(" → ").append(n).append(" turnos noche<br>");
-                }
-                sb.append("</html>");
-                JOptionPane.showMessageDialog(this, sb.toString(),
-                    "Resultado del Filtro (" + resultado.size() + " enfermeras)",
-                    JOptionPane.WARNING_MESSAGE);
+                    "Ninguna enfermera supera el límite indicado.",
+                    "Sin resultados", JOptionPane.INFORMATION_MESSAGE
+                );
+                return;
             }
+
+            StringBuilder detalle = new StringBuilder();
+            detalle.append("Horario: ").append(horario)
+                   .append(" | Periodo: ").append(mes).append("/")
+                   .append(anio)
+                   .append("\nMás de ").append(limite)
+                   .append(" turnos:\n\n");
+
+            for (Enfermera enfermera : resultado) {
+                detalle.append(enfermera.getNombreCompleto())
+                       .append(" [").append(enfermera.getRut()).append("]")
+                       .append(" | Área: ").append(enfermera.getAreaAsignada())
+                       .append(" | Turnos: ")
+                       .append(enfermera.contarTurnosPorHorarioMes(horario, mes, anio)).append("\n");
+            }
+
+            detalle.append("\nTotal: ").append(resultado.size()).append(" enfermera(s).");
+
+            JTextArea texto = new JTextArea(detalle.toString(), 12, 50);
+            texto.setEditable(false);
+            texto.setLineWrap(true);
+            texto.setWrapStyleWord(true);
+            texto.setBackground(Color.WHITE);
+            texto.setForeground(Color.BLACK);
+            texto.setCaretPosition(0);
+
+            JOptionPane.showMessageDialog(this, new JScrollPane(texto),"Resultado del filtro", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El límite debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El máximo permitido debe ser un número entero.","Datos inválidos", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
         }
     }
 

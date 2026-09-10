@@ -222,7 +222,7 @@ public class Main {
         Utilidades.imprimirLinea();
         System.out.println("  -- REPORTES Y FILTROS --");
         System.out.println("  11. Asignacion Grupal de Turnos por Area");
-        System.out.println("  12. Filtro: Enfermeras con exceso turnos Noche");
+        System.out.println("  12. Filtro: Exceso de turnos por horario");
         System.out.println("  13. Resumen por Area Hospitalaria");
         System.out.println("  14. Validar disponibilidad para nueva asignacion");
         System.out.println("  15. Estadisticas del sistema");
@@ -663,37 +663,54 @@ public class Main {
         System.out.println("\n  Resultado: " + asignadas + " asignadas, " + conflictos + " con conflicto.");
     }
 
-    /** Opcion 12: Filtro - Enfermeras con exceso de turnos Noche (SIA-9) */
+       /** Filtra enfermeras con exceso de turnos del horario elegido. */
     private static void opcionFiltroExcesoNoche() {
-        System.out.println("\n  === FILTRO: ENFERMERAS CON EXCESO DE TURNOS NOCHE ===");
-        System.out.print("  Mes a evaluar (MM, p.ej. 09): ");
-        String mes = sc.nextLine().trim();
+        System.out.println("\n  === FILTRO DE TURNOS POR HORARIO ===");
+        System.out.println("  Seleccione el horario:");
 
-        System.out.print("  Anio a evaluar (yyyy, p.ej. 2026): ");
-        String anio = sc.nextLine().trim();
+        int indice = Utilidades.seleccionarOpcion(
+            sc, Utilidades.TIPOS_TURNO
+        );
 
-        System.out.print("  Maximo de turnos noche permitidos por mes: ");
-        int limite = Utilidades.leerEntero(sc);
-        if (limite < 0) {
-            System.out.println("  [!] Limite invalido.");
+        if (indice < 1 || indice > Utilidades.TIPOS_TURNO.length) {
+            System.out.println("  [!] Horario invalido.");
             return;
         }
 
-        List<Enfermera> exceso = EnfermeraControlador
-                .filtrarExcesoTurnosNoche(limite, mes, anio);
+        String horario = Utilidades.TIPOS_TURNO[indice - 1];
 
-        System.out.println("\n  Enfermeras con mas de " + limite
-                + " turno(s) noche en " + mes + "/" + anio + ":");
-        Utilidades.imprimirLinea();
+        System.out.print("  Mes (MM): ");
+        String mes = sc.nextLine().trim();
 
-        if (exceso.isEmpty()) {
-            System.out.println("  (Ninguna enfermera supera el limite establecido)");
-        } else {
-            for (Enfermera e : exceso) {
-                int cant = e.contarTurnosNocheMes(mes, anio);
-                System.out.println("  " + e.getNombreCompleto() + " (" + e.getRut() + ")" + " - Area: " + e.getAreaAsignada() + " - Turnos noche: " + cant);
+        System.out.print("  Año (yyyy): ");
+        String anio = sc.nextLine().trim();
+
+        System.out.print("  Maximo de turnos permitido: ");
+        int limite = Utilidades.leerEntero(sc);
+
+        try {
+            List<Enfermera> resultado =
+                EnfermeraControlador.filtrarExcesoTurnosPorHorario(horario, limite, mes, anio);
+
+            if (resultado.isEmpty()) {
+                System.out.println("  Ninguna enfermera supera el limite indicado.");
+                return;
             }
-            System.out.println("\n  Total: " + exceso.size() + " enfermera(s) con exceso.");
+
+            System.out.println("\n  Enfermeras con mas de " + limite + " turnos de " + horario + " en " + mes + "/" + anio);
+            Utilidades.imprimirLinea();
+
+            for (Enfermera enfermera : resultado) {
+                int cantidad = enfermera.contarTurnosPorHorarioMes(horario, mes, anio);
+
+                System.out.println("  " + enfermera.getNombreCompleto() + " [" + enfermera.getRut() + "]" + " | Area: " + enfermera.getAreaAsignada() + " | Turnos: " + cantidad);
+            }
+
+            System.out.println(
+                "\n  Total: " + resultado.size() + " enfermera(s)."
+            );
+        } catch (IllegalArgumentException ex) {
+            System.out.println("  [!] " + ex.getMessage());
         }
     }
 
