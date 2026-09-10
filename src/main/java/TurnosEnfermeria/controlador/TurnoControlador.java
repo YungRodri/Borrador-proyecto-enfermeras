@@ -4,6 +4,11 @@ import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.Turno;
 import TurnosEnfermeria.modelo.TurnoConflictoException;
 import TurnosEnfermeria.Main;
+import TurnosEnfermeria.modelo.CambioTurno;
+import TurnosEnfermeria.modelo.Persona;
+import TurnosEnfermeria.modelo.Utilidades;
+import java.util.Map;
+import TurnosEnfermeria.modelo.TurnoRegular;
 
 /**
  * Controlador de la entidad Turno.
@@ -14,15 +19,91 @@ import TurnosEnfermeria.Main;
  */
 public class TurnoControlador {
 
-    /**
-     * Registra un turno en la enfermera especificada.
-     * @param enfermera destinataria del turno
-     * @param turno     turno a agregar (ya construido)
-     * @throws TurnoConflictoException si hay superposicion de horario
-     */
-    public static void registrar(Enfermera enfermera, Turno turno)
-            throws TurnoConflictoException {
+   /**
+ * Registra un turno usando el registro de la aplicacion.
+ */
+public static void registrar(Enfermera enfermera, Turno turno)
+        throws TurnoConflictoException {
+    registrar(enfermera, turno, Main.getRegistroGlobal());
+}
+
+/**
+ * Registra un turno usando el registro recibido.
+ * Permite aplicar las mismas validaciones durante la carga CSV.
+ */
+    public static void registrar(Enfermera enfermera, Turno turno,Map<String, Enfermera> registro)
+        throws TurnoConflictoException {
+
+        if (enfermera == null || turno == null || registro == null) {
+            throw new TurnoConflictoException("Debe indicar una enfermera, un turno y un registro.");
+        }
+
+        if (registro.get(enfermera.getRut()) != enfermera) {
+            throw new TurnoConflictoException("La enfermera titular no pertenece al registro.");
+        }
+
+        if (turno instanceof CambioTurno) {
+            CambioTurno cambio = (CambioTurno) turno;
+            String rutSustituta = cambio.getRutSustituta();
+
+            if (!Persona.validarRut(rutSustituta)) {
+                throw new TurnoConflictoException("El RUT de la sustituta no es valido.");
+            }
+
+            Enfermera sustituta = registro.get(rutSustituta);
+
+            if (sustituta == null) {
+                throw new TurnoConflictoException("La enfermera sustituta no esta registrada.");
+            }
+
+            if (enfermera.getRut().equals(sustituta.getRut())) {
+                throw new TurnoConflictoException("La sustituta debe ser distinta de la enfermera titular.");
+            }
+        }
+
+        Turno original = null;
+
+        if (turno instanceof CambioTurno) {
+            original = buscarTurnoOriginal(enfermera, (CambioTurno) turno);
+        }
+
+        comprobarDisponibilidad(enfermera, turno, registro);
         enfermera.agregarTurno(turno);
+
+        // Solo retiramos el original cuando el cambio ya fue aceptado.
+        if (original != null) {
+            enfermera.eliminarTurno(original.getId());
+        }
+    }
+   /* Comprueba la agenda de quien realiza el turno, incluyendo sustituciones registradas en otras enfermeras.*/
+    private static void comprobarDisponibilidad(Enfermera titular, Turno nuevo,Map<String, Enfermera> registro)
+        throws TurnoConflictoException {
+
+        String rutResponsable = titular.getRut();
+
+        if (nuevo instanceof CambioTurno) {
+            rutResponsable = ((CambioTurno) nuevo).getRutSustituta();
+        }   
+
+        try {
+            Utilidades.hayConflictoTurnos(nuevo, nuevo);
+
+            for (Enfermera enfermera : registro.values()) {
+                for (Turno existente : enfermera.getListaTurnos()) {
+                    String rutExistente = enfermera.getRut();
+
+                    if (existente instanceof CambioTurno) {
+                        rutExistente = ((CambioTurno) existente).getRutSustituta();
+                    }
+
+                    if (rutResponsable.equals(rutExistente) && Utilidades.hayConflictoTurnos(existente, nuevo)) {
+                        throw new TurnoConflictoException("La enfermera con RUT " + rutResponsable + " no esta disponible. Evento incompatible: " + existente.getResumen());
+                    }
+                }
+            }
+        } catch (java.time.DateTimeException ex) {
+            throw new TurnoConflictoException("Revise la fecha y el horario del evento. " + ex.getMessage());
+        }
     }
 
     /**
@@ -69,4 +150,65 @@ public class TurnoControlador {
         }
         return null;
     }
+
+    /* Suma los turnos propios y los cambios que cubre como sustituta.*/
+    public static double calcularHorasTrabajadas(Enfermera enfermera) {
+        double total = enfermera.getHorasTrabajadas();
+        for (Enfermera titular : EnfermeraControlador.listar()) {
+            for (Turno turno : titular.getListaTurnos()) {
+                if (turno instanceof CambioTurno) {
+                    CambioTurno cambio = (CambioTurno) turno;
+
+                    if (enfermera.getRut().equals(cambio.getRutSustituta())) {
+                        int ini = Utilidades.horaAMinutos(cambio.getHoraInicio());
+                        int fin = Utilidades.horaAMinutos(cambio.getHoraFin());
+
+                        if (ini < 0 || fin < 0) {
+                            continue;
+                        }
+
+                        if (fin <= ini) {
+                            fin += 24 * 60;
+                        }
+
+                        total += (fin - ini) / 60.0;
+                    }
+                }
+            }
+        }   
+
+        return total;
+    }
+
+
+    /**
+ * Busca el turno regular que sera reemplazado por el cambio.
+ * Rechaza coincidencias parciales de horario.
+ */
+    private static Turno buscarTurnoOriginal(
+        Enfermera titular, CambioTurno cambio)
+        throws TurnoConflictoException {
+
+        Turno original = null;
+
+        try {
+            Utilidades.hayConflictoTurnos(cambio, cambio);
+
+            for (Turno existente : titular.getListaTurnos()) {
+                if (existente instanceof TurnoRegular && Utilidades.hayConflictoTurnos(existente, cambio)) {
+                    boolean mismoHorario = existente.getFecha().equals(cambio.getFecha()) && existente.getHoraInicio().equals(cambio.getHoraInicio()) && existente.getHoraFin().equals(cambio.getHoraFin());
+
+                    if (!mismoHorario || original != null) {
+                        throw new TurnoConflictoException("El cambio debe coincidir exactamente con un unico "+ "turno regular de la titular.");
+                    }
+                    original = existente;
+                }
+            }
+        } catch (java.time.DateTimeException ex) {
+            throw new TurnoConflictoException("Revise la fecha y el horario del cambio. " + ex.getMessage());
+        }
+
+        return original;
+    }
+
 }

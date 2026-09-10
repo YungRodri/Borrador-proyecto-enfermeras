@@ -98,7 +98,7 @@ public class VentanaEstadisticas extends JFrame {
             totalTurnos    += e.contarTurnosRegulares();
             totalLicencias += e.contarLicencias();
             totalCambios   += e.contarCambios();
-            totalHoras     += e.getHorasTrabajadas();
+            totalHoras     += TurnoControlador.calcularHorasTrabajadas(e);
             for (Turno t : e.getListaTurnos()) {
                 if (t instanceof TurnoRegular) {
                     TurnoRegular tr = (TurnoRegular) t;
@@ -193,7 +193,7 @@ public class VentanaEstadisticas extends JFrame {
             // Calcular maximo para escala
             double maxHoras = 1;
             for (Enfermera e : todas) {
-                if (e.getHorasTrabajadas() > maxHoras) maxHoras = e.getHorasTrabajadas();
+                if (TurnoControlador.calcularHorasTrabajadas(e) > maxHoras) maxHoras = TurnoControlador.calcularHorasTrabajadas(e);
             }
 
             // Dibujar lineas de guia horizontales
@@ -232,7 +232,7 @@ public class VentanaEstadisticas extends JFrame {
 
             for (int i = 0; i < n; i++) {
                 Enfermera e = todas.get(i);
-                double horas = e.getHorasTrabajadas();
+                double horas = TurnoControlador.calcularHorasTrabajadas(e);
                 int altoBarra = (int)(altoGraf * horas / maxHoras);
 
                 int x = margenIzq + separacion + i * (anchoBarra + separacion);

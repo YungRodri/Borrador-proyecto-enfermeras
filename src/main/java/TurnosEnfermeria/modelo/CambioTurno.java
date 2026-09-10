@@ -13,7 +13,7 @@ public class CambioTurno extends Turno {
     public CambioTurno(String id, String fecha, String horaInicio, String horaFin,
                        String rutSustituta, String motivoCambio, String observacion) {
         super(id, fecha, horaInicio, horaFin, observacion);
-        this.rutSustituta = rutSustituta;
+        setRutSustituta(rutSustituta);
         this.motivoCambio = motivoCambio;
     }
 
@@ -35,7 +35,9 @@ public class CambioTurno extends Turno {
     // ========== GETTERS Y SETTERS (SIA-3) ==========
 
     public String getRutSustituta()                    { return rutSustituta; }
-    public void   setRutSustituta(String rutSustituta) { this.rutSustituta = rutSustituta; }
+    public void setRutSustituta(String rutSustituta) {
+        this.rutSustituta = Persona.normalizarRut(rutSustituta);
+    }
 
     public String getMotivoCambio()                    { return motivoCambio; }
     public void   setMotivoCambio(String motivoCambio) { this.motivoCambio = motivoCambio; }

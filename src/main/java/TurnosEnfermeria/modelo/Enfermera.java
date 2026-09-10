@@ -42,38 +42,28 @@ public class Enfermera extends Persona {
      * @throws TurnoConflictoException si hay superposicion de horario en la misma fecha
      */
     public void agregarTurno(Turno turno) throws TurnoConflictoException {
-    if (turno == null) {
-        throw new TurnoConflictoException("El turno no puede ser nulo.");
-    }
-
-    if (buscarTurno(turno.getId()) != null) {
-        throw new TurnoConflictoException(
-            "La enfermera ya tiene un turno con ID: " + turno.getId()
-        );
-    }
-
-    try {
-        // Comprueba fecha y horario incluso si la lista esta vacia.
-        Utilidades.hayConflictoTurnos(turno, turno);
-
-        for (Turno existente : listaTurnos) {
-            if (Utilidades.hayConflictoTurnos(existente, turno)) {
-                throw new TurnoConflictoException(
-                    "La enfermera " + getNombreCompleto()
-                    + " tiene un evento incompatible: "
-                    + existente.getResumen()
-                );
-            }
+        if (turno == null) {
+            throw new TurnoConflictoException("El turno no puede ser nulo.");
         }
-    } catch (java.time.DateTimeException ex) {
-        throw new TurnoConflictoException(
-            "Revise las fechas y horas. Use dd/MM/yyyy y HH:mm. "
-            + ex.getMessage()
-        );
-    }
 
-    listaTurnos.add(turno);
-}
+        if (buscarTurno(turno.getId()) != null) {
+            throw new TurnoConflictoException("La enfermera ya tiene un turno con ID: " + turno.getId());
+        }
+
+        try {
+        // Comprueba fecha y horario incluso si la lista esta vacia.
+            Utilidades.hayConflictoTurnos(turno, turno);
+            for (Turno existente : listaTurnos) {
+                if (!(existente instanceof CambioTurno) && !(turno instanceof CambioTurno)&& Utilidades.hayConflictoTurnos(existente, turno)) {
+                    throw new TurnoConflictoException("La enfermera " + getNombreCompleto() + " tiene un evento incompatible: " + existente.getResumen());
+                }
+            }
+        } catch (java.time.DateTimeException ex) {
+            throw new TurnoConflictoException("Revise las fechas y horas. Use dd/MM/yyyy y HH:mm. " + ex.getMessage());
+        }
+
+        listaTurnos.add(turno);
+    }
 
     /**
      * [SOBRECARGA 2] Crea un TurnoRegular a partir de datos primitivos y lo agrega.
@@ -149,20 +139,29 @@ public class Enfermera extends Persona {
     }
 
     /**
-     * Calcula el total de horas trabajadas sumando los turnos regulares y cambios.
-     * Los turnos nocturnos (fin &lt; inicio) se consideran de 8 horas.
-     */
+    * Calcula las horas de los turnos regulares propios.
+    * Las sustituciones recibidas se suman en el controlador.
+    */
     public double getHorasTrabajadas() {
         double total = 0;
+
         for (Turno t : listaTurnos) {
-            if (t instanceof TurnoRegular || t instanceof CambioTurno) {
+            if (t instanceof TurnoRegular) {
                 int ini = Utilidades.horaAMinutos(t.getHoraInicio());
                 int fin = Utilidades.horaAMinutos(t.getHoraFin());
-                if (ini < 0 || fin < 0) continue;
-                if (fin <= ini) fin += 24 * 60; // Turno nocturno
+
+                if (ini < 0 || fin < 0) {
+                    continue;
+                }
+
+                if (fin <= ini) {
+                    fin += 24 * 60;
+                }
+
                 total += (fin - ini) / 60.0;
             }
         }
+
         return total;
     }
 

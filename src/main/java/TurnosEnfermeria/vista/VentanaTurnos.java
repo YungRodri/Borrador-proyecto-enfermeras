@@ -88,7 +88,7 @@ public class VentanaTurnos extends JFrame {
         panelStats.add(crearBadge("Regulares", String.valueOf(enfermera.contarTurnosRegulares()), EstilosGUI.COLOR_ACENTO));
         panelStats.add(crearBadge("Licencias", String.valueOf(enfermera.contarLicencias()), EstilosGUI.COLOR_ADVERTENCIA));
         panelStats.add(crearBadge("Cambios",   String.valueOf(enfermera.contarCambios()),   EstilosGUI.COLOR_ACENTO2));
-        panelStats.add(crearBadge("Horas",     String.format("%.1f", enfermera.getHorasTrabajadas()), EstilosGUI.COLOR_EXITO));
+        panelStats.add(crearBadge("Horas",     String.format("%.1f", TurnoControlador.calcularHorasTrabajadas(enfermera)), EstilosGUI.COLOR_EXITO));
 
         panel.add(panelInfo,   BorderLayout.CENTER);
         panel.add(panelStats,  BorderLayout.EAST);
@@ -245,7 +245,9 @@ public class VentanaTurnos extends JFrame {
             String horaIni = Utilidades.horaInicioPorTipo(tipo);
             String horaFin = Utilidades.horaFinPorTipo(tipo);
             try {
-                enfermera.agregarTurno(fecha, horaIni, horaFin, tipo);
+                TurnoRegular nuevo = new TurnoRegular(Utilidades.generarIdTurno(),fecha,horaIni,horaFin,tipo,"");
+
+                TurnoControlador.registrar(enfermera, nuevo);
                 cargarTabla();
                 actualizarEncabezado();
                 d.dispose();

@@ -261,7 +261,7 @@ public class Main {
             System.out.println("  Turnos reg.  : " + e.contarTurnosRegulares());
             System.out.println("  Licencias    : " + e.contarLicencias());
             System.out.println("  Cambios      : " + e.contarCambios());
-            System.out.printf( "  Horas trab.  : %.1f h%n", e.getHorasTrabajadas());
+            System.out.printf( "  Horas trab.  : %.1f h%n", TurnoControlador.calcularHorasTrabajadas(e));
         }
     }
 
@@ -448,7 +448,7 @@ public class Main {
         System.out.println("\n  Regulares: " + e.contarTurnosRegulares()
                 + " | Licencias: " + e.contarLicencias()
                 + " | Cambios: " + e.contarCambios()
-                + " | Horas: " + String.format("%.1f", e.getHorasTrabajadas()));
+                + " | Horas: " + String.format("%.1f", TurnoControlador.calcularHorasTrabajadas(e)));
     }
 
     /** Opcion 8: Buscar Turno por ID */
@@ -650,7 +650,7 @@ public class Main {
             System.out.printf("  %-25s %-14s %-8d %-8d %-8d %.1f h%n",
                     e.getNombreCompleto(), e.getRut(),
                     e.contarTurnosRegulares(), e.contarLicencias(),
-                    e.contarCambios(), e.getHorasTrabajadas());
+                    e.contarCambios(), TurnoControlador.calcularHorasTrabajadas(e));
         }
         Utilidades.imprimirLinea();
         System.out.println("  Cobertura minima: "
