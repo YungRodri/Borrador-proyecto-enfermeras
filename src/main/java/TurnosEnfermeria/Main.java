@@ -22,7 +22,7 @@ import java.util.TreeMap;
 
 /**
  * Punto de entrada del Sistema de Gestion de Turnos de Enfermeras.
- *
+ * 
  * Al iniciar:
  *   1. Carga datos desde CSV (o semilla si no existen) - SIA-11
  *   2. Ofrece seleccion de interfaz: Consola o GUI - SIA-10
@@ -30,6 +30,7 @@ import java.util.TreeMap;
  * registroGlobal es el TreeMap&lt;RUT, Enfermera&gt; que actua como base de datos en memoria.
  * SOLO los Controladores deben acceder a este campo.
  */
+
 public class Main {
 
     /** COLECCION 1 (Mapa principal del sistema) - SIA-4 */
@@ -224,8 +225,7 @@ public class Main {
                 System.out.println("  [!] Ya existe una enfermera con RUT " + rut);
             }
         } catch (RutInvalidoException ex) {
-            System.out.println("  [!] RUT invalido: " + ex.getRutIngresado()
-                    + " - Verifique el digito verificador.");
+            System.out.println("  [!] RUT invalido: " + ex.getRutIngresado() + " - Verifique el digito verificador.");
         }
     }
 
@@ -237,38 +237,56 @@ public class Main {
             System.out.println("  (No hay enfermeras registradas)");
             return;
         }
-        System.out.printf("  %-15s %-25s %-22s %-18s %s%n",
-                "RUT", "NOMBRE COMPLETO", "ESPECIALIDAD", "AREA", "TURNOS");
+        System.out.printf("  %-15s %-25s %-22s %-18s %s%n", "RUT", "NOMBRE COMPLETO", "ESPECIALIDAD", "AREA", "TURNOS");
         Utilidades.imprimirLinea();
         for (Enfermera e : lista) {
-            System.out.printf("  %-15s %-25s %-22s %-18s %d%n",
-                    e.getRut(), e.getNombreCompleto(),
-                    e.getEspecialidad(), e.getAreaAsignada(),
-                    e.getListaTurnos().size());
+            System.out.printf("  %-15s %-25s %-22s %-18s %d%n", e.getRut(), e.getNombreCompleto(), e.getEspecialidad(), e.getAreaAsignada(), e.getListaTurnos().size());
         }
         System.out.println("\n  Total: " + lista.size() + " enfermeras registradas.");
     }
 
-    /** Opcion 3: Buscar Enfermera por RUT */
+        /** Opcion 3: Buscar enfermeras por RUT o nombre. */
     private static void opcionBuscarEnfermera() {
         System.out.println("\n  === BUSCAR ENFERMERA ===");
-        System.out.print("  RUT a buscar: ");
-        String rut = sc.nextLine().trim();
-        Enfermera e = EnfermeraControlador.obtener(rut);
-        if (e == null) {
-            System.out.println("  [!] No se encontro enfermera con RUT: " + rut);
+        System.out.print("  RUT o nombre a buscar: ");
+        String busqueda = sc.nextLine().trim();
+
+        if (busqueda.isEmpty()) {
+            System.out.println("  [!] Ingrese un RUT o un nombre.");
+            return;
+        }
+
+        Enfermera encontrada = EnfermeraControlador.obtener(busqueda);
+        int coincidencias = 0;
+
+        for (Enfermera e : EnfermeraControlador.listar()) {
+            boolean coincide;
+
+            if (encontrada != null) {
+                coincide = e.getRut().equals(encontrada.getRut());
+            } else {
+                coincide = e.getNombreCompleto().toLowerCase(java.util.Locale.ROOT).contains(busqueda.toLowerCase(java.util.Locale.ROOT));
+            }
+
+            if (coincide) {
+                Utilidades.imprimirLinea();
+                System.out.println("  RUT          : " + e.getRut());
+                System.out.println("  Nombre       : " + e.getNombreCompleto());
+                System.out.println("  Edad         : " + e.getEdad());
+                System.out.println("  Especialidad : " + e.getEspecialidad());
+                System.out.println("  Area         : " + e.getAreaAsignada());
+                System.out.println("  Turnos reg.  : " + e.contarTurnosRegulares());
+                System.out.println("  Licencias    : " + e.contarLicencias());
+                System.out.println("  Cambios      : " + e.contarCambios());
+                System.out.printf("  Horas trab.  : %.1f h%n",TurnoControlador.calcularHorasTrabajadas(e));
+                coincidencias++;
+            }
+        }
+
+        if (coincidencias == 0) {
+            System.out.println("  [!] No se encontraron enfermeras con: " + busqueda);
         } else {
-            System.out.println("\n  Datos de la enfermera:");
-            Utilidades.imprimirLinea();
-            System.out.println("  RUT          : " + e.getRut());
-            System.out.println("  Nombre       : " + e.getNombreCompleto());
-            System.out.println("  Edad         : " + e.getEdad());
-            System.out.println("  Especialidad : " + e.getEspecialidad());
-            System.out.println("  Area         : " + e.getAreaAsignada());
-            System.out.println("  Turnos reg.  : " + e.contarTurnosRegulares());
-            System.out.println("  Licencias    : " + e.contarLicencias());
-            System.out.println("  Cambios      : " + e.contarCambios());
-            System.out.printf( "  Horas trab.  : %.1f h%n", TurnoControlador.calcularHorasTrabajadas(e));
+            System.out.println("\n  Coincidencias encontradas: " + coincidencias);
         }
     }
 
@@ -584,13 +602,11 @@ public class Main {
                 System.out.println("  [OK] Turno asignado a: " + e.getNombreCompleto());
                 asignadas++;
             } catch (TurnoConflictoException ex) {
-                System.out.println("  [CONFLICTO] " + e.getNombreCompleto()
-                        + ": " + ex.getMessage());
+                System.out.println("  [CONFLICTO] " + e.getNombreCompleto() + ": " + ex.getMessage());
                 conflictos++;
             }
         }
-        System.out.println("\n  Resultado: " + asignadas + " asignadas, "
-                + conflictos + " con conflicto.");
+        System.out.println("\n  Resultado: " + asignadas + " asignadas, " + conflictos + " con conflicto.");
     }
 
     /** Opcion 12: Filtro - Enfermeras con exceso de turnos Noche (SIA-9) */
@@ -621,10 +637,7 @@ public class Main {
         } else {
             for (Enfermera e : exceso) {
                 int cant = e.contarTurnosNocheMes(mes, anio);
-                System.out.println("  " + e.getNombreCompleto()
-                        + " (" + e.getRut() + ")"
-                        + " - Area: " + e.getAreaAsignada()
-                        + " - Turnos noche: " + cant);
+                System.out.println("  " + e.getNombreCompleto() + " (" + e.getRut() + ")" + " - Area: " + e.getAreaAsignada() + " - Turnos noche: " + cant);
             }
             System.out.println("\n  Total: " + exceso.size() + " enfermera(s) con exceso.");
         }
@@ -654,10 +667,7 @@ public class Main {
                 "NOMBRE", "RUT", "REG.", "LIC.", "CAMB.", "HORAS");
         Utilidades.imprimirLinea();
         for (Enfermera e : area.getEnfermeras().values()) {
-            System.out.printf("  %-25s %-14s %-8d %-8d %-8d %.1f h%n",
-                    e.getNombreCompleto(), e.getRut(),
-                    e.contarTurnosRegulares(), e.contarLicencias(),
-                    e.contarCambios(), TurnoControlador.calcularHorasTrabajadas(e));
+            System.out.printf("  %-25s %-14s %-8d %-8d %-8d %.1f h%n", e.getNombreCompleto(), e.getRut(), e.contarTurnosRegulares(), e.contarLicencias(), e.contarCambios(), TurnoControlador.calcularHorasTrabajadas(e));
         }
         Utilidades.imprimirLinea();
         System.out.println("  Cobertura minima: "
