@@ -164,6 +164,9 @@ public class VentanaPrincipal extends JFrame {
             EstilosGUI.COLOR_ERROR,
             e -> cerrarSistema()));
 
+        grid.add(crearTarjetaMenu("✓","Validar\nDisponibilidad","Comprobar personal libre para\nuna nueva asignación.",EstilosGUI.COLOR_ACENTO,
+            e -> mostrarValidacionCobertura()));
+
         wrapper.add(grid, new GridBagConstraints());
         return wrapper;
     }
@@ -364,12 +367,7 @@ public class VentanaPrincipal extends JFrame {
                 "Área: " + area + " (" + resultado.size() + ")", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-    grid.add(crearTarjetaMenu(
-    "✓",
-    "Validar\nDisponibilidad",
-    "Comprobar personal libre para\nuna nueva asignación.",
-    EstilosGUI.COLOR_ACENTO,
-    e -> mostrarValidacionCobertura()));
+   
 
     /**
  * Consulta disponibilidad sin registrar ni modificar turnos.
