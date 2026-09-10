@@ -3,6 +3,7 @@ package TurnosEnfermeria.vista;
 import TurnosEnfermeria.controlador.EnfermeraControlador;
 import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.Utilidades;
+import java.util.function.BooleanSupplier;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,13 +25,13 @@ import java.util.List;
 public class VentanaPrincipal extends JFrame {
 
     /** Callback que se ejecuta al cerrar la ventana (para grabar datos a disco). */
-    private final Runnable alCerrar;
+    private final BooleanSupplier alCerrar;
 
     /**
      * Constructor principal.
      * @param alCerrar accion a ejecutar al cerrar la ventana (guardar datos CSV)
      */
-    public VentanaPrincipal(Runnable alCerrar) {
+    public VentanaPrincipal(BooleanSupplier alCerrar) {{
         this.alCerrar = alCerrar;
         setTitle("Sistema de Gestión de Turnos de Enfermeras – Hospital Central");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -366,15 +367,28 @@ public class VentanaPrincipal extends JFrame {
     //  CIERRE DEL SISTEMA
     // =====================================================================
 
-    /** Confirma el cierre, ejecuta el callback de guardado y cierra la ventana. */
+    /* Cierra el sistema solamente si el guardado fue exitoso.*/
     private void cerrarSistema() {
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "¿Desea cerrar el sistema?\nLos datos se guardarán automáticamente.",
-            "Cerrar Sistema", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (alCerrar != null) alCerrar.run();
-            dispose();
-            System.exit(0);
+        int confirm = JOptionPane.showConfirmDialog(this,"¿Desea guardar los datos y cerrar el sistema?","Cerrar Sistema",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
         }
+
+        try {
+            if (alCerrar == null || !alCerrar.getAsBoolean()) {
+                JOptionPane.showMessageDialog(
+                    this,"No se completó el guardado.\n" + "El sistema seguirá abierto. Puede reintentar el cierre.", "Error al guardar",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                this,"No se pudo guardar: " + ex.getMessage() + "\nEl sistema seguirá abierto.", "Error al guardar", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        dispose();
+        System.exit(0);
     }
 }

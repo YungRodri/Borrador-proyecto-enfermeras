@@ -123,8 +123,13 @@ public class Main {
                 case 13: opcionResumenPorArea();      break;
                 // ── SISTEMA ───────────────────────────────────────────
                 case 0:
-                    GestorArchivos.guardarEnfermeras(registroGlobal); // SIA-11
-                    System.out.println("\n  Hasta luego. Datos guardados correctamente.");
+                    if (GestorArchivos.guardarEnfermeras(registroGlobal)) {
+                        System.out.println("\n  Hasta luego. Datos guardados correctamente.");
+                    } else {
+                        System.out.println("\n  [!] No se completo el guardado. " + "El sistema seguira abierto.");
+                        System.out.println("  Puede volver a elegir Guardar y Salir para reintentar.");
+                        opcion = -1;
+                    }
                     break;
                 default:
                     System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 13.");

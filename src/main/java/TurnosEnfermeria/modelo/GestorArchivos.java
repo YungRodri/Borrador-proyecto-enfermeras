@@ -92,16 +92,20 @@ public class GestorArchivos {
         return registro;
     }
 
-    /**
-     * Guarda el registro completo de enfermeras y sus turnos en los archivos CSV.
-     * Sobreescribe los archivos existentes.
-     * @param registro TreeMap global a persistir
-     */
-    public static void guardarEnfermeras(TreeMap<String, Enfermera> registro) {
-        crearCarpetaResources();
-        guardarArchivoEnfermeras(registro);
-        guardarTurnos(registro);
-        System.out.println("[INFO] Datos guardados en CSV exitosamente.");
+    /* Guarda las enfermeras y sus turnos.
+    * @return true si ambos archivos se guardaron correctamente*/
+    public static boolean guardarEnfermeras(TreeMap<String, Enfermera> registro) {
+        try {
+            crearCarpetaResources();
+            guardarArchivoEnfermeras(registro);
+            guardarTurnos(registro);
+
+            System.out.println("[INFO] Datos guardados en CSV exitosamente.");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("[ERROR] No se pudo completar el guardado: " + ex.getMessage());
+            return false;
+        }
     }
 
     // ========== METODOS PRIVADOS DE LECTURA ==========
@@ -192,7 +196,7 @@ public class GestorArchivos {
                 bw.newLine();
             }
         } catch (Exception ex) {
-            System.err.println("[ERROR] No se pudo escribir enfermeras.csv: " + ex.getMessage());
+            throw new IllegalStateException("No se pudo escribir enfermeras.csv.", ex);
         }
     }
 
@@ -221,7 +225,7 @@ public class GestorArchivos {
                 }
             }
         } catch (Exception ex) {
-            System.err.println("[ERROR] No se pudo escribir turnos.csv: " + ex.getMessage());
+           throw new IllegalStateException("No se pudo escribir turnos.csv.", eX);
         }
     }
 
