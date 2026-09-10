@@ -43,3 +43,11 @@ jobs:
       - name: Probar validacion de edad
         run: |
           java -cp build PruebaEdad
+      
+      - name: Compilar la prueba de conflictos
+        run: |
+          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaConflictos.java
+
+      - name: Probar conflictos de turnos
+        run: |
+          java -cp build PruebaConflictos
