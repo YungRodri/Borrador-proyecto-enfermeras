@@ -31,7 +31,7 @@ public final class EstilosGUI {
         return Color.WHITE;
     }
 
-    public static Color getColorAcento() {
+    public static Color btn.setBackground(getColorAcento()); {
         return Color.BLACK;
     }
 
@@ -105,7 +105,7 @@ public final class EstilosGUI {
         UIManager.put("Button.foreground", Color.BLACK);
         UIManager.put("TextField.background", getColorTarjeta());
         UIManager.put("TextField.foreground", getColorTexto());
-        UIManager.put("TextField.caretForeground", getColorAcento);
+        UIManager.put("TextField.caretForeground",btn.setBackground(getColorAcento()););
         UIManager.put("ComboBox.background", getColorTarjeta());
         UIManager.put("ComboBox.foreground", getColorTexto());
     }
@@ -116,7 +116,7 @@ public final class EstilosGUI {
     public static JButton crearBotonPrimario(String texto) {
         JButton btn = new JButton(texto);
         btn.setFont(FUENTE_BOTON);
-        btn.setBackground(getColorAcento);
+        btn.setBackground(getColorAcento());
         btn.setForeground(getColorFondo());
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
@@ -133,12 +133,12 @@ public final class EstilosGUI {
         JButton btn = new JButton(texto);
         btn.setFont(FUENTE_BOTON);
         btn.setBackground(getColorTarjeta());
-        btn.setForeground(getColorAcento);
+        btn.setForeground(getColorAcento());
         btn.setFocusPainted(false);
-        btn.setBorder(new LineBorder(getColorAcento, 1));
+        btn.setBorder(new LineBorder(getColorAcento(), 1));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(getColorAcento, 1),
+            new LineBorder(getColorAcento(), 1),
             new EmptyBorder(7, 16, 7, 16)
         ));
         btn.setOpaque(true);
@@ -169,7 +169,7 @@ public final class EstilosGUI {
         campo.setFont(FUENTE_NORMAL);
         campo.setBackground(getColorTarjeta());
         campo.setForeground(getColorTexto());
-        campo.setCaretColor(getColorAcento);
+        campo.setCaretColor(getColorAcento());
         campo.setBorder(BorderFactory.createCompoundBorder(
             new LineBorder(getColorBorde(), 1),
             new EmptyBorder(6, 10, 6, 10)
@@ -196,7 +196,7 @@ public final class EstilosGUI {
     public static JLabel crearLabelTitulo(String texto) {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(FUENTE_TITULO);
-        lbl.setForeground(getColorAcento);
+        lbl.setForeground(getColorAcento());
         lbl.setBorder(new EmptyBorder(0, 0, 4, 0));
         return lbl;
     }
@@ -231,8 +231,8 @@ public final class EstilosGUI {
         JTableHeader header = tabla.getTableHeader();
         header.setFont(FUENTE_ENCABEZADO);
         header.setBackground(getColorTarjeta());
-        header.setForeground(getColorAcento);
-        header.setBorder(new LineBorder(COLOR_getColorBorde(), 1));
+        header.setForeground(getColorAcento());
+        header.setBorder(new LineBorder(getColorBorde(), 1));
         header.setReorderingAllowed(false);
 
         // Renderer con filas alternadas
@@ -285,12 +285,6 @@ public final class EstilosGUI {
      * Crea un borde de titulo con el color del acento.
      */
     public static Border crearBordeTitulo(String titulo) {
-        return BorderFactory.createTitledBorder(
-            new LineBorder(getColorBorde(), 1),
-            titulo,
-            0, 0,
-            FUENTE_SUBTITULO,
-            getColorAcento
-        );
+        return BorderFactory.createTitledBorder(new LineBorder(getColorBorde(), 1),titulo,0, 0,FUENTE_SUBTITULO,getColorAcento();)
     }
 }
