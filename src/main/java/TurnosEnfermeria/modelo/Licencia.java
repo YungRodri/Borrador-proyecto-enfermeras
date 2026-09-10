@@ -32,9 +32,17 @@ public class Licencia extends Turno {
     // ========== GETTERS Y SETTERS (SIA-3) ==========
 
     public String getMotivo()              { return motivo; }
-    public void   setMotivo(String motivo) {
-        this.motivo = motivo;
-        setObservacion(motivo); // Mantener sincronizado con el campo de Turno
+    public void setMotivo(String motivo) {
+        setObservacion(motivo);
+    }
+    /**
+    * Mantiene sincronizados el motivo y la observacion de la licencia.
+    */
+    @Override
+    public void setObservacion(String observacion) {
+        String texto = (observacion == null) ? "" : observacion;
+        super.setObservacion(texto);
+        this.motivo = texto;
     }
 
     public String getTipoLicencia()                  { return tipoLicencia; }
