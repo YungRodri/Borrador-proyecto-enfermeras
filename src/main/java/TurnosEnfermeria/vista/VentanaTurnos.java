@@ -199,7 +199,7 @@ public class VentanaTurnos extends JFrame {
 
         JTextField campoFecha = EstilosGUI.crearCampoTexto(14);
         campoFecha.setToolTipText("Formato: dd/MM/yyyy");
-        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
         JTextField campoObs = EstilosGUI.crearCampoTexto(20);
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
@@ -257,7 +257,7 @@ public class VentanaTurnos extends JFrame {
 
         JTextField campoFecha  = EstilosGUI.crearCampoTexto(14);
         JTextField campoMotivo = EstilosGUI.crearCampoTexto(20);
-        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.TIPOS_LICENCIA);
+        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.getTiposLicencia());
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
         gbc.gridx=1; campos.add(campoFecha, gbc);

@@ -29,24 +29,38 @@ public class Utilidades {
     public static final String HORA_NOCHE_INI  = "23:00";
     public static final String HORA_NOCHE_FIN  = "07:00";
 
-    // ---- Catologos del dominio ----
-    public static final String[] AREAS_HOSPITALARIAS = {
-        "UCI", "Urgencias", "Pediatria", "Cirugia",
-        "Maternidad", "Medicina General", "Traumatologia", "Oncologia"
-    };
+       /** Devuelve las areas disponibles. */
+    public static String[] getAreasHospitalarias() {
+        return new String[]{
+            "UCI", "Urgencias", "Pediatria", "Cirugia",
+            "Maternidad", "Medicina General",
+            "Traumatologia", "Oncologia"
+        };
+    }
 
-    public static final String[] ESPECIALIDADES = {
-        "Enfermeria General", "Cuidados Intensivos", "Urgencias y Emergencias",
-        "Pediatria", "Cirugia", "Maternidad", "Oncologia", "Traumatologia"
-    };
+    /** Devuelve las especialidades disponibles. */
+    public static String[] getEspecialidades() {
+        return new String[]{
+            "Enfermeria General", "Cuidados Intensivos",
+            "Urgencias y Emergencias", "Pediatria",
+            "Cirugia", "Maternidad", "Oncologia", "Traumatologia"
+        };
+    }
 
-    public static final String[] TIPOS_LICENCIA = {
-        "Medica", "Personal", "Maternidad", "Paternidad", "Estudio"
-    };
+    /** Devuelve los tipos de licencia disponibles. */
+    public static String[] getTiposLicencia() {
+        return new String[]{
+            "Medica", "Personal", "Maternidad",
+            "Paternidad", "Estudio"
+        };
+    }
 
-    public static final String[] TIPOS_TURNO = {
-        TURNO_MANANA, TURNO_TARDE, TURNO_NOCHE
-    };
+    /** Devuelve los horarios disponibles. */
+    public static String[] getTiposTurno() {
+        return new String[]{
+            TURNO_MANANA, TURNO_TARDE, TURNO_NOCHE
+        };
+    }
 
     // Formatos de fecha y hora (no lenient para validacion estricta)
     private static final SimpleDateFormat FORMATO_FECHA = new SimpleDateFormat("dd/MM/yyyy");

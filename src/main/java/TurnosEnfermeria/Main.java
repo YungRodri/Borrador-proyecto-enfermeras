@@ -263,14 +263,14 @@ public class Main {
             }
 
             System.out.println("  Especialidad:");
-            int espIdx = Utilidades.seleccionarOpcion(sc, Utilidades.ESPECIALIDADES);
+            int espIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getEspecialidades());
             if (espIdx < 1) { System.out.println("  [!] Especialidad invalida."); return; }
-            String especialidad = Utilidades.ESPECIALIDADES[espIdx - 1];
+            String especialidad =Utilidades.getEspecialidades()[espIdx - 1];
 
             System.out.println("  Area Hospitalaria:");
-            int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
+            int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.getAreasHospitalarias());
             if (areaIdx < 1) { System.out.println("  [!] Area invalida."); return; }
-            String area = Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+            String area = Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
             Enfermera nueva = new Enfermera(nombre, apP, apM, rut, edad, especialidad, area);
             if (EnfermeraControlador.agregar(nueva)) {
@@ -380,13 +380,13 @@ public class Main {
 
         System.out.println("  Nueva especialidad (0 = no cambiar):");
         System.out.println("  0. Mantener actual: " + e.getEspecialidad());
-        int espIdx = Utilidades.seleccionarOpcion(sc, Utilidades.ESPECIALIDADES);
-        String esp = (espIdx < 1) ? "" : Utilidades.ESPECIALIDADES[espIdx - 1];
+        int espIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getEspecialidades());
+        String esp = (espIdx < 1) ? "" :Utilidades.getEspecialidades()[espIdx - 1];
 
         System.out.println("  Nueva area (0 = no cambiar):");
         System.out.println("  0. Mantener actual: " + e.getAreaAsignada());
-        int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
-        String area = (areaIdx < 1) ? "" : Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+        int areaIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
+        String area = (areaIdx < 1) ? "" :Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
         try {
             boolean actualizado = EnfermeraControlador.editar(rut, nombre, apP, apM, edad, esp, area);
@@ -454,9 +454,9 @@ public class Main {
             switch (tipoIdx) {
                 case 1: // Turno Regular
                     System.out.println("  Tipo de turno:");
-                    int ttIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+                    int ttIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
                     if (ttIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoTurno = Utilidades.TIPOS_TURNO[ttIdx - 1];
+                    String tipoTurno =Utilidades.getTiposTurno()[ttIdx - 1];
                     String horaIni = Utilidades.horaInicioPorTipo(tipoTurno);
                     String horaFin = Utilidades.horaFinPorTipo(tipoTurno);
                     System.out.print("  Observacion (opcional): ");
@@ -466,9 +466,9 @@ public class Main {
 
                 case 2: // Licencia
                     System.out.println("  Tipo de licencia:");
-                    int tlIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_LICENCIA);
+                    int tlIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposLicencia());
                     if (tlIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoLic = Utilidades.TIPOS_LICENCIA[tlIdx - 1];
+                    String tipoLic = Utilidades.getTiposLicencia()[tlIdx - 1];
                     System.out.print("  Motivo: ");
                     String motivo = sc.nextLine().trim();
                     nuevoTurno = new Licencia(id, fecha, motivo, tipoLic);
@@ -478,9 +478,9 @@ public class Main {
                     System.out.print("  RUT de la enfermera sustituta: ");
                     String rutSust = sc.nextLine().trim();
                     System.out.println("  Tipo de turno del cambio:");
-                    int ctIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+                    int ctIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
                     if (ctIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoC = Utilidades.TIPOS_TURNO[ctIdx - 1];
+                    String tipoC =Utilidades.getTiposTurno()[ctIdx - 1];
                     String hIni = Utilidades.horaInicioPorTipo(tipoC);
                     String hFin = Utilidades.horaFinPorTipo(tipoC);
                     System.out.print("  Motivo del cambio: ");
@@ -614,9 +614,9 @@ public class Main {
     private static void opcionAsignacionGrupal() {
         System.out.println("\n  === ASIGNACION GRUPAL DE TURNOS POR AREA ===");
         System.out.println("  Seleccione el area:");
-        int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
+        int areaIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
         if (areaIdx < 1) { System.out.println("  [!] Area invalida."); return; }
-        String areaNombre = Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+        String areaNombre = Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
         AreaHospitalaria area = new AreaHospitalaria(areaNombre, 2);
         area.poblarArea(registroGlobal);
@@ -637,9 +637,9 @@ public class Main {
         }
 
         System.out.println("  Tipo de turno a asignar:");
-        int ttIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+        int ttIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
         if (ttIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-        String tipoTurno = Utilidades.TIPOS_TURNO[ttIdx - 1];
+        String tipoTurno = Utilidades.getTiposTurno()[ttIdx - 1];
         String horaIni   = Utilidades.horaInicioPorTipo(tipoTurno);
         String horaFin   = Utilidades.horaFinPorTipo(tipoTurno);
 
@@ -668,16 +668,14 @@ public class Main {
         System.out.println("\n  === FILTRO DE TURNOS POR HORARIO ===");
         System.out.println("  Seleccione el horario:");
 
-        int indice = Utilidades.seleccionarOpcion(
-            sc, Utilidades.TIPOS_TURNO
-        );
+        int indice = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
 
-        if (indice < 1 || indice > Utilidades.TIPOS_TURNO.length) {
+        if (indice < 1 || indice > Utilidades.getTiposTurno().length) {
             System.out.println("  [!] Horario invalido.");
             return;
         }
 
-        String horario = Utilidades.TIPOS_TURNO[indice - 1];
+        String horario =Utilidades.getTiposTurno()[indice - 1];
 
         System.out.print("  Mes (MM): ");
         String mes = sc.nextLine().trim();
@@ -718,9 +716,9 @@ public class Main {
     private static void opcionResumenPorArea() {
         System.out.println("\n  === RESUMEN POR AREA HOSPITALARIA ===");
         System.out.println("  Seleccione el area:");
-        int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
+        int areaIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
         if (areaIdx < 1) { System.out.println("  [!] Area invalida."); return; }
-        String areaNombre = Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+        String areaNombre =Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
         AreaHospitalaria area = new AreaHospitalaria(areaNombre, 2);
         area.poblarArea(registroGlobal);
@@ -746,10 +744,10 @@ public class Main {
 
         System.out.println("\n  Listado con filtro de tipo de turno:");
         System.out.println("  Tipo de turno a mostrar:");
-        int ttIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+        int ttIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
         if (ttIdx >= 1) {
             // Usar sobrecarga 2 de AreaHospitalaria (SIA-5)
-            area.listarEnfermeras(Utilidades.TIPOS_TURNO[ttIdx - 1]);
+            area.listarEnfermeras(Utilidades.getTiposTurno()[ttIdx - 1]);
         }
     }
 
@@ -770,16 +768,14 @@ public class Main {
         System.out.println("\n  === DISPONIBILIDAD PARA NUEVA ASIGNACION ===");
 
         System.out.println("  Seleccione el area:");
-        int indice = Utilidades.seleccionarOpcion(
-            sc, Utilidades.AREAS_HOSPITALARIAS
-        );
+        int indice = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
 
         if (indice < 1) {
             System.out.println("  [!] Area invalida.");
             return;
         }
 
-        String area = Utilidades.AREAS_HOSPITALARIAS[indice - 1];
+        String area =Utilidades.getAreasHospitalarias()[indice - 1];
 
         System.out.print("  Fecha (dd/MM/yyyy): ");
         String fecha = sc.nextLine().trim();

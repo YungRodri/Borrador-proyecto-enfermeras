@@ -172,7 +172,7 @@ public class VentanaPrincipal extends JFrame {
         /** Consulta el exceso de turnos regulares por horario, mes y año. */
     private void mostrarFiltroNocturnos() {
         JComboBox<String> campoHorario =
-            EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+            EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
         JTextField campoMes = EstilosGUI.crearCampoTexto(4);
         JTextField campoAnio = EstilosGUI.crearCampoTexto(6);
         JTextField campoLimite = EstilosGUI.crearCampoTexto(4);
@@ -253,7 +253,7 @@ public class VentanaPrincipal extends JFrame {
 
     /** Muestra un dialogo de filtro de enfermeras por area hospitalaria. */
     private void mostrarFiltroPorArea() {
-        JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
+        JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
         int res = JOptionPane.showConfirmDialog(this, comboArea,
             "Filtrar Enfermeras por Área Hospitalaria",
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -285,7 +285,7 @@ public class VentanaPrincipal extends JFrame {
  */
     private void mostrarValidacionCobertura() {
         JComboBox<String> comboArea =
-            EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
+            EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
 
         JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
         JTextField campoInicio = EstilosGUI.crearCampoTexto(5);
@@ -377,8 +377,8 @@ public class VentanaPrincipal extends JFrame {
         }
     }
     private void mostrarAsignacionGrupal() {
-        JComboBox<String> campoArea = EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
-        JComboBox<String> campoTipo =EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JComboBox<String> campoArea = EstilosGUI.crearComboBoxUtilidades.getAreasHospitalarias();
+        JComboBox<String> campoTipo =EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
         JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
         JTextField campoObs = EstilosGUI.crearCampoTexto(20);
 

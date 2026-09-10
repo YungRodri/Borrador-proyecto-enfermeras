@@ -317,8 +317,8 @@ public class VentanaEnfermeras extends JFrame {
         JTextField campoApellidoP   = EstilosGUI.crearCampoTexto(18);
         JTextField campoApellidoM   = EstilosGUI.crearCampoTexto(18);
         JTextField campoEdad        = EstilosGUI.crearCampoTexto(6);
-        JComboBox<String> comboEsp  = EstilosGUI.crearComboBox(Utilidades.ESPECIALIDADES);
-        JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
+        JComboBox<String> comboEsp  = EstilosGUI.crearComboBoxUtilidades.getEspecialidades();
+        JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
 
         // Si es edicion, pre-llenar campos (RUT no editable)
         boolean esEdicion = enfermeraExistente != null;
