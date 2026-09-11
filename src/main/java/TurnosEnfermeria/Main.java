@@ -470,23 +470,35 @@ public class Main {
                     String tipoLic = Utilidades.getTiposLicencia()[tlIdx - 1];
                     System.out.print("  Motivo: ");
                     String motivo = sc.nextLine().trim();
+                    if (motivo.isEmpty()) {
+                        System.out.println("  [!] Ingrese el motivo de la licencia.");
+                        return;
+                    }
                     nuevoTurno = new Licencia(id, fecha, motivo, tipoLic);
                     break;
 
-                case 3: // Cambio de Turno
+                case 3: // Cambio de turno
                     System.out.print("  RUT de la enfermera sustituta: ");
                     String rutSust = sc.nextLine().trim();
-                    System.out.println("  Tipo de turno del cambio:");
-                    int ctIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
-                    if (ctIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoC =Utilidades.getTiposTurno()[ctIdx - 1];
-                    String hIni = Utilidades.horaInicioPorTipo(tipoC);
-                    String hFin = Utilidades.horaFinPorTipo(tipoC);
+
+                    System.out.print("  Hora de inicio (HH:mm): ");
+                    String hIni = sc.nextLine().trim();
+
+                    System.out.print("  Hora de fin (HH:mm): ");
+                    String hFin = sc.nextLine().trim();
+
+                    if (!Utilidades.validarHora(hIni) || !Utilidades.validarHora(hFin)) {
+                        System.out.println("  [!] Hora invalida. Use el formato HH:mm.");
+                        return;
+                    }
+
                     System.out.print("  Motivo del cambio: ");
                     String motivoC = sc.nextLine().trim();
+
                     System.out.print("  Observacion (opcional): ");
                     String obsC = sc.nextLine().trim();
-                    nuevoTurno = new CambioTurno(id, fecha, hIni, hFin, rutSust, motivoC, obsC);
+
+                    nuevoTurno = new CambioTurno( id, fecha, hIni, hFin,rutSust, motivoC, obsC);
                     break;
             }
 

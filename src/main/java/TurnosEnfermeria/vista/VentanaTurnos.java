@@ -257,6 +257,7 @@ public class VentanaTurnos extends JFrame {
 
         JTextField campoFecha  = EstilosGUI.crearCampoTexto(14);
         JTextField campoMotivo = EstilosGUI.crearCampoTexto(20);
+        JTextField campoObservacion = EstilosGUI.crearCampoTexto(20);
         JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.getTiposLicencia());
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
@@ -265,6 +266,12 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(comboTipo, gbc);
         gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("Motivo:"), gbc);
         gbc.gridx=1; campos.add(campoMotivo, gbc);
+        gbc.gridx= 0;
+        gbc.gridy= 5;
+        campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
+
+        gbc.gridx = 1;
+        campos.add(campoObservacion, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         btns.setBackground(EstilosGUI.getColorPanel());
@@ -302,7 +309,7 @@ public class VentanaTurnos extends JFrame {
     /** Formulario para agregar un CambioTurno. */
     private void mostrarFormularioCambioTurno() {
         JDialog d = new JDialog(this, "Agregar Cambio de Turno", true);
-        d.setSize(440, 320);
+        d.setSize(520, 420);
         d.setLocationRelativeTo(this);
         d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
@@ -348,12 +355,7 @@ public class VentanaTurnos extends JFrame {
                 JOptionPane.showMessageDialog(d, "Hora inválida. Use formato HH:mm.", "Error", JOptionPane.ERROR_MESSAGE); return;
             }
             String id = Utilidades.generarIdTurno();
-            CambioTurno cambio = new CambioTurno(id,
-                campoFecha.getText().trim(),
-                campoHoraIni.getText().trim(),
-                campoHoraFin.getText().trim(),
-                campoSustituta.getText().trim(),
-                campoMotivo.getText().trim(), "");
+            CambioTurno cambio = new CambioTurno(id,campoFecha.getText().trim(),campoHoraIni.getText().trim(),campoHoraFin.getText().trim(),campoSustituta.getText().trim(),campoMotivo.getText().trim(),campoObservacion.getText().trim());
             try {
                 TurnoControlador.registrar(enfermera, cambio);
                 cargarTabla();
@@ -412,25 +414,48 @@ public class VentanaTurnos extends JFrame {
         }
     }
 
-    /** Busca un turno por ID en todas las enfermeras y muestra el resultado. */
+        /** Busca un turno por ID en todo el registro. */
     private void buscarPorId() {
-        String id = JOptionPane.showInputDialog(this, "Ingrese el ID del turno a buscar:", "Buscar Turno", JOptionPane.QUESTION_MESSAGE);
+        String id = JOptionPane.showInputDialog(this, "Ingrese el ID del turno a buscar en todo el sistema:", "Buscar turno", JOptionPane.QUESTION_MESSAGE);
+
         if (id == null || id.trim().isEmpty()) return;
 
-        Turno t = enfermera.buscarTurno(id.trim());
-        if (t != null) {
-            // Seleccionar y resaltar la fila en la tabla
+        Object[] resultado = TurnoControlador.buscarTurno(id.trim());
+
+        if (resultado == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró ningún turno con el ID: " + id.trim(), "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        Enfermera titular = (Enfermera) resultado[0];
+        Turno turno = (Turno) resultado[1];
+
+        if (titular.getRut().equals(enfermera.getRut())) {
+            cargarTabla();
+
             for (int i = 0; i < modeloTabla.getRowCount(); i++) {
-                if (id.trim().equalsIgnoreCase((String) modeloTabla.getValueAt(i, 0))) {
+                if (turno.getId().equals(modeloTabla.getValueAt(i, 0))) {
                     tabla.setRowSelectionInterval(i, i);
                     tabla.scrollRectToVisible(tabla.getCellRect(i, 0, true));
                     break;
                 }
             }
-            JOptionPane.showMessageDialog(this, "Turno encontrado:\n" + t.getResumen(), "Resultado", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró ningún turno con el ID: " + id, "Sin resultado", JOptionPane.WARNING_MESSAGE);
         }
+
+        JTextArea texto = new JTextArea("Enfermera titular: " + titular.getNombreCompleto() + "\nRUT: " + titular.getRut() + "\nID: " + turno.getId() + "\nTipo: " + turno.getTipo() + "\nResumen: " + turno.getResumen() + "\nObservación: " + turno.getObservacion(), 8, 45);
+        texto.setEditable(false);
+        texto.setLineWrap(true);
+        texto.setWrapStyleWord(true);
+        texto.setBackground(Color.WHITE);
+        texto.setForeground(Color.BLACK);
+        texto.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(
+            this,
+            new JScrollPane(texto),
+            "Turno encontrado",
+            JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     /** Vuelve a construir el panel norte para reflejar estadisticas actualizadas. */

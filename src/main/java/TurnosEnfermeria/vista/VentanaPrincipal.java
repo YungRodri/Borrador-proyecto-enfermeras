@@ -98,7 +98,7 @@ public class VentanaPrincipal extends JFrame {
 
         panel.add(crearBotonMenu("Consultar disponibilidad",e -> mostrarValidacionCobertura()));
 
-        panel.add(crearBotonMenu("Filtrar por área",e -> mostrarFiltroPorArea()));
+        panel.add(crearBotonMenu("Resumen por área",e -> mostrarFiltroPorArea()));
 
         panel.add(crearBotonMenu("Exceso de turnos por horario",e -> mostrarFiltroNocturnos()));
 
@@ -251,32 +251,114 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    /** Muestra un dialogo de filtro de enfermeras por area hospitalaria. */
+        /** Muestra el resumen del area y permite filtrar por horario. */
     private void mostrarFiltroPorArea() {
-        JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
-        int res = JOptionPane.showConfirmDialog(this, comboArea,
-            "Filtrar Enfermeras por Área Hospitalaria",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (res != JOptionPane.OK_OPTION) return;
+        JComboBox<String> campoArea =EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
+        JComboBox<String> campoHorario = new JComboBox<>();
+        campoHorario.addItem("Todos");
 
-        String area = (String) comboArea.getSelectedItem();
-        List<Enfermera> resultado = EnfermeraControlador.listarPorArea(area);
-
-        if (resultado.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "No hay enfermeras asignadas al área: " + area,
-                "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            StringBuilder sb = new StringBuilder("<html><b>Enfermeras en el área " + area + ":</b><br><br>");
-            for (Enfermera e : resultado) {
-                sb.append("• ").append(e.getNombreCompleto())
-                  .append(" [").append(e.getRut()).append("] – ")
-                  .append(e.getEspecialidad()).append("<br>");
-            }
-            sb.append("<br><i>Total: ").append(resultado.size()).append(" enfermera(s)</i></html>");
-            JOptionPane.showMessageDialog(this, sb.toString(),
-                "Área: " + area + " (" + resultado.size() + ")", JOptionPane.INFORMATION_MESSAGE);
+        for (String horario : Utilidades.getTiposTurno()) {
+            campoHorario.addItem(horario);
         }
+
+        JPanel formulario = new JPanel(new GridLayout(2, 2, 8, 8));
+        formulario.setBackground(Color.WHITE);
+        formulario.add(EstilosGUI.crearLabel("Área:"));
+        formulario.add(campoArea);
+        formulario.add(EstilosGUI.crearLabel("Horario:"));
+        formulario.add(campoHorario);
+
+        int respuesta = JOptionPane.showConfirmDialog(this, formulario, "Resumen por área",JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (respuesta != JOptionPane.OK_OPTION) return;
+
+        String area = (String) campoArea.getSelectedItem();
+        String horario = (String) campoHorario.getSelectedItem();
+
+        List<Enfermera> enfermeras = EnfermeraControlador.listarPorArea(area);
+
+        if (enfermeras.isEmpty()) {
+            JOptionPane.showMessageDialog( this, "No hay enfermeras registradas en esta área.", "Sin datos", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        StringBuilder detalle = new StringBuilder();
+        detalle.append("Área: ").append(area)
+               .append("\nEnfermeras registradas: ")
+               .append(enfermeras.size())
+               .append("\nMínimo de referencia: 2")
+               .append("\nDotación registrada: ")
+               .append(enfermeras.size() >= 2
+                   ? "Suficiente" : "Insuficiente")
+               .append("\nEste conteo no comprueba disponibilidad horaria.")
+               .append("\n\nResumen de todas las enfermeras del área:\n");
+
+        for (Enfermera enfermera : enfermeras) {
+            detalle.append("\n").append(enfermera.getNombreCompleto())
+                   .append(" [").append(enfermera.getRut()).append("]")
+                   .append("\nEspecialidad: ")
+                   .append(enfermera.getEspecialidad())
+                   .append("\nRegulares: ")
+                   .append(enfermera.contarTurnosRegulares())
+                   .append(" | Licencias: ")
+                   .append(enfermera.contarLicencias())
+                   .append(" | Cambios: ")
+                   .append(enfermera.contarCambios())
+                   .append(" | Horas: ")
+                   .append(String.format(
+                       "%.1f",
+                       TurnoControlador.calcularHorasTrabajadas(enfermera)
+                   ))
+                   .append("\n");
+        }
+
+        if (!"Todos".equals(horario)) {
+            detalle.append("\nEnfermeras con turnos de ")
+                   .append(horario).append(":\n");
+
+            int coincidencias = 0;
+
+            for (Enfermera enfermera : enfermeras) {
+                boolean tieneHorario = false;
+
+                for (TurnosEnfermeria.modelo.Turno turno
+                        : enfermera.getListaTurnos()) {
+                    if (turno instanceof TurnoRegular) {
+                        TurnoRegular regular = (TurnoRegular) turno;
+
+                        if (horario.equalsIgnoreCase(
+                                regular.getTipoTurno())) {
+                            tieneHorario = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (tieneHorario) {
+                    detalle.append(enfermera.getNombreCompleto())
+                           .append(" [").append(enfermera.getRut())
+                           .append("]\n");
+                    coincidencias++;
+                }
+            }
+
+            if (coincidencias == 0) {
+                detalle.append("Ninguna enfermera con ese horario.\n");
+            }
+        }
+
+        JTextArea texto = new JTextArea(detalle.toString(), 18, 55);
+        texto.setEditable(false);
+        texto.setLineWrap(true);
+        texto.setWrapStyleWord(true);
+        texto.setBackground(Color.WHITE);
+        texto.setForeground(Color.BLACK);
+        texto.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(
+            this, new JScrollPane(texto),
+            "Resumen por área", JOptionPane.INFORMATION_MESSAGE
+        );
     }
    
 
