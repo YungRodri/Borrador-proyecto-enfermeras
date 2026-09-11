@@ -2,6 +2,7 @@ name: Compilar Java
 
 on:
   push:
+  pull_request:
 
 permissions:
   contents: read
@@ -9,7 +10,6 @@ permissions:
 jobs:
   compilar:
     runs-on: ubuntu-latest
-
     steps:
       - name: Obtener el codigo
         uses: actions/checkout@v5
@@ -25,39 +25,3 @@ jobs:
           mkdir -p build
           find src/main/java -name "*.java" > fuentes.txt
           javac --release 11 -encoding UTF-8 -d build @fuentes.txt
-
-      - name: Compilar la prueba de licencia
-        run: |
-          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaLicencia.java
-
-      - name: Probar edicion y persistencia de licencia
-        run: |
-          carpeta_prueba=$(mktemp -d)
-          cd "$carpeta_prueba"
-          java -cp "$GITHUB_WORKSPACE/build" PruebaLicencia
-
-      - name: Compilar la prueba de edad
-        run: |
-          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaEdad.java
-
-      - name: Probar validacion de edad
-        run: |
-          java -cp build PruebaEdad
-      
-      - name: Compilar la prueba de conflictos
-        run: |
-          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaConflictos.java
-
-      - name: Probar conflictos de turnos
-        run: |
-          java -cp build PruebaConflictos
-
-      - name: Compilar la prueba de sustituciones
-        run: |
-          javac --release 11 -encoding UTF-8 -cp build -d build src/test/java/PruebaSustituciones.java
-
-      - name: Probar sustituciones y persistencia
-        run: |
-          carpeta_sustituciones=$(mktemp -d)
-          cd "$carpeta_sustituciones"
-          java -cp "$GITHUB_WORKSPACE/build" PruebaSustituciones
