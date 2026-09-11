@@ -15,15 +15,13 @@ import java.awt.*;
  */
 public class VentanaTurnos extends JFrame {
 
-    private final Enfermera enfermera;
-    private final VentanaEnfermeras ventanaPadre;
+    private Enfermera enfermera;
+    private VentanaEnfermeras ventanaPadre;
 
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
-    private static final String[] COLUMNAS = {
-        "ID", "Tipo", "Fecha", "Hora Inicio", "Hora Fin", "Resumen"
-    };
+
 
     /**
      * Constructor.
@@ -39,14 +37,14 @@ public class VentanaTurnos extends JFrame {
         setSize(860, 540);
         setMinimumSize(new Dimension(700, 420));
         setLocationRelativeTo(ventanaPadre);
-        getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
+        getContentPane().setBackground(EstilosGUI.getColorFondo());
         setLayout(new BorderLayout(0, 0));
 
         // Refrescar la ventana de enfermeras al cerrar esta
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosed(java.awt.event.WindowEvent e) {
-                if (ventanaPadre != null) ventanaPadre.cargarTabla();
+                if (VentanaTurnos.this.ventanaPadre != null) VentanaTurnos.this.ventanaPadre.cargarTabla();
             }
         });
 
@@ -64,66 +62,40 @@ public class VentanaTurnos extends JFrame {
         add(crearPanelBotones(),    BorderLayout.SOUTH);
     }
 
-    /** Panel superior con datos de la enfermera y estadisticas rapidas. */
+       /** Muestra los datos de la enfermera y el resumen de sus turnos. */
     private JPanel crearPanelEncabezado() {
-        JPanel panel = new JPanel(new BorderLayout(20, 0));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(14, 24, 14, 24));
+        JPanel panel = new JPanel(new GridLayout(4, 1, 0, 6));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(14, 20, 14, 20));
 
-        // Informacion de la enfermera
-        JPanel panelInfo = new JPanel(new GridLayout(2, 1, 0, 2));
-        panelInfo.setOpaque(false);
+        JLabel titulo = new JLabel("Turnos de " + enfermera.getNombreCompleto());
+        titulo.setFont(new Font("Dialog", Font.BOLD, 20));
+        titulo.setForeground(Color.BLACK);
 
-        JLabel titulo = EstilosGUI.crearLabelTitulo("📋  Turnos de " + enfermera.getNombreCompleto());
-        JLabel subtitulo = EstilosGUI.crearLabel(
-            "RUT: " + enfermera.getRut() + "  |  Especialidad: " + enfermera.getEspecialidad()
-            + "  |  Área: " + enfermera.getAreaAsignada()
-        );
-        panelInfo.add(titulo);
-        panelInfo.add(subtitulo);
+        JLabel datos = EstilosGUI.crearLabel("RUT: " + enfermera.getRut()+ " | Área: " + enfermera.getAreaAsignada());
 
-        // Estadisticas rapidas
-        JPanel panelStats = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 0));
-        panelStats.setOpaque(false);
-        panelStats.add(crearBadge("Regulares", String.valueOf(enfermera.contarTurnosRegulares()), EstilosGUI.COLOR_ACENTO));
-        panelStats.add(crearBadge("Licencias", String.valueOf(enfermera.contarLicencias()), EstilosGUI.COLOR_ADVERTENCIA));
-        panelStats.add(crearBadge("Cambios",   String.valueOf(enfermera.contarCambios()),   EstilosGUI.COLOR_ACENTO2));
-        panelStats.add(crearBadge("Horas",     String.format("%.1f", enfermera.getHorasTrabajadas()), EstilosGUI.COLOR_EXITO));
+        JLabel especialidad = EstilosGUI.crearLabel("Especialidad: " + enfermera.getEspecialidad());
 
-        panel.add(panelInfo,   BorderLayout.CENTER);
-        panel.add(panelStats,  BorderLayout.EAST);
+        JLabel resumen = EstilosGUI.crearLabel("Regulares: " + enfermera.contarTurnosRegulares() + " | Licencias: " + enfermera.contarLicencias() + " | Cambios: " + enfermera.contarCambios()+ " | Horas trabajadas: "+ String.format("%.1f",                 TurnoControlador.calcularHorasTrabajadas(enfermera)));
+
+        panel.add(titulo);
+        panel.add(datos);
+        panel.add(especialidad);
+        panel.add(resumen);
         return panel;
-    }
-
-    /** Crea un pequeño badge de estadistica con etiqueta y valor. */
-    private JPanel crearBadge(String etiqueta, String valor, Color color) {
-        JPanel badge = new JPanel(new BorderLayout(0, 2));
-        badge.setBackground(EstilosGUI.COLOR_TARJETA);
-        badge.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(color, 1),
-            new EmptyBorder(6, 12, 6, 12)
-        ));
-
-        JLabel lblValor = new JLabel(valor, SwingConstants.CENTER);
-        lblValor.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblValor.setForeground(color);
-
-        JLabel lblEtiqueta = new JLabel(etiqueta, SwingConstants.CENTER);
-        lblEtiqueta.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblEtiqueta.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
-
-        badge.add(lblValor,    BorderLayout.CENTER);
-        badge.add(lblEtiqueta, BorderLayout.SOUTH);
-        return badge;
     }
 
     /** Panel central con la tabla de turnos. */
     private JPanel crearPanelTabla() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(EstilosGUI.COLOR_FONDO);
+        panel.setBackground(EstilosGUI.getColorFondo());
         panel.setBorder(new EmptyBorder(12, 16, 0, 16));
 
-        modeloTabla = new DefaultTableModel(COLUMNAS, 0) {
+        String[] columnas = {
+            "ID", "Tipo", "Fecha", "Hora Inicio", "Hora Fin", "Resumen"
+        };
+
+        modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
         tabla = new JTable(modeloTabla);
@@ -139,28 +111,37 @@ public class VentanaTurnos extends JFrame {
         return panel;
     }
 
-    /** Panel inferior con botones de accion. */
+        /** Muestra las operaciones disponibles para los turnos. */
     private JPanel crearPanelBotones() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 14));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
+        JPanel panel = new JPanel(new GridLayout(1, 5, 8, 0));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(14, 16, 14, 16));
 
-        JButton btnAgregar  = EstilosGUI.crearBotonPrimario("➕ Agregar Turno");
-        JButton btnEditar   = EstilosGUI.crearBotonSecundario("✏️ Editar Observación");
-        JButton btnEliminar = EstilosGUI.crearBotonPeligro("🗑 Eliminar Turno");
-        JButton btnBuscar   = EstilosGUI.crearBotonSecundario("🔍 Buscar por ID");
-        JButton btnRefrescar= EstilosGUI.crearBotonSecundario("🔄 Refrescar");
+        JButton btnAgregar =
+            EstilosGUI.crearBotonSecundario("Agregar");
+        JButton btnEditar =
+            EstilosGUI.crearBotonSecundario("Editar observación");
+        JButton btnEliminar =
+            EstilosGUI.crearBotonSecundario("Eliminar");
+        JButton btnBuscar =
+            EstilosGUI.crearBotonSecundario("Buscar por ID");
+        JButton btnMostrar =
+            EstilosGUI.crearBotonSecundario("Mostrar todos");
 
-        btnAgregar.addActionListener(e  -> mostrarDialogoAgregarTurno());
-        btnEditar.addActionListener(e   -> editarObservacion());
+        btnAgregar.addActionListener(e -> mostrarDialogoAgregarTurno());
+        btnEditar.addActionListener(e -> editarObservacion());
         btnEliminar.addActionListener(e -> eliminarTurno());
-        btnBuscar.addActionListener(e   -> buscarPorId());
-        btnRefrescar.addActionListener(e-> cargarTabla());
+        btnBuscar.addActionListener(e -> buscarPorId());
+        btnMostrar.addActionListener(e -> {
+            cargarTabla();
+            actualizarEncabezado();
+        });
 
         panel.add(btnAgregar);
         panel.add(btnEditar);
         panel.add(btnEliminar);
         panel.add(btnBuscar);
-        panel.add(btnRefrescar);
+        panel.add(btnMostrar);
         return panel;
     }
 
@@ -208,11 +189,11 @@ public class VentanaTurnos extends JFrame {
         JDialog d = new JDialog(this, "Agregar Turno Regular", true);
         d.setSize(420, 280);
         d.setLocationRelativeTo(this);
-        d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
 
         JPanel campos = new JPanel(new GridBagLayout());
-        campos.setBackground(EstilosGUI.COLOR_PANEL);
+        campos.setBackground(EstilosGUI.getColorPanel());
         campos.setBorder(new EmptyBorder(18, 24, 10, 24));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -220,7 +201,7 @@ public class VentanaTurnos extends JFrame {
 
         JTextField campoFecha = EstilosGUI.crearCampoTexto(14);
         campoFecha.setToolTipText("Formato: dd/MM/yyyy");
-        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.TIPOS_TURNO);
+        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
         JTextField campoObs = EstilosGUI.crearCampoTexto(20);
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
@@ -231,7 +212,7 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(campoObs, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btns.setBackground(EstilosGUI.COLOR_PANEL);
+        btns.setBackground(EstilosGUI.getColorPanel());
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario("Agregar");
         btnCancelar.addActionListener(e -> d.dispose());
@@ -245,7 +226,9 @@ public class VentanaTurnos extends JFrame {
             String horaIni = Utilidades.horaInicioPorTipo(tipo);
             String horaFin = Utilidades.horaFinPorTipo(tipo);
             try {
-                enfermera.agregarTurno(fecha, horaIni, horaFin, tipo);
+                TurnoRegular nuevo = new TurnoRegular(Utilidades.generarIdTurno(),fecha,horaIni,horaFin,tipo,campoObs.getText().trim());
+
+                TurnoControlador.registrar(enfermera, nuevo);
                 cargarTabla();
                 actualizarEncabezado();
                 d.dispose();
@@ -264,11 +247,11 @@ public class VentanaTurnos extends JFrame {
         JDialog d = new JDialog(this, "Agregar Licencia", true);
         d.setSize(420, 260);
         d.setLocationRelativeTo(this);
-        d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
 
         JPanel campos = new JPanel(new GridBagLayout());
-        campos.setBackground(EstilosGUI.COLOR_PANEL);
+        campos.setBackground(EstilosGUI.getColorPanel());
         campos.setBorder(new EmptyBorder(18, 24, 10, 24));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -276,7 +259,7 @@ public class VentanaTurnos extends JFrame {
 
         JTextField campoFecha  = EstilosGUI.crearCampoTexto(14);
         JTextField campoMotivo = EstilosGUI.crearCampoTexto(20);
-        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.TIPOS_LICENCIA);
+        JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.getTiposLicencia());
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
         gbc.gridx=1; campos.add(campoFecha, gbc);
@@ -284,9 +267,10 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(comboTipo, gbc);
         gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("Motivo:"), gbc);
         gbc.gridx=1; campos.add(campoMotivo, gbc);
+       
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btns.setBackground(EstilosGUI.COLOR_PANEL);
+        btns.setBackground(EstilosGUI.getColorPanel());
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario("Agregar");
         btnCancelar.addActionListener(e -> d.dispose());
@@ -321,13 +305,13 @@ public class VentanaTurnos extends JFrame {
     /** Formulario para agregar un CambioTurno. */
     private void mostrarFormularioCambioTurno() {
         JDialog d = new JDialog(this, "Agregar Cambio de Turno", true);
-        d.setSize(440, 320);
+        d.setSize(520, 420);
         d.setLocationRelativeTo(this);
-        d.getContentPane().setBackground(EstilosGUI.COLOR_PANEL);
+        d.getContentPane().setBackground(EstilosGUI.getColorPanel());
         d.setLayout(new BorderLayout());
 
         JPanel campos = new JPanel(new GridBagLayout());
-        campos.setBackground(EstilosGUI.COLOR_PANEL);
+        campos.setBackground(EstilosGUI.getColorPanel());
         campos.setBorder(new EmptyBorder(18, 24, 10, 24));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
@@ -338,6 +322,7 @@ public class VentanaTurnos extends JFrame {
         JTextField campoHoraFin   = EstilosGUI.crearCampoTexto(8);
         JTextField campoSustituta = EstilosGUI.crearCampoTexto(16);
         JTextField campoMotivo    = EstilosGUI.crearCampoTexto(20);
+        JTextField campoObservacion = EstilosGUI.crearCampoTexto(20);
 
         campoHoraIni.setToolTipText("HH:mm (ej: 07:00)");
         campoHoraFin.setToolTipText("HH:mm (ej: 15:00)");
@@ -353,9 +338,15 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(campoSustituta, gbc);
         gbc.gridx=0; gbc.gridy=4; campos.add(EstilosGUI.crearLabel("Motivo:"), gbc);
         gbc.gridx=1; campos.add(campoMotivo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
+
+        gbc.gridx = 1;
+        campos.add(campoObservacion, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        btns.setBackground(EstilosGUI.COLOR_PANEL);
+        btns.setBackground(EstilosGUI.getColorPanel());
         JButton btnCancelar = EstilosGUI.crearBotonSecundario("Cancelar");
         JButton btnGuardar  = EstilosGUI.crearBotonPrimario("Agregar");
         btnCancelar.addActionListener(e -> d.dispose());
@@ -367,12 +358,15 @@ public class VentanaTurnos extends JFrame {
                 JOptionPane.showMessageDialog(d, "Hora inválida. Use formato HH:mm.", "Error", JOptionPane.ERROR_MESSAGE); return;
             }
             String id = Utilidades.generarIdTurno();
-            CambioTurno cambio = new CambioTurno(id,
+            CambioTurno cambio = new CambioTurno(
+                id,
                 campoFecha.getText().trim(),
                 campoHoraIni.getText().trim(),
                 campoHoraFin.getText().trim(),
                 campoSustituta.getText().trim(),
-                campoMotivo.getText().trim(), "");
+                campoMotivo.getText().trim(),
+                campoObservacion.getText().trim()
+            );
             try {
                 TurnoControlador.registrar(enfermera, cambio);
                 cargarTabla();
@@ -431,25 +425,48 @@ public class VentanaTurnos extends JFrame {
         }
     }
 
-    /** Busca un turno por ID en todas las enfermeras y muestra el resultado. */
+        /** Busca un turno por ID en todo el registro. */
     private void buscarPorId() {
-        String id = JOptionPane.showInputDialog(this, "Ingrese el ID del turno a buscar:", "Buscar Turno", JOptionPane.QUESTION_MESSAGE);
+        String id = JOptionPane.showInputDialog(this, "Ingrese el ID del turno a buscar en todo el sistema:", "Buscar turno", JOptionPane.QUESTION_MESSAGE);
+
         if (id == null || id.trim().isEmpty()) return;
 
-        Turno t = enfermera.buscarTurno(id.trim());
-        if (t != null) {
-            // Seleccionar y resaltar la fila en la tabla
+        Object[] resultado = TurnoControlador.buscarTurno(id.trim());
+
+        if (resultado == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró ningún turno con el ID: " + id.trim(), "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        Enfermera titular = (Enfermera) resultado[0];
+        Turno turno = (Turno) resultado[1];
+
+        if (titular.getRut().equals(enfermera.getRut())) {
+            cargarTabla();
+
             for (int i = 0; i < modeloTabla.getRowCount(); i++) {
-                if (id.trim().equalsIgnoreCase((String) modeloTabla.getValueAt(i, 0))) {
+                if (turno.getId().equals(modeloTabla.getValueAt(i, 0))) {
                     tabla.setRowSelectionInterval(i, i);
                     tabla.scrollRectToVisible(tabla.getCellRect(i, 0, true));
                     break;
                 }
             }
-            JOptionPane.showMessageDialog(this, "Turno encontrado:\n" + t.getResumen(), "Resultado", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró ningún turno con el ID: " + id, "Sin resultado", JOptionPane.WARNING_MESSAGE);
         }
+
+        JTextArea texto = new JTextArea("Enfermera titular: " + titular.getNombreCompleto() + "\nRUT: " + titular.getRut() + "\nID: " + turno.getId() + "\nTipo: " + turno.getTipo() + "\nResumen: " + turno.getResumen() + "\nObservación: " + turno.getObservacion(), 8, 45);
+        texto.setEditable(false);
+        texto.setLineWrap(true);
+        texto.setWrapStyleWord(true);
+        texto.setBackground(Color.WHITE);
+        texto.setForeground(Color.BLACK);
+        texto.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(
+            this,
+            new JScrollPane(texto),
+            "Turno encontrado",
+            JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     /** Vuelve a construir el panel norte para reflejar estadisticas actualizadas. */
@@ -459,4 +476,35 @@ public class VentanaTurnos extends JFrame {
         revalidate();
         repaint();
     }
+
+    public JTable getTabla() { return tabla; }
+    public void setTabla(JTable nueva) {
+        if (nueva == null || nueva == tabla) return;
+        java.awt.Container padre = tabla.getParent();
+        for (java.awt.event.MouseListener listener : tabla.getMouseListeners()) {
+            if (!(listener instanceof javax.swing.plaf.UIResource)) nueva.addMouseListener(listener);
+        }
+        tabla = nueva;
+        tabla.setModel(modeloTabla);
+        EstilosGUI.estilizarTabla(tabla);
+        if (padre instanceof JViewport) ((JViewport) padre).setView(tabla);
+    }
+    public DefaultTableModel getModeloTabla() { return modeloTabla; }
+    public void setModeloTabla(DefaultTableModel modelo) {
+        if (modelo == null || modelo.getColumnCount() != 6) return;
+        modeloTabla = modelo;
+        tabla.setModel(modeloTabla);
+        cargarTabla();
+    }
+
+    public Enfermera getEnfermera() { return enfermera; }
+    public void setEnfermera(Enfermera nueva) {
+        if (nueva == null) return;
+        enfermera = nueva;
+        setTitle("Turnos de " + nueva.getNombreCompleto() + " [" + nueva.getRut() + "]");
+        cargarTabla();
+        actualizarEncabezado();
+    }
+    public VentanaEnfermeras getVentanaPadre() { return ventanaPadre; }
+    public void setVentanaPadre(VentanaEnfermeras padre) { ventanaPadre = padre; }
 }

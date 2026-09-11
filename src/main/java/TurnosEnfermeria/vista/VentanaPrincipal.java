@@ -3,6 +3,10 @@ package TurnosEnfermeria.vista;
 import TurnosEnfermeria.controlador.EnfermeraControlador;
 import TurnosEnfermeria.modelo.Enfermera;
 import TurnosEnfermeria.modelo.Utilidades;
+import java.util.function.BooleanSupplier;
+import TurnosEnfermeria.controlador.TurnoControlador;
+import TurnosEnfermeria.modelo.TurnoConflictoException;
+import TurnosEnfermeria.modelo.TurnoRegular;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,20 +28,20 @@ import java.util.List;
 public class VentanaPrincipal extends JFrame {
 
     /** Callback que se ejecuta al cerrar la ventana (para grabar datos a disco). */
-    private final Runnable alCerrar;
+    private BooleanSupplier alCerrar;
 
     /**
      * Constructor principal.
      * @param alCerrar accion a ejecutar al cerrar la ventana (guardar datos CSV)
      */
-    public VentanaPrincipal(Runnable alCerrar) {
+    public VentanaPrincipal(BooleanSupplier alCerrar) {
         this.alCerrar = alCerrar;
         setTitle("Sistema de Gestión de Turnos de Enfermeras – Hospital Central");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setSize(780, 580);
-        setMinimumSize(new Dimension(680, 500));
+        setSize(680, 480);
+        setMinimumSize(new Dimension(620, 440));
         setLocationRelativeTo(null);
-        getContentPane().setBackground(EstilosGUI.COLOR_FONDO);
+        getContentPane().setBackground(EstilosGUI.getColorFondo());
         setLayout(new BorderLayout(0, 0));
 
         // Interceptar el cierre para guardar datos
@@ -55,203 +59,83 @@ public class VentanaPrincipal extends JFrame {
     //  CONSTRUCCION DE UI
     // =====================================================================
 
-    private void construirUI() {
+        private void construirUI() {
         add(crearPanelEncabezado(), BorderLayout.NORTH);
         add(crearPanelMenuCentral(), BorderLayout.CENTER);
-        add(crearPanelPie(),        BorderLayout.SOUTH);
+        add(crearPanelPie(), BorderLayout.SOUTH);
     }
 
-    /** Panel superior con logo, nombre del sistema y estadisticas rapidas. */
+    /** Muestra el nombre del sistema. */
     private JPanel crearPanelEncabezado() {
-        JPanel panel = new JPanel(new BorderLayout(16, 0));
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(20, 32, 20, 32));
+        JPanel panel = new JPanel(new GridLayout(2, 1, 0, 8));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 20, 10, 20));
 
-        // Columna izquierda: icono + titulo
-        JPanel izq = new JPanel(new BorderLayout(10, 4));
-        izq.setOpaque(false);
+        JLabel titulo = new JLabel("Gestión de turnos de enfermería",SwingConstants.CENTER);
+        titulo.setFont(new Font("Dialog", Font.BOLD, 20));
+        titulo.setForeground(Color.BLACK);
 
-        JLabel icono = new JLabel("🏥");
-        icono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
-        icono.setVerticalAlignment(SwingConstants.CENTER);
+        JLabel subtitulo = new JLabel("Seleccione una opción",SwingConstants.CENTER);
+        subtitulo.setFont(new Font("Dialog", Font.PLAIN, 14));
+        subtitulo.setForeground(Color.BLACK);
 
-        JPanel textoTitulo = new JPanel(new GridLayout(2, 1, 0, 2));
-        textoTitulo.setOpaque(false);
-
-        JLabel titulo = new JLabel("Sistema de Turnos de Enfermería");
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        titulo.setForeground(EstilosGUI.COLOR_ACENTO);
-
-        JLabel subtitulo = EstilosGUI.crearLabel("Hospital Central  ·  v1.0");
-        subtitulo.setFont(EstilosGUI.FUENTE_NORMAL);
-
-        textoTitulo.add(titulo);
-        textoTitulo.add(subtitulo);
-
-        izq.add(icono,       BorderLayout.WEST);
-        izq.add(textoTitulo, BorderLayout.CENTER);
-
-        // Columna derecha: resumen de enfermeras registradas
-        JPanel der = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
-        der.setOpaque(false);
-
-        int total = EnfermeraControlador.totalRegistradas();
-        der.add(crearIndicador("Enfermeras\nRegistradas", String.valueOf(total), EstilosGUI.COLOR_EXITO));
-
-        panel.add(izq, BorderLayout.WEST);
-        panel.add(der, BorderLayout.EAST);
+        panel.add(titulo);
+        panel.add(subtitulo);
         return panel;
     }
 
-    /** Crea un indicador numerico para el encabezado. */
-    private JPanel crearIndicador(String etiqueta, String valor, Color color) {
-        JPanel ind = new JPanel(new BorderLayout(0, 4));
-        ind.setBackground(EstilosGUI.COLOR_TARJETA);
-        ind.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(color, 1),
-            new EmptyBorder(8, 18, 8, 18)
-        ));
-        JLabel lblValor = new JLabel(valor, SwingConstants.CENTER);
-        lblValor.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblValor.setForeground(color);
-        JLabel lblEtiqueta = new JLabel("<html><center>" + etiqueta.replace("\n", "<br>") + "</center></html>", SwingConstants.CENTER);
-        lblEtiqueta.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblEtiqueta.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
-        ind.add(lblValor, BorderLayout.CENTER);
-        ind.add(lblEtiqueta, BorderLayout.SOUTH);
-        return ind;
-    }
-
-    /** Panel central con los botones del menu principal agrupados en tarjetas. */
+    /** Organiza las opciones en cuatro filas y dos columnas. */
     private JPanel crearPanelMenuCentral() {
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(EstilosGUI.COLOR_FONDO);
-        wrapper.setBorder(new EmptyBorder(24, 48, 24, 48));
+        JPanel panel = new JPanel(new GridLayout(4, 2, 12, 12));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 24, 20, 24));
 
-        JPanel grid = new JPanel(new GridLayout(2, 3, 18, 18));
-        grid.setBackground(EstilosGUI.COLOR_FONDO);
+        panel.add(crearBotonMenu("Gestión de enfermeras",e -> new VentanaEnfermeras().setVisible(true)));
 
-        grid.add(crearTarjetaMenu("👩‍⚕️", "Gestión de\nEnfermeras",
-            "Agregar, editar, eliminar y\nbuscar enfermeras registradas.",
-            EstilosGUI.COLOR_ACENTO,
-            e -> new VentanaEnfermeras().setVisible(true)));
+        panel.add(crearBotonMenu("Gestión de turnos",e -> abrirGestionTurnos()));
 
-        grid.add(crearTarjetaMenu("📋", "Gestión de\nTurnos",
-            "Administrar turnos de una\nenfermera seleccionada.",
-            EstilosGUI.COLOR_ACENTO2,
-            e -> abrirGestionTurnos()));
+        panel.add(crearBotonMenu("Asignación grupal",e -> mostrarAsignacionGrupal()));
 
-        grid.add(crearTarjetaMenu("📊", "Estadísticas\ny Reportes",
-            "Gráficos de horas y\ndistribución de eventos.",
-            EstilosGUI.COLOR_EXITO,
-            e -> new VentanaEstadisticas().setVisible(true)));
+        panel.add(crearBotonMenu("Consultar disponibilidad",e -> mostrarValidacionCobertura()));
 
-        grid.add(crearTarjetaMenu("🌙", "Filtrar Turnos\nNocturnos",
-            "Ver enfermeras con exceso\nde turnos noche en el mes.",
-            EstilosGUI.COLOR_ADVERTENCIA,
-            e -> mostrarFiltroNocturnos()));
+        panel.add(crearBotonMenu("Resumen por área",e -> mostrarFiltroPorArea()));
 
-        grid.add(crearTarjetaMenu("🏥", "Filtrar por\nÁrea",
-            "Listar enfermeras según\nel área hospitalaria.",
-            new Color(236, 72, 153),
-            e -> mostrarFiltroPorArea()));
+        panel.add(crearBotonMenu("Exceso de turnos por horario",e -> mostrarFiltroNocturnos()));
 
-        grid.add(crearTarjetaMenu("🚪", "Cerrar\nSistema",
-            "Guardar datos y salir\ndel sistema de forma segura.",
-            EstilosGUI.COLOR_ERROR,
-            e -> cerrarSistema()));
+        panel.add(crearBotonMenu("Estadísticas",e -> new VentanaEstadisticas().setVisible(true)));
 
-        wrapper.add(grid, new GridBagConstraints());
-        return wrapper;
+        panel.add(crearBotonMenu("Guardar y salir",e -> cerrarSistema()));
+
+        return panel;
     }
 
-    /**
-     * Crea una tarjeta de menu con icono, titulo, descripcion y accion.
-     */
-    private JPanel crearTarjetaMenu(String icono, String titulo, String descripcion,
-                                    Color colorAcento,
-                                    java.awt.event.ActionListener accion) {
-        JPanel tarjeta = new JPanel(new BorderLayout(0, 8));
-        tarjeta.setBackground(EstilosGUI.COLOR_TARJETA);
-        tarjeta.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(new Color(
-                colorAcento.getRed(), colorAcento.getGreen(), colorAcento.getBlue(), 60), 1),
-            new EmptyBorder(18, 16, 14, 16)
+    /** Crea un botón con texto negro y fondo blanco. */
+    private JButton crearBotonMenu(
+            String texto, java.awt.event.ActionListener accion) {
+        JButton boton = new JButton(texto);
+        boton.setFont(new Font("Dialog", Font.PLAIN, 14));
+        boton.setBackground(Color.WHITE);
+        boton.setForeground(Color.BLACK);
+        boton.setOpaque(true);
+        boton.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.BLACK),
+            new EmptyBorder(12, 12, 12, 12)
         ));
-        tarjeta.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        top.setOpaque(false);
-
-        JLabel lblIcono = new JLabel(icono);
-        lblIcono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 26));
-
-        JLabel lblTitulo = new JLabel("<html>" + titulo.replace("\n", "<br>") + "</html>");
-        lblTitulo.setFont(EstilosGUI.FUENTE_SUBTITULO);
-        lblTitulo.setForeground(colorAcento);
-
-        top.add(lblIcono);
-        top.add(lblTitulo);
-
-        JLabel lblDesc = new JLabel("<html><small>" + descripcion.replace("\n", "<br>") + "</small></html>");
-        lblDesc.setFont(EstilosGUI.FUENTE_PEQUENA);
-        lblDesc.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
-        lblDesc.setBorder(new EmptyBorder(0, 4, 0, 0));
-
-        // Boton de accion
-        JButton btn = new JButton("Abrir →");
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btn.setForeground(colorAcento);
-        btn.setBackground(EstilosGUI.COLOR_FONDO);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            new javax.swing.border.LineBorder(colorAcento, 1),
-            new EmptyBorder(5, 12, 5, 12)
-        ));
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setOpaque(true);
-        btn.addActionListener(accion);
-
-        // Hover de la tarjeta
-        tarjeta.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseEntered(java.awt.event.MouseEvent e) {
-                tarjeta.setBackground(EstilosGUI.COLOR_PANEL);
-                tarjeta.setBorder(BorderFactory.createCompoundBorder(
-                    new javax.swing.border.LineBorder(colorAcento, 1),
-                    new EmptyBorder(18, 16, 14, 16)
-                ));
-            }
-            @Override public void mouseExited(java.awt.event.MouseEvent e) {
-                tarjeta.setBackground(EstilosGUI.COLOR_TARJETA);
-                tarjeta.setBorder(BorderFactory.createCompoundBorder(
-                    new javax.swing.border.LineBorder(new Color(
-                        colorAcento.getRed(), colorAcento.getGreen(), colorAcento.getBlue(), 60), 1),
-                    new EmptyBorder(18, 16, 14, 16)
-                ));
-            }
-        });
-
-        JPanel botPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        botPanel.setOpaque(false);
-        botPanel.add(btn);
-
-        tarjeta.add(top,      BorderLayout.NORTH);
-        tarjeta.add(lblDesc,  BorderLayout.CENTER);
-        tarjeta.add(botPanel, BorderLayout.SOUTH);
-        return tarjeta;
+        boton.addActionListener(accion);
+        return boton;
     }
 
-    /** Panel inferior con informacion de version y botones de acceso rapido. */
+    /** Indica cuándo se guardan los datos. */
     private JPanel crearPanelPie() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(EstilosGUI.COLOR_PANEL);
-        panel.setBorder(new EmptyBorder(8, 24, 8, 24));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(5, 10, 12, 10));
 
-        JLabel info = new JLabel("Sistema de Gestión de Turnos  ·  Programación Avanzada 2026  ·  Datos guardados automáticamente al cerrar");
-        info.setFont(EstilosGUI.FUENTE_PEQUENA);
-        info.setForeground(EstilosGUI.COLOR_TEXTO_SEC);
+        JLabel informacion = new JLabel("Los datos se guardan al cerrar el sistema.");
+        informacion.setFont(new Font("Dialog", Font.PLAIN, 12));
+        informacion.setForeground(Color.BLACK);
 
-        panel.add(info, BorderLayout.WEST);
+        panel.add(informacion);
         return panel;
     }
 
@@ -285,96 +169,394 @@ public class VentanaPrincipal extends JFrame {
         if (e != null) new VentanaTurnos(e, null).setVisible(true);
     }
 
-    /** Muestra un dialogo de filtro de turnos nocturnos por mes y anio. */
+        /** Consulta el exceso de turnos regulares por horario, mes y año. */
     private void mostrarFiltroNocturnos() {
-        JTextField campoMes  = EstilosGUI.crearCampoTexto(4);
+        JComboBox<String> campoHorario =
+            EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
+        JTextField campoMes = EstilosGUI.crearCampoTexto(4);
         JTextField campoAnio = EstilosGUI.crearCampoTexto(6);
-        JTextField campoLim  = EstilosGUI.crearCampoTexto(4);
+        JTextField campoLimite = EstilosGUI.crearCampoTexto(4);
 
+        campoHorario.setSelectedItem(Utilidades.getTurnoNoche());
         campoMes.setText("09");
         campoAnio.setText("2026");
-        campoLim.setText("3");
+        campoLimite.setText("3");
 
-        JPanel form = new JPanel(new GridLayout(3, 2, 8, 8));
-        form.setBackground(EstilosGUI.COLOR_PANEL);
-        form.add(EstilosGUI.crearLabel("Mes (MM):")); form.add(campoMes);
-        form.add(EstilosGUI.crearLabel("Año (yyyy):")); form.add(campoAnio);
-        form.add(EstilosGUI.crearLabel("Límite de turnos noche:")); form.add(campoLim);
+        JPanel formulario = new JPanel(new GridLayout(4, 2, 8, 8));
+        formulario.setBackground(Color.WHITE);
 
-        int res = JOptionPane.showConfirmDialog(this, form,
-            "Filtrar Exceso de Turnos Nocturnos",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (res != JOptionPane.OK_OPTION) return;
+        formulario.add(EstilosGUI.crearLabel("Horario:"));
+        formulario.add(campoHorario);
+        formulario.add(EstilosGUI.crearLabel("Mes (MM):"));
+        formulario.add(campoMes);
+        formulario.add(EstilosGUI.crearLabel("Año (yyyy):"));
+        formulario.add(campoAnio);
+        formulario.add(EstilosGUI.crearLabel("Máximo permitido:"));
+        formulario.add(campoLimite);
+
+        int respuesta = JOptionPane.showConfirmDialog(
+            this, formulario, "Exceso de turnos por horario",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.OK_OPTION) return;
 
         try {
-            int limite = Integer.parseInt(campoLim.getText().trim());
+            String horario = (String) campoHorario.getSelectedItem();
             String mes = campoMes.getText().trim();
-            String anio= campoAnio.getText().trim();
-            List<Enfermera> resultado = EnfermeraControlador.filtrarExcesoTurnosNoche(limite, mes, anio);
+            String anio = campoAnio.getText().trim();
+            int limite = Integer.parseInt(campoLimite.getText().trim());
+
+            List<Enfermera> resultado =
+                EnfermeraControlador.filtrarExcesoTurnosPorHorario(horario, limite, mes, anio);
 
             if (resultado.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
-                    "Ninguna enfermera supera el límite de " + limite + " turnos noche en " + mes + "/" + anio,
-                    "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                StringBuilder sb = new StringBuilder("<html><b>Enfermeras con más de " + limite + " turnos noche en " + mes + "/" + anio + ":</b><br><br>");
-                for (Enfermera e : resultado) {
-                    int n = e.contarTurnosNocheMes(mes, anio);
-                    sb.append("• ").append(e.getNombreCompleto())
-                      .append(" [").append(e.getRut()).append("]")
-                      .append(" → ").append(n).append(" turnos noche<br>");
-                }
-                sb.append("</html>");
-                JOptionPane.showMessageDialog(this, sb.toString(),
-                    "Resultado del Filtro (" + resultado.size() + " enfermeras)",
-                    JOptionPane.WARNING_MESSAGE);
+                    "Ninguna enfermera supera el límite indicado.",
+                    "Sin resultados", JOptionPane.INFORMATION_MESSAGE
+                );
+                return;
             }
+
+            StringBuilder detalle = new StringBuilder();
+            detalle.append("Horario: ").append(horario)
+                   .append(" | Periodo: ").append(mes).append("/")
+                   .append(anio)
+                   .append("\nMás de ").append(limite)
+                   .append(" turnos:\n\n");
+
+            for (Enfermera enfermera : resultado) {
+                detalle.append(enfermera.getNombreCompleto())
+                       .append(" [").append(enfermera.getRut()).append("]")
+                       .append(" | Área: ").append(enfermera.getAreaAsignada())
+                       .append(" | Turnos: ")
+                       .append(enfermera.contarTurnosPorHorarioMes(horario, mes, anio)).append("\n");
+            }
+
+            detalle.append("\nTotal: ").append(resultado.size()).append(" enfermera(s).");
+
+            JTextArea texto = new JTextArea(detalle.toString(), 12, 50);
+            texto.setEditable(false);
+            texto.setLineWrap(true);
+            texto.setWrapStyleWord(true);
+            texto.setBackground(Color.WHITE);
+            texto.setForeground(Color.BLACK);
+            texto.setCaretPosition(0);
+
+            JOptionPane.showMessageDialog(this, new JScrollPane(texto),"Resultado del filtro", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "El límite debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El máximo permitido debe ser un número entero.","Datos inválidos", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /** Muestra un dialogo de filtro de enfermeras por area hospitalaria. */
+        /** Muestra el resumen del area y permite filtrar por horario. */
     private void mostrarFiltroPorArea() {
-        JComboBox<String> comboArea = EstilosGUI.crearComboBox(Utilidades.AREAS_HOSPITALARIAS);
-        int res = JOptionPane.showConfirmDialog(this, comboArea,
-            "Filtrar Enfermeras por Área Hospitalaria",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (res != JOptionPane.OK_OPTION) return;
+        JComboBox<String> campoArea =EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
+        JComboBox<String> campoHorario = new JComboBox<>();
+        campoHorario.addItem("Todos");
 
-        String area = (String) comboArea.getSelectedItem();
-        List<Enfermera> resultado = EnfermeraControlador.listarPorArea(area);
-
-        if (resultado.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "No hay enfermeras asignadas al área: " + area,
-                "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            StringBuilder sb = new StringBuilder("<html><b>Enfermeras en el área " + area + ":</b><br><br>");
-            for (Enfermera e : resultado) {
-                sb.append("• ").append(e.getNombreCompleto())
-                  .append(" [").append(e.getRut()).append("] – ")
-                  .append(e.getEspecialidad()).append("<br>");
-            }
-            sb.append("<br><i>Total: ").append(resultado.size()).append(" enfermera(s)</i></html>");
-            JOptionPane.showMessageDialog(this, sb.toString(),
-                "Área: " + area + " (" + resultado.size() + ")", JOptionPane.INFORMATION_MESSAGE);
+        for (String horario : Utilidades.getTiposTurno()) {
+            campoHorario.addItem(horario);
         }
+
+        JPanel formulario = new JPanel(new GridLayout(2, 2, 8, 8));
+        formulario.setBackground(Color.WHITE);
+        formulario.add(EstilosGUI.crearLabel("Área:"));
+        formulario.add(campoArea);
+        formulario.add(EstilosGUI.crearLabel("Horario:"));
+        formulario.add(campoHorario);
+
+        int respuesta = JOptionPane.showConfirmDialog(this, formulario, "Resumen por área",JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (respuesta != JOptionPane.OK_OPTION) return;
+
+        String area = (String) campoArea.getSelectedItem();
+        String horario = (String) campoHorario.getSelectedItem();
+
+        List<Enfermera> enfermeras = EnfermeraControlador.listarPorArea(area);
+
+        if (enfermeras.isEmpty()) {
+            JOptionPane.showMessageDialog( this, "No hay enfermeras registradas en esta área.", "Sin datos", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        StringBuilder detalle = new StringBuilder();
+        detalle.append("Área: ").append(area)
+               .append("\nEnfermeras registradas: ")
+               .append(enfermeras.size())
+               .append("\nMínimo de referencia: 2")
+               .append("\nDotación registrada: ")
+               .append(enfermeras.size() >= 2
+                   ? "Suficiente" : "Insuficiente")
+               .append("\nEste conteo no comprueba disponibilidad horaria.")
+               .append("\n\nResumen de todas las enfermeras del área:\n");
+
+        for (Enfermera enfermera : enfermeras) {
+            detalle.append("\n").append(enfermera.getNombreCompleto())
+                   .append(" [").append(enfermera.getRut()).append("]")
+                   .append("\nEspecialidad: ")
+                   .append(enfermera.getEspecialidad())
+                   .append("\nRegulares: ")
+                   .append(enfermera.contarTurnosRegulares())
+                   .append(" | Licencias: ")
+                   .append(enfermera.contarLicencias())
+                   .append(" | Cambios: ")
+                   .append(enfermera.contarCambios())
+                   .append(" | Horas: ")
+                   .append(String.format(
+                       "%.1f",
+                       TurnoControlador.calcularHorasTrabajadas(enfermera)
+                   ))
+                   .append("\n");
+        }
+
+        if (!"Todos".equals(horario)) {
+            detalle.append("\nEnfermeras con turnos de ")
+                   .append(horario).append(":\n");
+
+            int coincidencias = 0;
+
+            for (Enfermera enfermera : enfermeras) {
+                boolean tieneHorario = false;
+
+                for (TurnosEnfermeria.modelo.Turno turno
+                        : enfermera.getListaTurnos()) {
+                    if (turno instanceof TurnoRegular) {
+                        TurnoRegular regular = (TurnoRegular) turno;
+
+                        if (horario.equalsIgnoreCase(
+                                regular.getTipoTurno())) {
+                            tieneHorario = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (tieneHorario) {
+                    detalle.append(enfermera.getNombreCompleto())
+                           .append(" [").append(enfermera.getRut())
+                           .append("]\n");
+                    coincidencias++;
+                }
+            }
+
+            if (coincidencias == 0) {
+                detalle.append("Ninguna enfermera con ese horario.\n");
+            }
+        }
+
+        JTextArea texto = new JTextArea(detalle.toString(), 18, 55);
+        texto.setEditable(false);
+        texto.setLineWrap(true);
+        texto.setWrapStyleWord(true);
+        texto.setBackground(Color.WHITE);
+        texto.setForeground(Color.BLACK);
+        texto.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(
+            this, new JScrollPane(texto),
+            "Resumen por área", JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+   
+
+    /**
+ * Consulta disponibilidad sin registrar ni modificar turnos.
+ */
+    private void mostrarValidacionCobertura() {
+        JComboBox<String> comboArea =
+            EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
+
+        JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
+        JTextField campoInicio = EstilosGUI.crearCampoTexto(5);
+        JTextField campoFin = EstilosGUI.crearCampoTexto(5);
+        JTextField campoCantidad = EstilosGUI.crearCampoTexto(4);
+
+        campoInicio.setText("07:00");
+        campoFin.setText("15:00");
+        campoCantidad.setText("1");
+
+        JPanel formulario = new JPanel(new GridLayout(5, 2, 8, 8));
+        formulario.setBackground(EstilosGUI.getColorPanel());
+
+        formulario.add(EstilosGUI.crearLabel("Área:"));
+        formulario.add(comboArea);
+        formulario.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"));
+        formulario.add(campoFecha);
+        formulario.add(EstilosGUI.crearLabel("Inicio (HH:mm):"));
+        formulario.add(campoInicio);
+        formulario.add(EstilosGUI.crearLabel("Fin (HH:mm):"));
+        formulario.add(campoFin);
+        formulario.add(EstilosGUI.crearLabel("Enfermeras necesarias:"));
+        formulario.add(campoCantidad);
+
+        JPanel contenido = new JPanel(new BorderLayout(0, 10));
+        contenido.setBackground(EstilosGUI.getColorPanel());
+        contenido.add(formulario, BorderLayout.CENTER);
+        contenido.add(
+            EstilosGUI.crearLabel(
+                "<html>Si el fin es anterior al inicio, "
+                + "el turno termina al día siguiente.</html>"
+            ),
+            BorderLayout.SOUTH
+        );
+
+        int respuesta = JOptionPane.showConfirmDialog(
+            this,
+            contenido,
+            "Disponibilidad para nueva asignación",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (respuesta != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        try {
+            int cantidad = Integer.parseInt(campoCantidad.getText().trim());
+
+            boolean factible = TurnoControlador.validarFactibilidadCobertura(
+                (String) comboArea.getSelectedItem(),
+                campoFecha.getText().trim(),
+                campoInicio.getText().trim(),
+                campoFin.getText().trim(),
+                cantidad
+            );
+
+            String mensaje;
+
+            if (factible) {
+                mensaje = "Hay suficientes enfermeras disponibles en el área.";
+            } else {
+                mensaje = "No hay suficientes enfermeras disponibles en el área.";
+            }
+
+            JOptionPane.showMessageDialog(
+                this,
+                mensaje + "\nNo se asignaron turnos.",
+                "Resultado de disponibilidad",
+                factible
+                    ? JOptionPane.INFORMATION_MESSAGE
+                    : JOptionPane.WARNING_MESSAGE
+            );
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                "La cantidad debe ser un número entero.",
+                "Datos inválidos",
+                JOptionPane.ERROR_MESSAGE
+            );
+        } catch (TurnoConflictoException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                ex.getMessage(),
+                "Datos inválidos",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+    private void mostrarAsignacionGrupal() {
+        JComboBox<String> campoArea = EstilosGUI.crearComboBox(Utilidades.getAreasHospitalarias());
+        JComboBox<String> campoTipo =EstilosGUI.crearComboBox(Utilidades.getTiposTurno());
+        JTextField campoFecha = EstilosGUI.crearCampoTexto(10);
+        JTextField campoObs = EstilosGUI.crearCampoTexto(20);
+
+        JPanel formulario = new JPanel(new GridLayout(4, 2, 8, 8));
+        formulario.add(new JLabel("Área:"));
+        formulario.add(campoArea);
+        formulario.add(new JLabel("Fecha (dd/MM/yyyy):"));
+        formulario.add(campoFecha);
+        formulario.add(new JLabel("Tipo de turno:"));
+        formulario.add(campoTipo);
+        formulario.add(new JLabel("Observación:"));
+        formulario.add(campoObs);
+
+        int respuesta = JOptionPane.showConfirmDialog(this, formulario, "Asignación grupal por área",JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (respuesta != JOptionPane.OK_OPTION) return;
+
+        String fecha = campoFecha.getText().trim();
+        if (!Utilidades.validarFecha(fecha)) {
+            JOptionPane.showMessageDialog( this, "Fecha inválida. Use dd/MM/yyyy.","Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String area = (String) campoArea.getSelectedItem();
+        List<Enfermera> enfermeras = EnfermeraControlador.listarPorArea(area);
+
+        if (enfermeras.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this, "No hay enfermeras en el área seleccionada.","Sin datos", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String tipo = (String) campoTipo.getSelectedItem();
+        String horaInicio = Utilidades.horaInicioPorTipo(tipo);
+        String horaFin = Utilidades.horaFinPorTipo(tipo);
+
+        int asignadas = 0;
+        int conflictos = 0;
+        StringBuilder detalle = new StringBuilder();
+
+        for (Enfermera enfermera : enfermeras) {
+            try {
+                TurnoRegular turno = new TurnoRegular(
+                    Utilidades.generarIdTurno(), fecha,
+                    horaInicio, horaFin, tipo, campoObs.getText().trim());
+                TurnoControlador.registrar(enfermera, turno);
+                asignadas++;
+            } catch (TurnoConflictoException ex) {
+                conflictos++;
+                detalle.append(enfermera.getNombreCompleto())
+                       .append(": ").append(ex.getMessage()).append("\n");
+            }
+        }
+
+        JTextArea resultado = new JTextArea("Turnos asignados: " + asignadas + "\nEnfermeras con conflicto: " + conflictos + "\n\n" + detalle.toString(), 10, 45);
+        resultado.setEditable(false);
+        resultado.setLineWrap(true);
+        resultado.setWrapStyleWord(true);
+        resultado.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(
+            this, new JScrollPane(resultado), "Resultado de asignación grupal",
+            conflictos > 0
+                ? JOptionPane.WARNING_MESSAGE
+                : JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     // =====================================================================
     //  CIERRE DEL SISTEMA
     // =====================================================================
 
-    /** Confirma el cierre, ejecuta el callback de guardado y cierra la ventana. */
+    /* Cierra el sistema solamente si el guardado fue exitoso.*/
     private void cerrarSistema() {
-        int confirm = JOptionPane.showConfirmDialog(this,
-            "¿Desea cerrar el sistema?\nLos datos se guardarán automáticamente.",
-            "Cerrar Sistema", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (alCerrar != null) alCerrar.run();
-            dispose();
-            System.exit(0);
+        int confirm = JOptionPane.showConfirmDialog(this,"¿Desea guardar los datos y cerrar el sistema?","Cerrar Sistema",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
         }
+
+        try {
+            if (alCerrar == null || !alCerrar.getAsBoolean()) {
+                JOptionPane.showMessageDialog(
+                    this,"No se completó el guardado.\n" + "El sistema seguirá abierto. Puede reintentar el cierre.", "Error al guardar",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                this,"No se pudo guardar: " + ex.getMessage() + "\nEl sistema seguirá abierto.", "Error al guardar", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        dispose();
+        System.exit(0);
     }
+
+    public BooleanSupplier getAlCerrar() { return alCerrar; }
+    public void setAlCerrar(BooleanSupplier accion) { alCerrar = accion; }
 }

@@ -22,7 +22,7 @@ import java.util.TreeMap;
 
 /**
  * Punto de entrada del Sistema de Gestion de Turnos de Enfermeras.
- *
+ * 
  * Al iniciar:
  *   1. Carga datos desde CSV (o semilla si no existen) - SIA-11
  *   2. Ofrece seleccion de interfaz: Consola o GUI - SIA-10
@@ -30,12 +30,46 @@ import java.util.TreeMap;
  * registroGlobal es el TreeMap&lt;RUT, Enfermera&gt; que actua como base de datos en memoria.
  * SOLO los Controladores deben acceder a este campo.
  */
+
 public class Main {
 
     /** COLECCION 1 (Mapa principal del sistema) - SIA-4 */
-    public static TreeMap<String, Enfermera> registroGlobal;
+    private static TreeMap<String, Enfermera> registroGlobal = new TreeMap<>();
+
+    public static java.util.Map<String, Enfermera> getRegistroGlobal() {
+        return java.util.Collections.unmodifiableMap(registroGlobal);
+    }
+
+    public static void setRegistroGlobal(TreeMap<String, Enfermera> registro) {
+        registroGlobal = new TreeMap<>(registro);
+    }
+
+    public static boolean registrarEnfermera(Enfermera enfermera) {
+        String rut = enfermera.getRut();
+
+        if (registroGlobal.containsKey(rut)) {
+            return false;
+        }
+
+        registroGlobal.put(rut, enfermera);
+            return true;
+    }
+
+    public static boolean eliminarEnfermera(String rut) {
+        return registroGlobal.remove(rut) != null;
+    }
 
     private static Scanner sc = new Scanner(System.in);
+    public static Scanner getSc() {
+        return sc;
+    }
+
+    public static void setSc(Scanner lector) {
+        if (lector == null) {
+            throw new IllegalArgumentException("El lector de consola no puede ser nulo.");
+        }
+        sc = lector;
+    }
 
     // ===================================================================
     //  PUNTO DE ENTRADA
@@ -43,7 +77,13 @@ public class Main {
 
     public static void main(String[] args) {
         // Cargar datos batch al inicio (SIA-11)
-        registroGlobal = GestorArchivos.cargarEnfermeras();
+        try {
+            setRegistroGlobal(GestorArchivos.cargarEnfermeras());
+        } catch (Exception ex) {
+            System.err.println("[ERROR] " + ex.getMessage());
+            System.err.println("Inicio cancelado. No se sobrescribieron los CSV. Revise los archivos y vuelva a ejecutar.");
+            return;
+        }
 
         Utilidades.imprimirSeparador();
         System.out.println("  SISTEMA DE GESTION DE TURNOS DE ENFERMERAS");
@@ -99,12 +139,19 @@ public class Main {
                 case 12: opcionFiltroExcesoNoche();   break; // SIA-9
                 case 13: opcionResumenPorArea();      break;
                 // ── SISTEMA ───────────────────────────────────────────
+                case 14: opcionValidarCobertura(); break;
+                case 15: opcionEstadisticas(); break;
                 case 0:
-                    GestorArchivos.guardarEnfermeras(registroGlobal); // SIA-11
-                    System.out.println("\n  Hasta luego. Datos guardados correctamente.");
+                    if (GestorArchivos.guardarEnfermeras(registroGlobal)) {
+                        System.out.println("\n  Hasta luego. Datos guardados correctamente.");
+                    } else {
+                        System.out.println("\n  [!] No se completo el guardado. " + "El sistema seguira abierto.");
+                        System.out.println("  Puede volver a elegir Guardar y Salir para reintentar.");
+                        opcion = -1;
+                    }
                     break;
                 default:
-                    System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 13.");
+                    System.out.println("  [!] Opcion invalida. Ingrese un numero del 0 al 15.");
             }
 
             if (opcion != 0) pausar();
@@ -112,6 +159,57 @@ public class Main {
         } while (opcion != 0);
 
         sc.close();
+    }
+
+        /** Muestra las estadisticas generales y las horas por enfermera. */
+    private static void opcionEstadisticas() {
+        int regulares = 0;
+        int licencias = 0;
+        int cambios = 0;
+        int noches = 0;
+        double horas = 0;
+
+        System.out.println("\n  === ESTADISTICAS DEL SISTEMA ===");
+        System.out.println("\n  Horas trabajadas por enfermera:");
+        Utilidades.imprimirLinea();
+
+        for (Enfermera enfermera : EnfermeraControlador.listar()) {
+            regulares += enfermera.contarTurnosRegulares();
+            licencias += enfermera.contarLicencias();
+            cambios += enfermera.contarCambios();
+
+            double horasEnfermera = TurnoControlador.calcularHorasTrabajadas(enfermera);
+            horas += horasEnfermera;
+
+            System.out.printf("  %s [%s]: %.1f h%n", enfermera.getNombreCompleto(), enfermera.getRut(), horasEnfermera);
+
+            for (Turno turno : enfermera.getListaTurnos()) {
+                if (turno instanceof TurnoRegular) {
+                    TurnoRegular regular = (TurnoRegular) turno;
+                    if (Utilidades.getTurnoNoche().equals(regular.getTipoTurno())) {
+                        noches++;
+                    }
+                }
+            }
+        }
+
+        int totalEventos = regulares + licencias + cambios;
+
+        Utilidades.imprimirLinea();
+        System.out.println( "  Enfermeras registradas: " + EnfermeraControlador.totalRegistradas());
+        System.out.println("  Turnos regulares: " + regulares);
+        System.out.println("  Turnos noche: " + noches);
+        System.out.println("  Licencias: " + licencias);
+        System.out.println("  Cambios de turno: " + cambios);
+        System.out.println("  Total de eventos: " + totalEventos);
+        System.out.printf("  Horas trabajadas: %.1f h%n", horas);
+
+        if (totalEventos > 0) {
+            System.out.println("\n  Distribucion de eventos:");
+            System.out.printf("  Regulares: %.1f%%%n", 100.0 * regulares / totalEventos);
+            System.out.printf("  Licencias: %.1f%%%n",100.0 * licencias / totalEventos);
+            System.out.printf("  Cambios: %.1f%%%n", 100.0 * cambios / totalEventos);
+        }
     }
 
     // ===================================================================
@@ -126,7 +224,7 @@ public class Main {
         System.out.println("  -- ENFERMERAS (Coleccion 1) --");
         System.out.println("   1. Agregar Enfermera");
         System.out.println("   2. Listar Enfermeras");
-        System.out.println("   3. Buscar Enfermera por RUT");
+        System.out.println("   3. Buscar Enfermera por RUT o nombre");
         System.out.println("   4. Editar Enfermera");
         System.out.println("   5. Eliminar Enfermera");
         Utilidades.imprimirLinea();
@@ -139,8 +237,10 @@ public class Main {
         Utilidades.imprimirLinea();
         System.out.println("  -- REPORTES Y FILTROS --");
         System.out.println("  11. Asignacion Grupal de Turnos por Area");
-        System.out.println("  12. Filtro: Enfermeras con exceso turnos Noche");
+        System.out.println("  12. Filtro: Exceso de turnos por horario");
         System.out.println("  13. Resumen por Area Hospitalaria");
+        System.out.println("  14. Validar disponibilidad para nueva asignacion");
+        System.out.println("  15. Estadisticas del sistema");
         Utilidades.imprimirLinea();
         System.out.println("   0. Guardar y Salir");
         Utilidades.imprimirSeparador();
@@ -178,14 +278,14 @@ public class Main {
             }
 
             System.out.println("  Especialidad:");
-            int espIdx = Utilidades.seleccionarOpcion(sc, Utilidades.ESPECIALIDADES);
+            int espIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getEspecialidades());
             if (espIdx < 1) { System.out.println("  [!] Especialidad invalida."); return; }
-            String especialidad = Utilidades.ESPECIALIDADES[espIdx - 1];
+            String especialidad =Utilidades.getEspecialidades()[espIdx - 1];
 
             System.out.println("  Area Hospitalaria:");
-            int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
+            int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.getAreasHospitalarias());
             if (areaIdx < 1) { System.out.println("  [!] Area invalida."); return; }
-            String area = Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+            String area = Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
             Enfermera nueva = new Enfermera(nombre, apP, apM, rut, edad, especialidad, area);
             if (EnfermeraControlador.agregar(nueva)) {
@@ -194,8 +294,7 @@ public class Main {
                 System.out.println("  [!] Ya existe una enfermera con RUT " + rut);
             }
         } catch (RutInvalidoException ex) {
-            System.out.println("  [!] RUT invalido: " + ex.getRutIngresado()
-                    + " - Verifique el digito verificador.");
+            System.out.println("  [!] RUT invalido: " + ex.getRutIngresado() + " - Verifique el digito verificador.");
         }
     }
 
@@ -207,38 +306,56 @@ public class Main {
             System.out.println("  (No hay enfermeras registradas)");
             return;
         }
-        System.out.printf("  %-15s %-25s %-22s %-18s %s%n",
-                "RUT", "NOMBRE COMPLETO", "ESPECIALIDAD", "AREA", "TURNOS");
+        System.out.printf("  %-15s %-25s %-22s %-18s %s%n", "RUT", "NOMBRE COMPLETO", "ESPECIALIDAD", "AREA", "TURNOS");
         Utilidades.imprimirLinea();
         for (Enfermera e : lista) {
-            System.out.printf("  %-15s %-25s %-22s %-18s %d%n",
-                    e.getRut(), e.getNombreCompleto(),
-                    e.getEspecialidad(), e.getAreaAsignada(),
-                    e.getListaTurnos().size());
+            System.out.printf("  %-15s %-25s %-22s %-18s %d%n", e.getRut(), e.getNombreCompleto(), e.getEspecialidad(), e.getAreaAsignada(), e.getListaTurnos().size());
         }
         System.out.println("\n  Total: " + lista.size() + " enfermeras registradas.");
     }
 
-    /** Opcion 3: Buscar Enfermera por RUT */
+        /** Opcion 3: Buscar enfermeras por RUT o nombre. */
     private static void opcionBuscarEnfermera() {
         System.out.println("\n  === BUSCAR ENFERMERA ===");
-        System.out.print("  RUT a buscar: ");
-        String rut = sc.nextLine().trim();
-        Enfermera e = EnfermeraControlador.obtener(rut);
-        if (e == null) {
-            System.out.println("  [!] No se encontro enfermera con RUT: " + rut);
+        System.out.print("  RUT o nombre a buscar: ");
+        String busqueda = sc.nextLine().trim();
+
+        if (busqueda.isEmpty()) {
+            System.out.println("  [!] Ingrese un RUT o un nombre.");
+            return;
+        }
+
+        Enfermera encontrada = EnfermeraControlador.obtener(busqueda);
+        int coincidencias = 0;
+
+        for (Enfermera e : EnfermeraControlador.listar()) {
+            boolean coincide;
+
+            if (encontrada != null) {
+                coincide = e.getRut().equals(encontrada.getRut());
+            } else {
+                coincide = e.getNombreCompleto().toLowerCase(java.util.Locale.ROOT).contains(busqueda.toLowerCase(java.util.Locale.ROOT));
+            }
+
+            if (coincide) {
+                Utilidades.imprimirLinea();
+                System.out.println("  RUT          : " + e.getRut());
+                System.out.println("  Nombre       : " + e.getNombreCompleto());
+                System.out.println("  Edad         : " + e.getEdad());
+                System.out.println("  Especialidad : " + e.getEspecialidad());
+                System.out.println("  Area         : " + e.getAreaAsignada());
+                System.out.println("  Turnos reg.  : " + e.contarTurnosRegulares());
+                System.out.println("  Licencias    : " + e.contarLicencias());
+                System.out.println("  Cambios      : " + e.contarCambios());
+                System.out.printf("  Horas trab.  : %.1f h%n",TurnoControlador.calcularHorasTrabajadas(e));
+                coincidencias++;
+            }
+        }
+
+        if (coincidencias == 0) {
+            System.out.println("  [!] No se encontraron enfermeras con: " + busqueda);
         } else {
-            System.out.println("\n  Datos de la enfermera:");
-            Utilidades.imprimirLinea();
-            System.out.println("  RUT          : " + e.getRut());
-            System.out.println("  Nombre       : " + e.getNombreCompleto());
-            System.out.println("  Edad         : " + e.getEdad());
-            System.out.println("  Especialidad : " + e.getEspecialidad());
-            System.out.println("  Area         : " + e.getAreaAsignada());
-            System.out.println("  Turnos reg.  : " + e.contarTurnosRegulares());
-            System.out.println("  Licencias    : " + e.contarLicencias());
-            System.out.println("  Cambios      : " + e.contarCambios());
-            System.out.printf( "  Horas trab.  : %.1f h%n", e.getHorasTrabajadas());
+            System.out.println("\n  Coincidencias encontradas: " + coincidencias);
         }
     }
 
@@ -266,40 +383,66 @@ public class Main {
 
         System.out.print("  Nueva edad [" + e.getEdad() + "]: ");
         String edadStr = sc.nextLine().trim();
-        int edad = edadStr.isEmpty() ? -1 : Integer.parseInt(edadStr);
+        int edad;
+        try {
+            edad = edadStr.isEmpty()
+                ? e.getEdad()
+                : Integer.parseInt(edadStr);
+        } catch (NumberFormatException ex) {
+                System.out.println("  [!] La edad debe ser un numero entero.");
+                return;
+        }
 
         System.out.println("  Nueva especialidad (0 = no cambiar):");
         System.out.println("  0. Mantener actual: " + e.getEspecialidad());
-        int espIdx = Utilidades.seleccionarOpcion(sc, Utilidades.ESPECIALIDADES);
-        String esp = (espIdx < 1) ? "" : Utilidades.ESPECIALIDADES[espIdx - 1];
+        int espIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getEspecialidades());
+        String esp = (espIdx < 1) ? "" :Utilidades.getEspecialidades()[espIdx - 1];
 
         System.out.println("  Nueva area (0 = no cambiar):");
         System.out.println("  0. Mantener actual: " + e.getAreaAsignada());
-        int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
-        String area = (areaIdx < 1) ? "" : Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+        int areaIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
+        String area = (areaIdx < 1) ? "" :Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
-        EnfermeraControlador.editar(rut, nombre, apP, apM, edad, esp, area);
-        System.out.println("  [OK] Enfermera actualizada: " + e.getNombreCompleto());
-    }
+        try {
+            boolean actualizado = EnfermeraControlador.editar(rut, nombre, apP, apM, edad, esp, area);
+            if (actualizado) {
+                System.out.println("  [OK] Enfermera actualizada: " + e.getNombreCompleto());
+            } else {
+                System.out.println("  [!] No se encontro la enfermera.");
+            }
+        } catch (IllegalArgumentException ex) {
+            System.out.println("  [!] " + ex.getMessage());
+            }
+        }
 
     /** Opcion 5: Eliminar Enfermera */
     private static void opcionEliminarEnfermera() {
         System.out.println("\n  === ELIMINAR ENFERMERA ===");
         System.out.print("  RUT a eliminar: ");
         String rut = sc.nextLine().trim();
-        Enfermera e = EnfermeraControlador.obtener(rut);
-        if (e == null) {
-            System.out.println("  [!] No se encontro enfermera con RUT: " + rut);
+
+        Enfermera enfermera = EnfermeraControlador.obtener(rut);
+
+        if (enfermera == null) {
+            System.out.println("  [!] No se encontro la enfermera.");
             return;
         }
-        System.out.println("  Enfermera encontrada: " + e.getNombreCompleto());
+
+        System.out.println("  Enfermera: " + enfermera.getNombreCompleto());
+        System.out.println("  Se eliminaran tambien sus turnos registrados.");
         System.out.print("  Confirmar eliminacion (s/n): ");
-        String conf = sc.nextLine().trim().toLowerCase();
-        if ("s".equals(conf)) {
-            EnfermeraControlador.eliminar(rut);
+        String confirmacion = sc.nextLine().trim();
+
+        if (!"s".equalsIgnoreCase(confirmacion)) {
+            System.out.println("  Operacion cancelada.");
+            return;
+        }
+
+        if (EnfermeraControlador.eliminar(rut)) {
             System.out.println("  [OK] Enfermera eliminada del sistema.");
         } else {
-            System.out.println("  Operacion cancelada.");
+            System.out.println("  [!] No se pudo eliminar. Puede estar registrada " + "como sustituta en cambios de otra enfermera.");
+            System.out.println("  Revise esos cambios antes de intentar eliminarla.");
         }
     }
 
@@ -336,9 +479,9 @@ public class Main {
             switch (tipoIdx) {
                 case 1: // Turno Regular
                     System.out.println("  Tipo de turno:");
-                    int ttIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+                    int ttIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
                     if (ttIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoTurno = Utilidades.TIPOS_TURNO[ttIdx - 1];
+                    String tipoTurno =Utilidades.getTiposTurno()[ttIdx - 1];
                     String horaIni = Utilidades.horaInicioPorTipo(tipoTurno);
                     String horaFin = Utilidades.horaFinPorTipo(tipoTurno);
                     System.out.print("  Observacion (opcional): ");
@@ -348,28 +491,40 @@ public class Main {
 
                 case 2: // Licencia
                     System.out.println("  Tipo de licencia:");
-                    int tlIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_LICENCIA);
+                    int tlIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposLicencia());
                     if (tlIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoLic = Utilidades.TIPOS_LICENCIA[tlIdx - 1];
+                    String tipoLic = Utilidades.getTiposLicencia()[tlIdx - 1];
                     System.out.print("  Motivo: ");
                     String motivo = sc.nextLine().trim();
+                    if (motivo.isEmpty()) {
+                        System.out.println("  [!] Ingrese el motivo de la licencia.");
+                        return;
+                    }
                     nuevoTurno = new Licencia(id, fecha, motivo, tipoLic);
                     break;
 
-                case 3: // Cambio de Turno
+                case 3: // Cambio de turno
                     System.out.print("  RUT de la enfermera sustituta: ");
                     String rutSust = sc.nextLine().trim();
-                    System.out.println("  Tipo de turno del cambio:");
-                    int ctIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
-                    if (ctIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-                    String tipoC = Utilidades.TIPOS_TURNO[ctIdx - 1];
-                    String hIni = Utilidades.horaInicioPorTipo(tipoC);
-                    String hFin = Utilidades.horaFinPorTipo(tipoC);
+
+                    System.out.print("  Hora de inicio (HH:mm): ");
+                    String hIni = sc.nextLine().trim();
+
+                    System.out.print("  Hora de fin (HH:mm): ");
+                    String hFin = sc.nextLine().trim();
+
+                    if (!Utilidades.validarHora(hIni) || !Utilidades.validarHora(hFin)) {
+                        System.out.println("  [!] Hora invalida. Use el formato HH:mm.");
+                        return;
+                    }
+
                     System.out.print("  Motivo del cambio: ");
                     String motivoC = sc.nextLine().trim();
+
                     System.out.print("  Observacion (opcional): ");
                     String obsC = sc.nextLine().trim();
-                    nuevoTurno = new CambioTurno(id, fecha, hIni, hFin, rutSust, motivoC, obsC);
+
+                    nuevoTurno = new CambioTurno( id, fecha, hIni, hFin,rutSust, motivoC, obsC);
                     break;
             }
 
@@ -409,7 +564,7 @@ public class Main {
         System.out.println("\n  Regulares: " + e.contarTurnosRegulares()
                 + " | Licencias: " + e.contarLicencias()
                 + " | Cambios: " + e.contarCambios()
-                + " | Horas: " + String.format("%.1f", e.getHorasTrabajadas()));
+                + " | Horas: " + String.format("%.1f", TurnoControlador.calcularHorasTrabajadas(e)));
     }
 
     /** Opcion 8: Buscar Turno por ID */
@@ -496,9 +651,9 @@ public class Main {
     private static void opcionAsignacionGrupal() {
         System.out.println("\n  === ASIGNACION GRUPAL DE TURNOS POR AREA ===");
         System.out.println("  Seleccione el area:");
-        int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
+        int areaIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
         if (areaIdx < 1) { System.out.println("  [!] Area invalida."); return; }
-        String areaNombre = Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+        String areaNombre = Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
         AreaHospitalaria area = new AreaHospitalaria(areaNombre, 2);
         area.poblarArea(registroGlobal);
@@ -519,9 +674,9 @@ public class Main {
         }
 
         System.out.println("  Tipo de turno a asignar:");
-        int ttIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+        int ttIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
         if (ttIdx < 1) { System.out.println("  [!] Tipo invalido."); return; }
-        String tipoTurno = Utilidades.TIPOS_TURNO[ttIdx - 1];
+        String tipoTurno = Utilidades.getTiposTurno()[ttIdx - 1];
         String horaIni   = Utilidades.horaInicioPorTipo(tipoTurno);
         String horaFin   = Utilidades.horaFinPorTipo(tipoTurno);
 
@@ -538,49 +693,59 @@ public class Main {
                 System.out.println("  [OK] Turno asignado a: " + e.getNombreCompleto());
                 asignadas++;
             } catch (TurnoConflictoException ex) {
-                System.out.println("  [CONFLICTO] " + e.getNombreCompleto()
-                        + ": " + ex.getMessage());
+                System.out.println("  [CONFLICTO] " + e.getNombreCompleto() + ": " + ex.getMessage());
                 conflictos++;
             }
         }
-        System.out.println("\n  Resultado: " + asignadas + " asignadas, "
-                + conflictos + " con conflicto.");
+        System.out.println("\n  Resultado: " + asignadas + " asignadas, " + conflictos + " con conflicto.");
     }
 
-    /** Opcion 12: Filtro - Enfermeras con exceso de turnos Noche (SIA-9) */
+       /** Filtra enfermeras con exceso de turnos del horario elegido. */
     private static void opcionFiltroExcesoNoche() {
-        System.out.println("\n  === FILTRO: ENFERMERAS CON EXCESO DE TURNOS NOCHE ===");
-        System.out.print("  Mes a evaluar (MM, p.ej. 09): ");
-        String mes = sc.nextLine().trim();
+        System.out.println("\n  === FILTRO DE TURNOS POR HORARIO ===");
+        System.out.println("  Seleccione el horario:");
 
-        System.out.print("  Anio a evaluar (yyyy, p.ej. 2026): ");
-        String anio = sc.nextLine().trim();
+        int indice = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
 
-        System.out.print("  Maximo de turnos noche permitidos por mes: ");
-        int limite = Utilidades.leerEntero(sc);
-        if (limite < 0) {
-            System.out.println("  [!] Limite invalido.");
+        if (indice < 1 || indice > Utilidades.getTiposTurno().length) {
+            System.out.println("  [!] Horario invalido.");
             return;
         }
 
-        List<Enfermera> exceso = EnfermeraControlador
-                .filtrarExcesoTurnosNoche(limite, mes, anio);
+        String horario =Utilidades.getTiposTurno()[indice - 1];
 
-        System.out.println("\n  Enfermeras con mas de " + limite
-                + " turno(s) noche en " + mes + "/" + anio + ":");
-        Utilidades.imprimirLinea();
+        System.out.print("  Mes (MM): ");
+        String mes = sc.nextLine().trim();
 
-        if (exceso.isEmpty()) {
-            System.out.println("  (Ninguna enfermera supera el limite establecido)");
-        } else {
-            for (Enfermera e : exceso) {
-                int cant = e.contarTurnosNocheMes(mes, anio);
-                System.out.println("  " + e.getNombreCompleto()
-                        + " (" + e.getRut() + ")"
-                        + " - Area: " + e.getAreaAsignada()
-                        + " - Turnos noche: " + cant);
+        System.out.print("  Año (yyyy): ");
+        String anio = sc.nextLine().trim();
+
+        System.out.print("  Maximo de turnos permitido: ");
+        int limite = Utilidades.leerEntero(sc);
+
+        try {
+            List<Enfermera> resultado =
+                EnfermeraControlador.filtrarExcesoTurnosPorHorario(horario, limite, mes, anio);
+
+            if (resultado.isEmpty()) {
+                System.out.println("  Ninguna enfermera supera el limite indicado.");
+                return;
             }
-            System.out.println("\n  Total: " + exceso.size() + " enfermera(s) con exceso.");
+
+            System.out.println("\n  Enfermeras con mas de " + limite + " turnos de " + horario + " en " + mes + "/" + anio);
+            Utilidades.imprimirLinea();
+
+            for (Enfermera enfermera : resultado) {
+                int cantidad = enfermera.contarTurnosPorHorarioMes(horario, mes, anio);
+
+                System.out.println("  " + enfermera.getNombreCompleto() + " [" + enfermera.getRut() + "]" + " | Area: " + enfermera.getAreaAsignada() + " | Turnos: " + cantidad);
+            }
+
+            System.out.println(
+                "\n  Total: " + resultado.size() + " enfermera(s)."
+            );
+        } catch (IllegalArgumentException ex) {
+            System.out.println("  [!] " + ex.getMessage());
         }
     }
 
@@ -588,9 +753,9 @@ public class Main {
     private static void opcionResumenPorArea() {
         System.out.println("\n  === RESUMEN POR AREA HOSPITALARIA ===");
         System.out.println("  Seleccione el area:");
-        int areaIdx = Utilidades.seleccionarOpcion(sc, Utilidades.AREAS_HOSPITALARIAS);
+        int areaIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
         if (areaIdx < 1) { System.out.println("  [!] Area invalida."); return; }
-        String areaNombre = Utilidades.AREAS_HOSPITALARIAS[areaIdx - 1];
+        String areaNombre =Utilidades.getAreasHospitalarias()[areaIdx - 1];
 
         AreaHospitalaria area = new AreaHospitalaria(areaNombre, 2);
         area.poblarArea(registroGlobal);
@@ -608,10 +773,7 @@ public class Main {
                 "NOMBRE", "RUT", "REG.", "LIC.", "CAMB.", "HORAS");
         Utilidades.imprimirLinea();
         for (Enfermera e : area.getEnfermeras().values()) {
-            System.out.printf("  %-25s %-14s %-8d %-8d %-8d %.1f h%n",
-                    e.getNombreCompleto(), e.getRut(),
-                    e.contarTurnosRegulares(), e.contarLicencias(),
-                    e.contarCambios(), e.getHorasTrabajadas());
+            System.out.printf("  %-25s %-14s %-8d %-8d %-8d %.1f h%n", e.getNombreCompleto(), e.getRut(), e.contarTurnosRegulares(), e.contarLicencias(), e.contarCambios(), TurnoControlador.calcularHorasTrabajadas(e));
         }
         Utilidades.imprimirLinea();
         System.out.println("  Cobertura minima: "
@@ -619,10 +781,10 @@ public class Main {
 
         System.out.println("\n  Listado con filtro de tipo de turno:");
         System.out.println("  Tipo de turno a mostrar:");
-        int ttIdx = Utilidades.seleccionarOpcion(sc, Utilidades.TIPOS_TURNO);
+        int ttIdx = Utilidades.seleccionarOpcion(sc,Utilidades.getTiposTurno());
         if (ttIdx >= 1) {
             // Usar sobrecarga 2 de AreaHospitalaria (SIA-5)
-            area.listarEnfermeras(Utilidades.TIPOS_TURNO[ttIdx - 1]);
+            area.listarEnfermeras(Utilidades.getTiposTurno()[ttIdx - 1]);
         }
     }
 
@@ -633,5 +795,51 @@ public class Main {
     private static void pausar() {
         System.out.print("\n  Presione ENTER para continuar...");
         sc.nextLine();
+    }
+
+    /**
+    * Comprueba si hay personal disponible para una nueva asignacion.
+    * No registra ni modifica turnos.
+    */
+    private static void opcionValidarCobertura() {
+        System.out.println("\n  === DISPONIBILIDAD PARA NUEVA ASIGNACION ===");
+
+        System.out.println("  Seleccione el area:");
+        int indice = Utilidades.seleccionarOpcion(sc,Utilidades.getAreasHospitalarias());
+
+        if (indice < 1) {
+            System.out.println("  [!] Area invalida.");
+            return;
+        }
+
+        String area =Utilidades.getAreasHospitalarias()[indice - 1];
+
+        System.out.print("  Fecha (dd/MM/yyyy): ");
+        String fecha = sc.nextLine().trim();
+
+        System.out.print("  Hora de inicio (HH:mm): ");
+        String horaInicio = sc.nextLine().trim();
+
+        System.out.print("  Hora de fin (HH:mm): ");
+        String horaFin = sc.nextLine().trim();
+
+        System.out.println("  Si la hora de fin es anterior al inicio, termina al dia siguiente.");
+
+        System.out.print("  Cantidad de enfermeras necesarias: ");
+        int minimo = Utilidades.leerEntero(sc);
+
+        try {
+            boolean factible = TurnoControlador.validarFactibilidadCobertura(area, fecha, horaInicio, horaFin, minimo);
+
+            if (factible) {
+                System.out.println("  [OK] Hay suficientes enfermeras disponibles en el area.");
+            } else {
+                System.out.println("  [!] No hay suficientes enfermeras disponibles en el area.");
+            }
+
+            System.out.println("  Solo se verifico disponibilidad. No se asignaron turnos.");
+        } catch (TurnoConflictoException ex) {
+            System.out.println("  [!] " + ex.getMessage());
+        }
     }
 }

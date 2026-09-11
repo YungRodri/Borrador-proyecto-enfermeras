@@ -4,6 +4,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 
 /**
  * Clase de utilidades con metodos estaticos para validaciones y operaciones comunes.
@@ -12,44 +17,63 @@ import java.util.Scanner;
  */
 public class Utilidades {
 
-    // ---- Constantes de tipos de turno ----
-    public static final String TURNO_MANANA = "Manana";
-    public static final String TURNO_TARDE  = "Tarde";
-    public static final String TURNO_NOCHE  = "Noche";
+    public static String getTurnoManana() {
+        return "Manana";
+    }
 
-    public static final String HORA_MANANA_INI = "07:00";
-    public static final String HORA_MANANA_FIN = "15:00";
-    public static final String HORA_TARDE_INI  = "15:00";
-    public static final String HORA_TARDE_FIN  = "23:00";
-    public static final String HORA_NOCHE_INI  = "23:00";
-    public static final String HORA_NOCHE_FIN  = "07:00";
+    public static String getTurnoTarde() {
+        return "Tarde";
+    }
 
-    // ---- Catologos del dominio ----
-    public static final String[] AREAS_HOSPITALARIAS = {
-        "UCI", "Urgencias", "Pediatria", "Cirugia",
-        "Maternidad", "Medicina General", "Traumatologia", "Oncologia"
-    };
+    public static String getTurnoNoche() {
+        return "Noche";
+    }
 
-    public static final String[] ESPECIALIDADES = {
-        "Enfermeria General", "Cuidados Intensivos", "Urgencias y Emergencias",
-        "Pediatria", "Cirugia", "Maternidad", "Oncologia", "Traumatologia"
-    };
+       /** Devuelve las areas disponibles. */
+    public static String[] getAreasHospitalarias() {
+        return new String[]{
+            "UCI", "Urgencias", "Pediatria", "Cirugia",
+            "Maternidad", "Medicina General",
+            "Traumatologia", "Oncologia"
+        };
+    }
 
-    public static final String[] TIPOS_LICENCIA = {
-        "Medica", "Personal", "Maternidad", "Paternidad", "Estudio"
-    };
+    /** Devuelve las especialidades disponibles. */
+    public static String[] getEspecialidades() {
+        return new String[]{
+            "Enfermeria General", "Cuidados Intensivos",
+            "Urgencias y Emergencias", "Pediatria",
+            "Cirugia", "Maternidad", "Oncologia", "Traumatologia"
+        };
+    }
 
-    public static final String[] TIPOS_TURNO = {
-        TURNO_MANANA, TURNO_TARDE, TURNO_NOCHE
-    };
+    /** Devuelve los tipos de licencia disponibles. */
+    public static String[] getTiposLicencia() {
+        return new String[]{
+            "Medica", "Personal", "Maternidad",
+            "Paternidad", "Estudio"
+        };
+    }
 
-    // Formatos de fecha y hora (no lenient para validacion estricta)
-    private static final SimpleDateFormat FORMATO_FECHA = new SimpleDateFormat("dd/MM/yyyy");
-    private static final SimpleDateFormat FORMATO_HORA  = new SimpleDateFormat("HH:mm");
+    /** Devuelve los horarios disponibles. */
+    public static String[] getTiposTurno() {
+        return new String[]{
+            getTurnoManana(), getTurnoTarde(), getTurnoNoche()
+        };
+    }
 
-    static {
-        FORMATO_FECHA.setLenient(false);
-        FORMATO_HORA.setLenient(false);
+        /** Crea el formato utilizado para leer fechas. */
+    private static SimpleDateFormat crearFormatoFecha() {
+        SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+        formato.setLenient(false);
+        return formato;
+    }
+
+    /** Crea el formato utilizado para leer horas. */
+    private static SimpleDateFormat crearFormatoHora() {
+        SimpleDateFormat formato = new SimpleDateFormat("HH:mm");
+        formato.setLenient(false);
+        return formato;
     }
 
     /**
@@ -60,7 +84,7 @@ public class Utilidades {
     public static boolean validarFecha(String fecha) {
         if (fecha == null || fecha.trim().isEmpty()) return false;
         try {
-            FORMATO_FECHA.parse(fecha.trim());
+            crearFormatoFecha().parse(fecha.trim());
             return true;
         } catch (ParseException e) {
             return false;
@@ -75,7 +99,7 @@ public class Utilidades {
     public static boolean validarHora(String hora) {
         if (hora == null || hora.trim().isEmpty()) return false;
         try {
-            FORMATO_HORA.parse(hora.trim());
+            crearFormatoHora().parse(hora.trim());
             return true;
         } catch (ParseException e) {
             return false;
@@ -88,8 +112,8 @@ public class Utilidades {
      */
     public static int compararFechas(String a, String b) {
         try {
-            Date da = FORMATO_FECHA.parse(a.trim());
-            Date db = FORMATO_FECHA.parse(b.trim());
+            Date da =crearFormatoFecha().parse(a.trim());
+            Date db = crearFormatoFecha().parse(b.trim());
             return da.compareTo(db);
         } catch (ParseException e) {
             return 0;
@@ -160,41 +184,38 @@ public class Utilidades {
     }
 
     /**
-     * Valida que la edad sea razonable para una enfermera (18-70).
+      Valida que la edad sea razonable para una enfermera (18-70).
      */
     public static boolean validarEdad(int edad) {
         return edad >= 18 && edad <= 70;
     }
 
-    /**
-     * Genera un ID unico para un turno basado en timestamp y un sufijo aleatorio.
-     */
+    /* Genera un identificador de turno usando UUID del JDK.*/
     public static String generarIdTurno() {
-        return "T" + (System.currentTimeMillis() % 1000000L)
-               + (int)(Math.random() * 100);
+        return "T" + java.util.UUID.randomUUID().toString();
     }
 
-    /**
-     * Retorna la hora de inicio predefinida para un tipo de turno.
-     */
+    /** Devuelve la hora inicial del horario seleccionado. */
     public static String horaInicioPorTipo(String tipoTurno) {
+        if (tipoTurno == null) return "";
+
         switch (tipoTurno) {
-            case TURNO_MANANA: return HORA_MANANA_INI;
-            case TURNO_TARDE:  return HORA_TARDE_INI;
-            case TURNO_NOCHE:  return HORA_NOCHE_INI;
-            default:           return "";
+            case "Manana": return "07:00";
+            case "Tarde":  return "15:00";
+            case "Noche":  return "23:00";
+            default:      return "";
         }
     }
 
-    /**
-     * Retorna la hora de fin predefinida para un tipo de turno.
-     */
+    /** Devuelve la hora final del horario seleccionado. */
     public static String horaFinPorTipo(String tipoTurno) {
+        if (tipoTurno == null) return "";
+
         switch (tipoTurno) {
-            case TURNO_MANANA: return HORA_MANANA_FIN;
-            case TURNO_TARDE:  return HORA_TARDE_FIN;
-            case TURNO_NOCHE:  return HORA_NOCHE_FIN;
-            default:           return "";
+            case "Manana": return "15:00";
+            case "Tarde":  return "23:00";
+            case "Noche":  return "07:00";
+            default:      return "";
         }
     }
 
@@ -210,5 +231,73 @@ public class Utilidades {
      */
     public static void imprimirLinea() {
         System.out.println("---------------------------------------------------");
+    }
+
+    /**
+ * Obtiene el inicio del evento.
+ * Una licencia comienza a las 00:00 del dia indicado.
+ */
+private static LocalDateTime obtenerInicio(Turno turno) {
+    DateTimeFormatter formatoFecha = DateTimeFormatter
+        .ofPattern("dd/MM/uuuu")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    LocalDate fecha = LocalDate.parse(turno.getFecha(), formatoFecha);
+
+    if (turno instanceof Licencia) {
+        return fecha.atStartOfDay();
+    }
+
+    DateTimeFormatter formatoHora = DateTimeFormatter
+        .ofPattern("HH:mm")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    LocalTime hora = LocalTime.parse(turno.getHoraInicio(), formatoHora);
+    return fecha.atTime(hora);
+}
+
+/**
+ * Obtiene el fin del evento.
+ * Si la hora final es anterior a la inicial, termina al dia siguiente.
+ */
+private static LocalDateTime obtenerFin(Turno turno, LocalDateTime inicio) {
+    if (turno instanceof Licencia) {
+        return inicio.plusDays(1);
+    }
+
+    DateTimeFormatter formatoHora = DateTimeFormatter
+        .ofPattern("HH:mm")
+        .withResolverStyle(ResolverStyle.STRICT);
+
+    LocalTime horaFin = LocalTime.parse(turno.getHoraFin(), formatoHora);
+
+    if (horaFin.equals(inicio.toLocalTime())) {
+        throw new java.time.DateTimeException(
+            "La hora de inicio y fin no pueden ser iguales."
+        );
+    }
+
+    LocalDateTime fin = inicio.toLocalDate().atTime(horaFin);
+
+    if (fin.isBefore(inicio)) {
+        fin = fin.plusDays(1);
+    }
+
+    return fin;
+}
+
+    /**
+    * Comprueba solapamiento usando fechas y horas completas.
+    * Dos eventos contiguos no se consideran en conflicto.
+    */
+    public static boolean hayConflictoTurnos(Turno primero, Turno segundo) {
+        LocalDateTime inicioPrimero = obtenerInicio(primero);
+        LocalDateTime finPrimero = obtenerFin(primero, inicioPrimero);
+
+        LocalDateTime inicioSegundo = obtenerInicio(segundo);
+        LocalDateTime finSegundo = obtenerFin(segundo, inicioSegundo);
+
+        return inicioPrimero.isBefore(finSegundo)
+            && inicioSegundo.isBefore(finPrimero);
     }
 }

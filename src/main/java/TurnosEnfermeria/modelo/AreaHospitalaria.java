@@ -151,7 +151,13 @@ public class AreaHospitalaria {
     public int  getMinimoEnfermeras()             { return minimoEnfermeras; }
     public void setMinimoEnfermeras(int minimo)   { this.minimoEnfermeras = minimo; }
 
-    public TreeMap<String, Enfermera> getEnfermeras() { return enfermeras; }
+    /**
+    * Devuelve una copia del mapa para proteger su estructura interna.
+    * Los objetos Enfermera contenidos siguen siendo compartidos.
+    */
+    public TreeMap<String, Enfermera> getEnfermeras() {
+        return new TreeMap<>(enfermeras);
+    }
     public void setEnfermeras(TreeMap<String, Enfermera> mapa) {
         this.enfermeras = new TreeMap<>(mapa);
     }

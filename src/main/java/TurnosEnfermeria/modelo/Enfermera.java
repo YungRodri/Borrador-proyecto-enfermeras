@@ -24,9 +24,7 @@ public class Enfermera extends Persona {
 
     // ========== CONSTRUCTOR ==========
 
-    public Enfermera(String nombre, String apellidoP, String apellidoM,
-                     String rut, int edad, String especialidad,
-                     String areaAsignada) throws RutInvalidoException {
+    public Enfermera(String nombre, String apellidoP, String apellidoM, String rut, int edad, String especialidad, String areaAsignada) throws RutInvalidoException {
         super(nombre, apellidoP, apellidoM, rut, edad);
         this.especialidad  = especialidad;
         this.areaAsignada  = areaAsignada;
@@ -42,21 +40,26 @@ public class Enfermera extends Persona {
      * @throws TurnoConflictoException si hay superposicion de horario en la misma fecha
      */
     public void agregarTurno(Turno turno) throws TurnoConflictoException {
-        for (Turno existente : listaTurnos) {
-            if (existente.getFecha().equals(turno.getFecha())
-                    && !existente.getHoraInicio().isEmpty()
-                    && !turno.getHoraInicio().isEmpty()
-                    && Utilidades.hayConflictoHorario(
-                            existente.getHoraInicio(), existente.getHoraFin(),
-                            turno.getHoraInicio(),     turno.getHoraFin())) {
-                throw new TurnoConflictoException(
-                    "La enfermera " + getNombreCompleto()
-                    + " ya tiene turno de " + existente.getHoraInicio()
-                    + " a " + existente.getHoraFin()
-                    + " el dia " + turno.getFecha()
-                );
-            }
+        if (turno == null) {
+            throw new TurnoConflictoException("El turno no puede ser nulo.");
         }
+
+        if (buscarTurno(turno.getId()) != null) {
+            throw new TurnoConflictoException("La enfermera ya tiene un turno con ID: " + turno.getId());
+        }
+
+        try {
+        // Comprueba fecha y horario incluso si la lista esta vacia.
+            Utilidades.hayConflictoTurnos(turno, turno);
+            for (Turno existente : listaTurnos) {
+                if (!(existente instanceof CambioTurno) && !(turno instanceof CambioTurno)&& Utilidades.hayConflictoTurnos(existente, turno)) {
+                    throw new TurnoConflictoException("La enfermera " + getNombreCompleto() + " tiene un evento incompatible: " + existente.getResumen());
+                }
+            }
+        } catch (java.time.DateTimeException ex) {
+            throw new TurnoConflictoException("Revise las fechas y horas. Use dd/MM/yyyy y HH:mm. " + ex.getMessage());
+        }
+
         listaTurnos.add(turno);
     }
 
@@ -69,12 +72,10 @@ public class Enfermera extends Persona {
      * @param tipoTurno  tipo: Manana | Tarde | Noche
      * @throws TurnoConflictoException si hay superposicion de horario
      */
-    public void agregarTurno(String fecha, String horaInicio,
-                             String horaFin, String tipoTurno)
+    public void agregarTurno(String fecha, String horaInicio, String horaFin, String tipoTurno)
             throws TurnoConflictoException {
         String id = Utilidades.generarIdTurno();
-        TurnoRegular nuevo = new TurnoRegular(id, fecha, horaInicio,
-                                              horaFin, tipoTurno, "");
+        TurnoRegular nuevo = new TurnoRegular(id, fecha, horaInicio, horaFin, tipoTurno, "");
         agregarTurno(nuevo); // Delega a la sobrecarga 1 para reutilizar validacion
     }
 
@@ -134,20 +135,29 @@ public class Enfermera extends Persona {
     }
 
     /**
-     * Calcula el total de horas trabajadas sumando los turnos regulares y cambios.
-     * Los turnos nocturnos (fin &lt; inicio) se consideran de 8 horas.
-     */
+    * Calcula las horas de los turnos regulares propios.
+    * Las sustituciones recibidas se suman en el controlador.
+    */
     public double getHorasTrabajadas() {
         double total = 0;
+
         for (Turno t : listaTurnos) {
-            if (t instanceof TurnoRegular || t instanceof CambioTurno) {
+            if (t instanceof TurnoRegular) {
                 int ini = Utilidades.horaAMinutos(t.getHoraInicio());
                 int fin = Utilidades.horaAMinutos(t.getHoraFin());
-                if (ini < 0 || fin < 0) continue;
-                if (fin <= ini) fin += 24 * 60; // Turno nocturno
+
+                if (ini < 0 || fin < 0) {
+                    continue;
+                }
+
+                if (fin <= ini) {
+                    fin += 24 * 60;
+                }
+
                 total += (fin - ini) / 60.0;
             }
         }
+
         return total;
     }
 
@@ -156,23 +166,35 @@ public class Enfermera extends Persona {
      * @param mes formato MM (p.ej. "09")
      * @param anio formato yyyy (p.ej. "2026")
      */
-    public int contarTurnosNocheMes(String mes, String anio) {
-        int c = 0;
-        for (Turno t : listaTurnos) {
-            if (t instanceof TurnoRegular) {
-                TurnoRegular tr = (TurnoRegular) t;
-                if (Utilidades.TURNO_NOCHE.equals(tr.getTipoTurno())) {
-                    // Fecha formato dd/MM/yyyy
-                    String[] partes = t.getFecha().split("/");
+        /** Cuenta turnos regulares de un horario en el mes indicado. */
+    public int contarTurnosPorHorarioMes(
+            String horario, String mes, String anio) {
+        int cantidad = 0;
+
+        for (Turno turno : listaTurnos) {
+            if (turno instanceof TurnoRegular) {
+                TurnoRegular regular = (TurnoRegular) turno;
+
+                if (regular.getTipoTurno().equalsIgnoreCase(horario)) {
+                    String[] partes = regular.getFecha().split("/");
+
                     if (partes.length == 3
                             && partes[1].equals(mes)
                             && partes[2].equals(anio)) {
-                        c++;
+                        cantidad++;
                     }
                 }
             }
         }
-        return c;
+
+        return cantidad;
+    }
+
+    /** Cuenta los turnos nocturnos usando el conteo por horario. */
+    public int contarTurnosNocheMes(String mes, String anio) {
+        return contarTurnosPorHorarioMes(
+            Utilidades.getTurnoNoche(), mes, anio
+        );
     }
 
     // ========== GETTERS Y SETTERS (SIA-3) ==========

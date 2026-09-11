@@ -1,7 +1,22 @@
 @echo off
-REM Script de ejecucion para Windows
-REM Ejecutar desde la raiz del proyecto
-
+setlocal
 cd /d "%~dp0"
-mvn clean compile exec:java -q
+
+if not exist build mkdir build
+
+echo Compilando el proyecto...
+javac --release 11 -encoding UTF-8 -d build -sourcepath src/main/java src/main/java/TurnosEnfermeria/Main.java
+
+if errorlevel 1 (
+    echo.
+    echo No se pudo compilar. Revise los errores anteriores.
+    pause
+    exit /b 1
+)
+
+echo.
+echo Iniciando el sistema...
+java -cp build TurnosEnfermeria.Main
+
 pause
+endlocal

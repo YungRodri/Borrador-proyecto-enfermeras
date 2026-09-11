@@ -1,7 +1,9 @@
-target/
+build/
+out/
 *.class
+*.log
+fuentes.txt
+resources/
 .idea/
 *.iml
 .DS_Store
-out/
-*.log

@@ -1,0 +1,27 @@
+name: Compilar Java
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener el codigo
+        uses: actions/checkout@v5
+
+      - name: Preparar Java 11
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Compilar el proyecto
+        run: |
+          mkdir -p build
+          find src/main/java -name "*.java" > fuentes.txt
+          javac --release 11 -encoding UTF-8 -d build @fuentes.txt
