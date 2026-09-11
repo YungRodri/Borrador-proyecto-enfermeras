@@ -404,19 +404,29 @@ public class Main {
         System.out.println("\n  === ELIMINAR ENFERMERA ===");
         System.out.print("  RUT a eliminar: ");
         String rut = sc.nextLine().trim();
-        Enfermera e = EnfermeraControlador.obtener(rut);
-        if (e == null) {
-            System.out.println("  [!] No se encontro enfermera con RUT: " + rut);
+
+        Enfermera enfermera = EnfermeraControlador.obtener(rut);
+
+        if (enfermera == null) {
+            System.out.println("  [!] No se encontro la enfermera.");
             return;
         }
-        System.out.println("  Enfermera encontrada: " + e.getNombreCompleto());
+
+        System.out.println("  Enfermera: " + enfermera.getNombreCompleto());
+        System.out.println("  Se eliminaran tambien sus turnos registrados.");
         System.out.print("  Confirmar eliminacion (s/n): ");
-        String conf = sc.nextLine().trim().toLowerCase();
-        if ("s".equals(conf)) {
-            EnfermeraControlador.eliminar(rut);
+        String confirmacion = sc.nextLine().trim();
+
+        if (!"s".equalsIgnoreCase(confirmacion)) {
+            System.out.println("  Operacion cancelada.");
+            return;
+        }
+
+        if (EnfermeraControlador.eliminar(rut)) {
             System.out.println("  [OK] Enfermera eliminada del sistema.");
         } else {
-            System.out.println("  Operacion cancelada.");
+            System.out.println("  [!] No se pudo eliminar. Puede estar registrada " + "como sustituta en cambios de otra enfermera.");
+            System.out.println("  Revise esos cambios antes de intentar eliminarla.");
         }
     }
 

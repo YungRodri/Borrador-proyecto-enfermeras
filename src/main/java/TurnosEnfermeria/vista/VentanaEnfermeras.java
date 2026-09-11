@@ -237,8 +237,7 @@ public class VentanaEnfermeras extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
                 cargarTabla();
             } else {
-                mostrarMensaje("No se pudo eliminar la enfermera.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
+                mostrarMensaje("No se pudo eliminar la enfermera.\n" + "Puede estar registrada como sustituta en cambios de otra enfermera.\n" + "Revise esos cambios antes de intentar eliminarla.", "Eliminación no realizada",JOptionPane.WARNING_MESSAGE);
             }
         }
     }

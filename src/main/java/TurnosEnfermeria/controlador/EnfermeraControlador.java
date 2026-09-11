@@ -5,6 +5,8 @@ import TurnosEnfermeria.modelo.RutInvalidoException;
 import TurnosEnfermeria.Main;
 import TurnosEnfermeria.modelo.Persona;
 import TurnosEnfermeria.modelo.Utilidades;
+import TurnosEnfermeria.modelo.Turno;
+import TurnosEnfermeria.modelo.CambioTurno;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,31 @@ public class EnfermeraControlador {
         return Main.getRegistroGlobal().get(Persona.normalizarRut(rut));
     }
 
-    /*Elimina una enfermera del registro global por su RUT.*/
+        /** Elimina una enfermera si no cubre cambios de otras enfermeras. */
     public static boolean eliminar(String rut) {
-        return Main.eliminarEnfermera(Persona.normalizarRut(rut));
+        String rutNormalizado = Persona.normalizarRut(rut);
+
+        if (obtener(rutNormalizado) == null) {
+            return false;
+        }
+
+        for (Enfermera titular : listar()) {
+            if (titular.getRut().equals(rutNormalizado)) {
+                continue;
+            }
+
+            for (Turno turno : titular.getListaTurnos()) {
+                if (turno instanceof CambioTurno) {
+                    CambioTurno cambio = (CambioTurno) turno;
+
+                    if (rutNormalizado.equals(cambio.getRutSustituta())) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return Main.eliminarEnfermera(rutNormalizado);
     }
 
     /**
