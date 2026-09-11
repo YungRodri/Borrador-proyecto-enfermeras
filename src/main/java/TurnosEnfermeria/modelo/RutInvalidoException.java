@@ -1,19 +1,24 @@
 package TurnosEnfermeria.modelo;
 
-/**
- * Excepcion personalizada lanzada cuando el RUT ingresado no supera
- * la validacion del algoritmo Modulo 11. (SIA-12: Excepcion 1 de 2)
- */
+/** Indica que el RUT ingresado no es valido. */
 public class RutInvalidoException extends Exception {
 
     private String rutIngresado;
 
     public RutInvalidoException(String rutIngresado) {
-        super("El RUT ingresado no es valido: " + rutIngresado);
-        this.rutIngresado = rutIngresado;
+        setRutIngresado(rutIngresado);
     }
 
     public String getRutIngresado() {
         return rutIngresado;
+    }
+
+    public void setRutIngresado(String rutIngresado) {
+        this.rutIngresado = rutIngresado;
+    }
+
+    @Override
+    public String getMessage() {
+        return "El RUT ingresado no es valido: " + rutIngresado;
     }
 }
