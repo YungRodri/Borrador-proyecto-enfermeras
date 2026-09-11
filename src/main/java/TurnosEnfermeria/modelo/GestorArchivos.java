@@ -28,9 +28,13 @@ import TurnosEnfermeria.controlador.TurnoControlador;
  */
 public class GestorArchivos {
 
-    private static final String CARPETA           = "resources";
-    private static final String ARCHIVO_ENFERMERAS = CARPETA + File.separator + "enfermeras.csv";
-    private static final String ARCHIVO_TURNOS     = CARPETA + File.separator + "turnos.csv";
+    public static String getCarpeta() { return "resources"; }
+    public static String getArchivoEnfermeras() {
+        return getCarpeta() + File.separator + "enfermeras.csv";
+    }
+    public static String getArchivoTurnos() {
+        return getCarpeta() + File.separator + "turnos.csv";
+    }
 
     // ========== API PUBLICA ==========
 
@@ -41,9 +45,9 @@ public class GestorArchivos {
      */
     public static TreeMap<String, Enfermera> cargarEnfermeras() {
         crearCarpetaResources();
-        File archivoEnf = new File(ARCHIVO_ENFERMERAS);
+        File archivoEnf = new File(getArchivoEnfermeras());
 
-        if (!archivoEnf.exists()) {
+        if (!archivoEnf.exists() && !new File(getArchivoTurnos()).exists()) {
             System.out.println("[INFO] Archivos CSV no encontrados. Cargando datos iniciales...");
             return cargarDatosIniciales();
         }
@@ -54,36 +58,41 @@ public class GestorArchivos {
                         StandardCharsets.UTF_8))) {
             String linea;
             boolean primera = true;
-            while ((linea = br.readLine()) != null) {
-                if (primera) { primera = false; continue; } // Saltar cabecera
+            while ((linea = leerRegistroCSV(br)) != null) {
+                if (primera) {
+                    validarCabecera(linea, "RUT;Nombre;ApellidoP;ApellidoM;Edad;Especialidad;Area");
+                    primera = false; continue;
+                }
                 linea = linea.trim();
                 if (linea.isEmpty()) continue;
-                String[] campos = linea.split(";", -1);
-                if (campos.length < 7) {
-                    System.err.println("[WARN] Linea malformada en enfermeras.csv: " + linea);
-                    continue;
+                String[] campos = separarCSV(linea);
+                if (campos.length != 7) {
+                    throw new IllegalStateException("Fila incorrecta en enfermeras.csv.");
                 }
                 try {
                     String rut        = campos[0].trim();
-                    String nombre     = campos[1].trim();
-                    String apellidoP  = campos[2].trim();
-                    String apellidoM  = campos[3].trim();
+                    String nombre     = campos[1];
+                    String apellidoP  = campos[2];
+                    String apellidoM  = campos[3];
                     int    edad       = Integer.parseInt(campos[4].trim());
                     String esp        = campos[5].trim();
                     String area       = campos[6].trim();
                     Enfermera e = new Enfermera(nombre, apellidoP, apellidoM,
                                                rut, edad, esp, area);
-                    registro.put(e.getRut(), e);
+                    if (registro.putIfAbsent(e.getRut(), e) != null) {
+                        throw new IllegalStateException("RUT duplicado en CSV: " + e.getRut());
+                    }
                 } catch (RutInvalidoException ex) {
-                    System.err.println("[WARN] RUT invalido en CSV, linea ignorada: " + linea);
+                    throw new IllegalStateException("RUT invalido en CSV.", ex);
                 } catch (NumberFormatException ex) {
-                    System.err.println("[WARN] Edad no numerica en CSV, linea ignorada: " + linea);
+                    throw new IllegalStateException("Edad no numerica en CSV.", ex);
                 } catch (IllegalArgumentException ex) {
-                    System.err.println("[WARN] " + ex.getMessage() + " Linea ignorada: " + linea);
+                    throw new IllegalStateException("Datos invalidos en CSV: " + ex.getMessage(), ex);
                 }
             }
+            if (primera) throw new IllegalStateException("Archivo CSV vacio.");
         } catch (Exception ex) {
-            System.err.println("[ERROR] No se pudo leer enfermeras.csv: " + ex.getMessage());
+            throw new IllegalStateException("No se pudo cargar enfermeras.csv: " + ex.getMessage(), ex);
         }
 
         cargarTurnos(registro);
@@ -95,17 +104,54 @@ public class GestorArchivos {
     /* Guarda las enfermeras y sus turnos.
     * @return true si ambos archivos se guardaron correctamente*/
     public static boolean guardarEnfermeras(TreeMap<String, Enfermera> registro) {
+        File enfermeras = new File(getArchivoEnfermeras());
+        File turnos = new File(getArchivoTurnos());
+        File temporalEnf = new File(getArchivoEnfermeras() + ".tmp");
+        File temporalTurnos = new File(getArchivoTurnos() + ".tmp");
+        boolean existiaEnf = enfermeras.exists();
+        boolean existiaTurnos = turnos.exists();
+        boolean sustituyendo = false;
         try {
-            crearCarpetaResources();
-            guardarArchivoEnfermeras(registro);
-            guardarTurnos(registro);
-
+            java.nio.file.Files.createDirectories(new File(getCarpeta()).toPath());
+            guardarArchivoEnfermeras(registro, temporalEnf);
+            guardarTurnos(registro, temporalTurnos);
+            if (existiaEnf) copiar(enfermeras, new File(enfermeras.getPath() + ".bak"));
+            if (existiaTurnos) copiar(turnos, new File(turnos.getPath() + ".bak"));
+            sustituyendo = true;
+            copiar(temporalEnf, enfermeras);
+            copiar(temporalTurnos, turnos);
             System.out.println("[INFO] Datos guardados en CSV exitosamente.");
             return true;
         } catch (Exception ex) {
-            System.err.println("[ERROR] No se pudo completar el guardado: " + ex.getMessage());
+            if (sustituyendo) {
+                restaurar(enfermeras, existiaEnf);
+                restaurar(turnos, existiaTurnos);
+            }
+            System.err.println("[ERROR] No se completo el guardado: " + ex.getMessage());
             return false;
+        } finally {
+            borrarTemporal(temporalEnf);
+            borrarTemporal(temporalTurnos);
         }
+    }
+
+    private static void copiar(File origen, File destino) throws java.io.IOException {
+        java.nio.file.Files.copy(origen.toPath(), destino.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private static void restaurar(File archivo, boolean existia) {
+        try {
+            if (existia) copiar(new File(archivo.getPath() + ".bak"), archivo);
+            else java.nio.file.Files.deleteIfExists(archivo.toPath());
+        } catch (Exception ex) {
+            System.err.println("[ERROR] Revise el respaldo de " + archivo + ": " + ex.getMessage());
+        }
+    }
+
+    private static void borrarTemporal(File archivo) {
+        try { java.nio.file.Files.deleteIfExists(archivo.toPath()); }
+        catch (Exception ex) { System.err.println("[WARN] No se retiro " + archivo); }
     }
 
     // ========== METODOS PRIVADOS DE LECTURA ==========
@@ -114,22 +160,24 @@ public class GestorArchivos {
      * Lee turnos.csv y asocia cada turno a la enfermera correspondiente en el registro.
      */
     private static void cargarTurnos(TreeMap<String, Enfermera> registro) {
-        File archivoTurnos = new File(ARCHIVO_TURNOS);
-        if (!archivoTurnos.exists()) return;
+        File archivoTurnos = new File(getArchivoTurnos());
+        if (!archivoTurnos.isFile()) throw new IllegalStateException("Falta turnos.csv.");
 
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(archivoTurnos),
                         StandardCharsets.UTF_8))) {
             String linea;
             boolean primera = true;
-            while ((linea = br.readLine()) != null) {
-                if (primera) { primera = false; continue; }
+            while ((linea = leerRegistroCSV(br)) != null) {
+                if (primera) {
+                    validarCabecera(linea, "RUT;TIPO;ID;Fecha;HoraInicio;HoraFin;Observacion;DatoExtra");
+                    primera = false; continue;
+                }
                 linea = linea.trim();
                 if (linea.isEmpty()) continue;
-                String[] c = linea.split(";", -1);
-                if (c.length < 8) {
-                    System.err.println("[WARN] Linea malformada en turnos.csv: " + linea);
-                    continue;
+                String[] c = separarCSV(linea);
+                if (c.length != 8) {
+                    throw new IllegalStateException("Fila incorrecta en turnos.csv.");
                 }
                 String rutEnf = Persona.normalizarRut(c[0]);
                 String tipo     = c[1].trim();
@@ -137,14 +185,12 @@ public class GestorArchivos {
                 String fecha    = c[3].trim();
                 String horaIni  = c[4].trim();
                 String horaFin  = c[5].trim();
-                String obs      = c[6].trim();
-                String extra    = c[7].trim();
+                String obs      = c[6];
+                String extra    = c[7];
 
                 Enfermera enfermera = registro.get(rutEnf);
                 if (enfermera == null) {
-                    System.err.println("[WARN] Turno sin enfermera correspondiente RUT="
-                            + rutEnf + " ignorado.");
-                    continue;
+                    throw new IllegalStateException("Turno sin enfermera: " + rutEnf);
                 }
 
                 Turno turno = null;
@@ -165,31 +211,31 @@ public class GestorArchivos {
                                                     horaFin, rutSust, motivo, obs);
                             break;
                         default:
-                            System.err.println("[WARN] Tipo de turno desconocido: " + tipo);
+                            throw new IllegalStateException("Tipo desconocido: " + tipo);
                     }
                     if (turno != null) {
                         TurnoControlador.registrar(enfermera, turno, registro);
                     }
                 } catch (TurnoConflictoException ex) {
-                    System.err.println("[WARN] Conflicto al cargar turno "
-                            + id + ": " + ex.getMessage() + " (ignorado)");
+                    throw new IllegalStateException("Conflicto al cargar " + id + ": " + ex.getMessage(), ex);
                 }
             }
+            if (primera) throw new IllegalStateException("Archivo CSV vacio.");
         } catch (Exception ex) {
-            System.err.println("[ERROR] No se pudo leer turnos.csv: " + ex.getMessage());
+            throw new IllegalStateException("No se pudo cargar turnos.csv: " + ex.getMessage(), ex);
         }
     }
 
     // ========== METODOS PRIVADOS DE ESCRITURA ==========
 
-    private static void guardarArchivoEnfermeras(TreeMap<String, Enfermera> registro) {
+    private static void guardarArchivoEnfermeras(TreeMap<String, Enfermera> registro, File destino) {
         try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(ARCHIVO_ENFERMERAS),
+                new OutputStreamWriter(new FileOutputStream(destino),
                         StandardCharsets.UTF_8))) {
             bw.write("RUT;Nombre;ApellidoP;ApellidoM;Edad;Especialidad;Area");
             bw.newLine();
             for (Enfermera e : registro.values()) {
-                bw.write(String.join(";",
+                bw.write(filaCSV(
                     e.getRut(), e.getNombre(), e.getApellidoP(),
                     e.getApellidoM(), String.valueOf(e.getEdad()),
                     e.getEspecialidad(), e.getAreaAsignada()));
@@ -200,9 +246,9 @@ public class GestorArchivos {
         }
     }
 
-    private static void guardarTurnos(TreeMap<String, Enfermera> registro) {
+    private static void guardarTurnos(TreeMap<String, Enfermera> registro, File destino) {
         try (BufferedWriter bw = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(ARCHIVO_TURNOS),
+                new OutputStreamWriter(new FileOutputStream(destino),
                         StandardCharsets.UTF_8))) {
             bw.write("RUT;TIPO;ID;Fecha;HoraInicio;HoraFin;Observacion;DatoExtra");
             bw.newLine();
@@ -217,7 +263,7 @@ public class GestorArchivos {
                         CambioTurno ct = (CambioTurno) t;
                         extra = ct.getRutSustituta() + "|" + ct.getMotivoCambio();
                     }
-                    bw.write(String.join(";",
+                    bw.write(filaCSV(
                         e.getRut(), t.getTipo(), t.getId(), t.getFecha(),
                         t.getHoraInicio(), t.getHoraFin(),
                         t.getObservacion(), extra));
@@ -233,10 +279,10 @@ public class GestorArchivos {
      * Crea la carpeta resources/ si no existe.
      */
     private static void crearCarpetaResources() {
-        File carpeta = new File(CARPETA);
+        File carpeta = new File(getCarpeta());
         if (!carpeta.exists()) {
             if (carpeta.mkdirs()) {
-                System.out.println("[INFO] Carpeta '" + CARPETA + "' creada.");
+                System.out.println("[INFO] Carpeta '" + getCarpeta() + "' creada.");
             }
         }
     }
@@ -331,11 +377,83 @@ public class GestorArchivos {
         } catch (RutInvalidoException | TurnoConflictoException
                 | IllegalArgumentException ex) {
             System.err.println("[ERROR CRITICO] Fallo al crear datos iniciales: " + ex.getMessage());
-            registro.clear();
-            return registro;
+            throw new IllegalStateException("No se pudieron crear los datos iniciales.", ex);
         }
 
         System.out.println("[INFO] Datos iniciales cargados: " + registro.size() + " enfermeras.");
         return registro;
+    }
+    /** Conserva separadores, comillas y saltos de linea en los campos. */
+    private static String filaCSV(String... campos) {
+        StringBuilder fila = new StringBuilder();
+        for (String campo : campos) {
+            if (fila.length() > 0) fila.append(';');
+            String valor = campo == null ? "" : campo;
+            fila.append('"').append(valor.replace("\"", "\"\"")).append('"');
+        }
+        return fila.toString();
+    }
+
+    /** Lee una fila logica, que puede ocupar varias lineas entre comillas. */
+    private static String leerRegistroCSV(BufferedReader lector) throws java.io.IOException {
+        String linea = lector.readLine();
+        if (linea == null) return null;
+        StringBuilder registro = new StringBuilder(linea);
+        while (comillasAbiertas(registro.toString())) {
+            linea = lector.readLine();
+            if (linea == null) throw new java.io.IOException("Comillas CSV sin cerrar.");
+            registro.append('\n').append(linea);
+        }
+        return registro.toString();
+    }
+
+    private static boolean comillasAbiertas(String texto) {
+        boolean abiertas = false;
+        boolean inicioCampo = true;
+        for (int i = 0; i < texto.length(); i++) {
+            char c = texto.charAt(i);
+            if (abiertas) {
+                if (c == '"') {
+                    if (i + 1 < texto.length() && texto.charAt(i + 1) == '"') i++;
+                    else abiertas = false;
+                }
+            } else if (c == ';') inicioCampo = true;
+            else {
+                if (c == '"' && inicioCampo) abiertas = true;
+                inicioCampo = false;
+            }
+        }
+        return abiertas;
+    }
+
+    private static String[] separarCSV(String registro) {
+        java.util.List<String> campos = new java.util.ArrayList<>();
+        StringBuilder campo = new StringBuilder();
+        boolean abiertas = false;
+        boolean cerradas = false;
+        for (int i = 0; i < registro.length(); i++) {
+            char c = registro.charAt(i);
+            if (abiertas) {
+                if (c == '"') {
+                    if (i + 1 < registro.length() && registro.charAt(i + 1) == '"') {
+                        campo.append('"'); i++;
+                    } else { abiertas = false; cerradas = true; }
+                } else campo.append(c);
+            } else if (c == ';') {
+                campos.add(campo.toString()); campo.setLength(0); cerradas = false;
+            } else if (cerradas) {
+                throw new IllegalArgumentException("Texto inesperado tras comillas CSV.");
+            } else if (c == '"' && campo.length() == 0) abiertas = true;
+            else campo.append(c);
+        }
+        if (abiertas) throw new IllegalArgumentException("Comillas CSV sin cerrar.");
+        campos.add(campo.toString());
+        return campos.toArray(new String[0]);
+    }
+
+    private static void validarCabecera(String actual, String esperada) {
+        if (!java.util.Arrays.equals(separarCSV(actual), esperada.split(";"))) {
+            throw new IllegalArgumentException("Cabecera CSV incorrecta.");
+        }
     }
 }

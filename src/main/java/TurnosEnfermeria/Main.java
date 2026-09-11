@@ -77,7 +77,13 @@ public class Main {
 
     public static void main(String[] args) {
         // Cargar datos batch al inicio (SIA-11)
-        setRegistroGlobal(GestorArchivos.cargarEnfermeras());
+        try {
+            setRegistroGlobal(GestorArchivos.cargarEnfermeras());
+        } catch (Exception ex) {
+            System.err.println("[ERROR] " + ex.getMessage());
+            System.err.println("Inicio cancelado. No se sobrescribieron los CSV. Revise los archivos y vuelva a ejecutar.");
+            return;
+        }
 
         Utilidades.imprimirSeparador();
         System.out.println("  SISTEMA DE GESTION DE TURNOS DE ENFERMERAS");

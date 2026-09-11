@@ -441,4 +441,43 @@ public class VentanaEnfermeras extends JFrame {
     private void mostrarMensaje(String mensaje, String titulo, int tipo) {
         JOptionPane.showMessageDialog(this, mensaje, titulo, tipo);
     }
+
+    public JTable getTabla() { return tabla; }
+    public void setTabla(JTable nueva) {
+        if (nueva == null || nueva == tabla) return;
+        java.awt.Container padre = tabla.getParent();
+        for (java.awt.event.MouseListener listener : tabla.getMouseListeners()) {
+            if (!(listener instanceof javax.swing.plaf.UIResource)) nueva.addMouseListener(listener);
+        }
+        tabla = nueva;
+        tabla.setModel(modeloTabla);
+        EstilosGUI.estilizarTabla(tabla);
+        if (padre instanceof JViewport) ((JViewport) padre).setView(tabla);
+    }
+    public DefaultTableModel getModeloTabla() { return modeloTabla; }
+    public void setModeloTabla(DefaultTableModel modelo) {
+        if (modelo == null || modelo.getColumnCount() != 6) return;
+        modeloTabla = modelo;
+        tabla.setModel(modeloTabla);
+        cargarTabla();
+    }
+
+    public JTextField getCampoBusqueda() { return campoBusqueda; }
+    public void setCampoBusqueda(JTextField campo) {
+        if (campo == null || campo == campoBusqueda) return;
+        java.awt.Container padre = campoBusqueda.getParent();
+        for (java.awt.event.ActionListener listener : campoBusqueda.getActionListeners()) {
+            campo.addActionListener(listener);
+        }
+        if (padre != null) {
+            int posicion = padre.getComponentZOrder(campoBusqueda);
+            Object restricciones = padre.getLayout() instanceof BorderLayout
+                ? ((BorderLayout) padre.getLayout()).getConstraints(campoBusqueda) : null;
+            padre.remove(campoBusqueda);
+            padre.add(campo, restricciones, posicion);
+            padre.revalidate();
+            padre.repaint();
+        }
+        campoBusqueda = campo;
+    }
 }

@@ -15,8 +15,8 @@ import java.awt.*;
  */
 public class VentanaTurnos extends JFrame {
 
-    private final Enfermera enfermera;
-    private final VentanaEnfermeras ventanaPadre;
+    private Enfermera enfermera;
+    private VentanaEnfermeras ventanaPadre;
 
     private JTable tabla;
     private DefaultTableModel modeloTabla;
@@ -44,7 +44,7 @@ public class VentanaTurnos extends JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosed(java.awt.event.WindowEvent e) {
-                if (ventanaPadre != null) ventanaPadre.cargarTabla();
+                if (VentanaTurnos.this.ventanaPadre != null) VentanaTurnos.this.ventanaPadre.cargarTabla();
             }
         });
 
@@ -476,4 +476,35 @@ public class VentanaTurnos extends JFrame {
         revalidate();
         repaint();
     }
+
+    public JTable getTabla() { return tabla; }
+    public void setTabla(JTable nueva) {
+        if (nueva == null || nueva == tabla) return;
+        java.awt.Container padre = tabla.getParent();
+        for (java.awt.event.MouseListener listener : tabla.getMouseListeners()) {
+            if (!(listener instanceof javax.swing.plaf.UIResource)) nueva.addMouseListener(listener);
+        }
+        tabla = nueva;
+        tabla.setModel(modeloTabla);
+        EstilosGUI.estilizarTabla(tabla);
+        if (padre instanceof JViewport) ((JViewport) padre).setView(tabla);
+    }
+    public DefaultTableModel getModeloTabla() { return modeloTabla; }
+    public void setModeloTabla(DefaultTableModel modelo) {
+        if (modelo == null || modelo.getColumnCount() != 6) return;
+        modeloTabla = modelo;
+        tabla.setModel(modeloTabla);
+        cargarTabla();
+    }
+
+    public Enfermera getEnfermera() { return enfermera; }
+    public void setEnfermera(Enfermera nueva) {
+        if (nueva == null) return;
+        enfermera = nueva;
+        setTitle("Turnos de " + nueva.getNombreCompleto() + " [" + nueva.getRut() + "]");
+        cargarTabla();
+        actualizarEncabezado();
+    }
+    public VentanaEnfermeras getVentanaPadre() { return ventanaPadre; }
+    public void setVentanaPadre(VentanaEnfermeras padre) { ventanaPadre = padre; }
 }

@@ -28,7 +28,7 @@ import java.util.List;
 public class VentanaPrincipal extends JFrame {
 
     /** Callback que se ejecuta al cerrar la ventana (para grabar datos a disco). */
-    private final BooleanSupplier alCerrar;
+    private BooleanSupplier alCerrar;
 
     /**
      * Constructor principal.
@@ -556,4 +556,7 @@ public class VentanaPrincipal extends JFrame {
         dispose();
         System.exit(0);
     }
+
+    public BooleanSupplier getAlCerrar() { return alCerrar; }
+    public void setAlCerrar(BooleanSupplier accion) { alCerrar = accion; }
 }
