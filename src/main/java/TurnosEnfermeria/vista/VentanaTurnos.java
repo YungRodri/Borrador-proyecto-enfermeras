@@ -355,7 +355,15 @@ public class VentanaTurnos extends JFrame {
                 JOptionPane.showMessageDialog(d, "Hora inválida. Use formato HH:mm.", "Error", JOptionPane.ERROR_MESSAGE); return;
             }
             String id = Utilidades.generarIdTurno();
-            CambioTurno cambio = new CambioTurno(id,campoFecha.getText().trim(),campoHoraIni.getText().trim(),campoHoraFin.getText().trim(),campoSustituta.getText().trim(),campoMotivo.getText().trim(),campoObservacion.getText().trim());
+            CambioTurno cambio = new CambioTurno(
+                id,
+                campoFecha.getText().trim(),
+                campoHoraIni.getText().trim(),
+                campoHoraFin.getText().trim(),
+                campoSustituta.getText().trim(),
+                campoMotivo.getText().trim(),
+                campoObservacion.getText().trim()
+            );
             try {
                 TurnoControlador.registrar(enfermera, cambio);
                 cargarTabla();
