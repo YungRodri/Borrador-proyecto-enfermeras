@@ -257,7 +257,6 @@ public class VentanaTurnos extends JFrame {
 
         JTextField campoFecha  = EstilosGUI.crearCampoTexto(14);
         JTextField campoMotivo = EstilosGUI.crearCampoTexto(20);
-        JTextField campoObservacion = EstilosGUI.crearCampoTexto(20);
         JComboBox<String> comboTipo = EstilosGUI.crearComboBox(Utilidades.getTiposLicencia());
 
         gbc.gridx=0; gbc.gridy=0; campos.add(EstilosGUI.crearLabel("Fecha (dd/MM/yyyy):"), gbc);
@@ -266,12 +265,7 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(comboTipo, gbc);
         gbc.gridx=0; gbc.gridy=2; campos.add(EstilosGUI.crearLabel("Motivo:"), gbc);
         gbc.gridx=1; campos.add(campoMotivo, gbc);
-        gbc.gridx= 0;
-        gbc.gridy= 5;
-        campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
-
-        gbc.gridx = 1;
-        campos.add(campoObservacion, gbc);
+       
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         btns.setBackground(EstilosGUI.getColorPanel());
@@ -326,6 +320,7 @@ public class VentanaTurnos extends JFrame {
         JTextField campoHoraFin   = EstilosGUI.crearCampoTexto(8);
         JTextField campoSustituta = EstilosGUI.crearCampoTexto(16);
         JTextField campoMotivo    = EstilosGUI.crearCampoTexto(20);
+        JTextField campoObservacion = EstilosGUI.crearCampoTexto(20);
 
         campoHoraIni.setToolTipText("HH:mm (ej: 07:00)");
         campoHoraFin.setToolTipText("HH:mm (ej: 15:00)");
@@ -341,6 +336,12 @@ public class VentanaTurnos extends JFrame {
         gbc.gridx=1; campos.add(campoSustituta, gbc);
         gbc.gridx=0; gbc.gridy=4; campos.add(EstilosGUI.crearLabel("Motivo:"), gbc);
         gbc.gridx=1; campos.add(campoMotivo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        campos.add(EstilosGUI.crearLabel("Observación:"), gbc);
+
+        gbc.gridx = 1;
+        campos.add(campoObservacion, gbc);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         btns.setBackground(EstilosGUI.getColorPanel());
