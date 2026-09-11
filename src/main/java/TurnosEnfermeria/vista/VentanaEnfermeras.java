@@ -25,10 +25,6 @@ public class VentanaEnfermeras extends JFrame {
     private DefaultTableModel modeloTabla;
     private JTextField campoBusqueda;
 
-    // Columnas de la tabla
-    private static final String[] COLUMNAS = {
-        "RUT", "Nombre Completo", "Edad", "Especialidad", "Area", "N° Turnos"
-    };
 
     public VentanaEnfermeras() {
         setTitle("Gestión de Enfermeras – Sistema Turnos Hospital");
@@ -98,7 +94,12 @@ public class VentanaEnfermeras extends JFrame {
         panel.setBackground(EstilosGUI.getColorFondo());
         panel.setBorder(new EmptyBorder(12, 16, 0, 16));
 
-        modeloTabla = new DefaultTableModel(COLUMNAS, 0) {
+        String[] columnas = {
+            "RUT", "Nombre Completo", "Edad",
+            "Especialidad", "Area", "N° Turnos"
+        };
+
+        modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
         tabla = new JTable(modeloTabla);

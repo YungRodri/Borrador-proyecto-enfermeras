@@ -60,6 +60,16 @@ public class Main {
     }
 
     private static Scanner sc = new Scanner(System.in);
+    public static Scanner getSc() {
+        return sc;
+    }
+
+    public static void setSc(Scanner lector) {
+        if (lector == null) {
+            throw new IllegalArgumentException("El lector de consola no puede ser nulo.");
+        }
+        sc = lector;
+    }
 
     // ===================================================================
     //  PUNTO DE ENTRADA

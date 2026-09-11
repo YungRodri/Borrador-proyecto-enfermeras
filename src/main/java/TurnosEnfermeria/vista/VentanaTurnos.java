@@ -21,9 +21,7 @@ public class VentanaTurnos extends JFrame {
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
-    private static final String[] COLUMNAS = {
-        "ID", "Tipo", "Fecha", "Hora Inicio", "Hora Fin", "Resumen"
-    };
+
 
     /**
      * Constructor.
@@ -93,7 +91,11 @@ public class VentanaTurnos extends JFrame {
         panel.setBackground(EstilosGUI.getColorFondo());
         panel.setBorder(new EmptyBorder(12, 16, 0, 16));
 
-        modeloTabla = new DefaultTableModel(COLUMNAS, 0) {
+        String[] columnas = {
+            "ID", "Tipo", "Fecha", "Hora Inicio", "Hora Fin", "Resumen"
+        };
+
+        modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
         tabla = new JTable(modeloTabla);
