@@ -17,14 +17,17 @@ import java.time.format.ResolverStyle;
  */
 public class Utilidades {
 
+    /** Retorna la clave de texto para el turno de manana. */
     public static String getTurnoManana() {
         return "Manana";
     }
 
+    /** Retorna la clave de texto para el turno de tarde. */
     public static String getTurnoTarde() {
         return "Tarde";
     }
 
+    /** Retorna la clave de texto para el turno de noche. */
     public static String getTurnoNoche() {
         return "Noche";
     }
@@ -47,7 +50,7 @@ public class Utilidades {
         };
     }
 
-    /** Devuelve los tipos de licencia disponibles. */
+    /** Retorna los tipos de licencia disponibles en el sistema. */
     public static String[] getTiposLicencia() {
         return new String[]{
             "Medica", "Personal", "Maternidad",
@@ -190,7 +193,10 @@ public class Utilidades {
         return edad >= 18 && edad <= 70;
     }
 
-    /* Genera un identificador de turno usando UUID del JDK.*/
+    /**
+     * Genera un identificador unico de turno usando UUID del JDK.
+     * @return identificador con prefijo "T" seguido de un UUID aleatorio
+     */
     public static String generarIdTurno() {
         return "T" + java.util.UUID.randomUUID().toString();
     }
