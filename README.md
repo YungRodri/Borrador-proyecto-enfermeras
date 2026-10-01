@@ -67,6 +67,40 @@ Los datos se guardan en la carpeta `resources`, dentro del proyecto:
 
 Los archivos se cargan al volver a ejecutar el programa. Si no existen, se utilizan los datos iniciales incluidos en el código.
 
+## Generar y ver Javadoc
+
+El proyecto incluye comentarios Javadoc (SIA-14 opcional) en las clases principales (Modelo, Controladores, Utilidades).
+
+Para generarlo y visualizarlo:
+
+### Desde NetBeans (Recomendado):
+1. Hacer clic derecho sobre el proyecto en la pestaña *Projects*.
+2. Seleccionar **Generate Javadoc**.
+3. NetBeans compilará la documentación y la abrirá automáticamente en tu navegador web predeterminado.
+
+### Desde la consola:
+
+1. Abrir la terminal o símbolo del sistema en la carpeta raíz del proyecto.
+2. Ejecutar el comando correspondiente a tu sistema operativo (requiere que el JDK esté configurado en el PATH del sistema):
+
+**Windows (Símbolo del sistema / CMD):**
+```cmd
+javadoc -d docs -encoding UTF-8 -sourcepath src\main\java -subpackages TurnosEnfermeria
+```
+*Luego abre el archivo `docs\index.html` en tu navegador.*
+
+**Windows (PowerShell):**
+```powershell
+javadoc -d docs -encoding UTF-8 -sourcepath src/main/java -subpackages TurnosEnfermeria
+```
+*Luego abre el archivo `docs\index.html` en tu navegador.*
+
+**Linux y macOS (Terminal):**
+```bash
+javadoc -d docs -encoding UTF-8 -sourcepath src/main/java -subpackages TurnosEnfermeria
+```
+*Luego abre el archivo `docs/index.html` en tu navegador.*
+
 ## Informe
 
 El informe del proyecto se encuentra en `v3Informe.pdf`.
