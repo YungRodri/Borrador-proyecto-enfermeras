@@ -47,21 +47,32 @@ public abstract class Turno {
 
     // ========== GETTERS Y SETTERS (SIA-3) ==========
 
+    /** Retorna el identificador unico del turno. */
     public String getId()             { return id; }
+    /** Asigna el identificador del turno. */
     public void   setId(String id)    { this.id = id; }
 
+    /** Retorna la fecha del turno en formato dd/MM/yyyy. */
     public String getFecha()          { return fecha; }
+    /** Asigna la fecha del turno. */
     public void   setFecha(String f)  { this.fecha = f; }
 
+    /** Retorna la hora de inicio del turno en formato HH:mm. */
     public String getHoraInicio()               { return horaInicio; }
+    /** Asigna la hora de inicio del turno. */
     public void   setHoraInicio(String horaIni) { this.horaInicio = horaIni; }
 
+    /** Retorna la hora de fin del turno en formato HH:mm. */
     public String getHoraFin()                  { return horaFin; }
+    /** Asigna la hora de fin del turno. */
     public void   setHoraFin(String horaFin)    { this.horaFin = horaFin; }
 
+    /** Retorna la observacion o nota adicional del turno. */
     public String getObservacion()              { return observacion; }
+    /** Asigna una observacion o nota adicional al turno. */
     public void   setObservacion(String obs)    { this.observacion = obs; }
 
+    /** Representacion de texto del turno usando su resumen especifico. */
     @Override
     public String toString() {
         return "[" + id + "] " + getResumen();
