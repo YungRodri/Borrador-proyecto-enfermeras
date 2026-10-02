@@ -27,6 +27,9 @@
                 <action name="run">
                     <target>run</target>
                 </action>
+                <action name="javadoc">
+                    <target>javadoc</target>
+                </action>
             </ide-actions>
 
             <view>
@@ -48,6 +51,7 @@
                     <ide-action name="rebuild"/>
                     <ide-action name="clean"/>
                     <ide-action name="run"/>
+                    <ide-action name="javadoc"/>
                 </context-menu>
             </view>
         </general-data>
