@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="TurnosEnfermeria" default="build" basedir=".">
 
-    <description>Compilacion y ejecucion del proyecto con Java 11.</description>
+    <description>Compilacion, ejecucion y documentacion del proyecto.</description>
 
     <property name="src.dir" location="src/main/java"/>
     <property name="classes.dir" location="build/classes"/>
+    <property name="javadoc.dir" location="build/javadoc"/>
     <property name="main.class" value="TurnosEnfermeria.Main"/>
 
     <target name="build" description="Compilar el codigo fuente">
@@ -26,7 +27,25 @@
         </java>
     </target>
 
-    <target name="clean" description="Eliminar los archivos compilados">
+    <target name="javadoc" description="Generar la documentacion Javadoc">
+        <mkdir dir="${javadoc.dir}"/>
+        <javadoc sourcepath="${src.dir}"
+                 destdir="${javadoc.dir}"
+                 packagenames="TurnosEnfermeria.*"
+                 source="11"
+                 encoding="UTF-8"
+                 docencoding="UTF-8"
+                 charset="UTF-8"
+                 access="public"
+                 author="true"
+                 version="true"
+                 use="true"
+                 windowtitle="Javadoc - Turnos de Enfermeria"
+                 failonerror="true"/>
+        <echo message="Documentacion generada en: ${javadoc.dir}/index.html"/>
+    </target>
+
+    <target name="clean" description="Eliminar compilacion y documentacion generada">
         <delete dir="build"/>
     </target>
 
