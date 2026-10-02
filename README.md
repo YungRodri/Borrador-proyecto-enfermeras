@@ -2,48 +2,58 @@
 
 Proyecto de Programación Avanzada desarrollado en Java, con consola e interfaz gráfica Swing.
 
-## Propósito y datos del sistema
+## Propósito del sistema
 
-El sistema permite organizar los turnos de enfermería por área hospitalaria, consultar disponibilidad y registrar licencias y sustituciones. La comprobación de horarios busca evitar asignaciones incompatibles para una misma persona, incluyendo los cambios que cubre como sustituta.
+El sistema permite administrar enfermeras y organizar sus turnos por área hospitalaria. Incluye turnos regulares, licencias y cambios de turno con sustituta.
 
-Cada enfermera tiene RUT, nombre, apellidos, edad, especialidad y área asignada. Su historial contiene turnos regulares, licencias y cambios de turno. Los eventos tienen un identificador, fecha, horario y observación; los cambios incluyen el RUT de la sustituta y el motivo.
+Permite agregar, buscar, editar y eliminar registros, realizar asignaciones por área y consultar estadísticas. La comprobación de disponibilidad busca evitar horarios incompatibles, considerando también los turnos que una enfermera cubre como sustituta.
 
-El registro principal es un `TreeMap<String, Enfermera>`, cuya clave es el RUT normalizado. Cada enfermera contiene un `ArrayList<Turno>`. Estas son las dos colecciones principales anidadas. Las listas de resultados y agrupaciones por área son auxiliares.
+El registro principal utiliza un `TreeMap<String, Enfermera>`, identificado por el RUT normalizado. Cada enfermera mantiene sus eventos en un `ArrayList<Turno>`.
 
 ## Requisitos
 
-- JDK 11 instalado.
-- Apache NetBeans con soporte para proyectos Java y Ant. Proyecto probado en NetBeans 17.
+- JDK 11 o superior.
+- Para abrir el proyecto en el IDE: Apache NetBeans con soporte para Java y Ant.
 
-El programa utiliza bibliotecas del JDK y no requiere instalar dependencias externas.
+El proyecto fue probado en NetBeans 17 con JDK 17 y está configurado para compilar para Java 11. Puede abrirse en otras versiones de NetBeans compatibles con proyectos Java y Ant. La versión del IDE elegida puede requerir un JDK más reciente para iniciarse.
 
-## Preparación
+El programa utiliza bibliotecas del JDK y no requiere dependencias externas.
 
-Descomprimir el ZIP completo en una carpeta del computador.
+## Preparación del ZIP
 
-Dentro de la carpeta del proyecto se encuentran `src`, `nbproject`, `build.xml`, `Ejecutar.bat`, `Ejecutar.sh` y este README.
+1. Descomprimir el ZIP completo.
+2. Abrir la carpeta que contiene `build.xml`, `nbproject`, `src`, `Ejecutar.bat`, `Ejecutar.sh` y este README.
+3. Trabajar desde esa carpeta descomprimida, no desde el interior del ZIP.
+
+Se puede ejecutar el programa con los archivos incluidos o abrirlo desde NetBeans.
 
 ## Opción 1: ejecutar sin abrir NetBeans
 
+Los archivos de ejecución compilan el código y luego inician el programa. Requieren que los comandos `java` y `javac` estén disponibles en el PATH del sistema.
+
 ### Windows
 
-Hacer doble clic en `Ejecutar.bat`. Este archivo compila el código y luego inicia el programa.
-
-Para esta opción, los comandos `java` y `javac` deben estar disponibles en el PATH del sistema.
+Hacer doble clic en `Ejecutar.bat`.
 
 ### Linux o macOS
 
 Abrir una terminal en la carpeta del proyecto y ejecutar:
 
+```bash
 sh Ejecutar.sh
+```
 
-Al iniciar, escribir `1` para trabajar en consola o `2` para abrir las ventanas y presionar Enter.
+### Selección de interfaz
+
+Al iniciar, escribir una opción y presionar Enter:
+
+- `1`: trabajar en consola.
+- `2`: abrir la interfaz gráfica.
 
 ## Opción 2: abrir desde NetBeans
-Se incluyen los archivos de configuración para abrir el proyecto directamente. Puede utilizarse otra versión de NetBeans compatible con proyectos Java y Ant, siempre que el JDK utilizado para compilar y ejecutar sea 11 o superior. Algunas versiones del IDE pueden requerir un JDK más reciente para iniciarse.
 
 1. Abrir NetBeans y seleccionar **File > Open Project**.
-2. Seleccionar la carpeta descomprimida.
+2. Seleccionar la carpeta que contiene `build.xml`, `nbproject` y `src`.
 3. Pulsar **Open Project**. Aparecerá el proyecto **TurnosEnfermeria**.
 4. Hacer clic derecho sobre el proyecto y seleccionar **Clean and Build**.
 5. Comprobar que en **Output** aparezca **BUILD SUCCESSFUL**.
@@ -52,54 +62,45 @@ Se incluyen los archivos de configuración para abrir el proyecto directamente. 
 
 La interfaz gráfica se abre después de ingresar `2`; no aparece automáticamente al pulsar Run.
 
-Si el panel Output está oculto, se puede mostrar presionando **Ctrl + 4**.
+Si el panel **Output** está oculto, presionar **Ctrl + 4**.
 
-No es necesario crear un proyecto nuevo ni agregar las clases manualmente. La apertura, compilación y ejecución gráfica fueron comprobadas en NetBeans 17.
+No es necesario crear un proyecto nuevo ni agregar las clases manualmente.
 
 ## Guardado de datos
 
-Para cerrar el programa, utilizar **Guardar y salir** en las ventanas o la opción **0** en la consola.
+Para cerrar el programa y guardar los cambios, utilizar **Guardar y salir** en las ventanas o la opción **0** en la consola.
 
-Los datos se guardan en la carpeta `resources`, dentro del proyecto:
+Los datos se guardan dentro de la carpeta `resources` del proyecto:
 
 - `enfermeras.csv`
 - `turnos.csv`
 
-Los archivos se cargan al volver a ejecutar el programa. Si no existen, se utilizan los datos iniciales incluidos en el código.
+Los archivos se cargan al volver a ejecutar el programa. Si ambos archivos están ausentes, se utilizan los datos iniciales incluidos en el código.
 
-## Generar y ver Javadoc
+Para conservar los registros al trasladar el proyecto, incluir también la carpeta `resources` con sus archivos.
 
-El proyecto incluye comentarios Javadoc (SIA-14 opcional) en las clases principales (Modelo, Controladores, Utilidades).
+## Generar y consultar Javadoc desde NetBeans
 
-Para generarlo y visualizarlo:
+El proyecto incluye comentarios Javadoc en clases y métodos del código. Esta documentación corresponde al requisito opcional **SIA-O3**.
 
-### Desde NetBeans (Recomendado):
-1. Hacer clic derecho sobre el proyecto en la pestaña *Projects*.
+Para generar la documentación:
+
+1. En la pestaña **Projects**, hacer clic derecho sobre **TurnosEnfermeria**.
 2. Seleccionar **Generate Javadoc**.
-3. NetBeans compilará la documentación y la abrirá automáticamente en tu navegador web predeterminado.
+3. Esperar a que en **Output** aparezca **BUILD SUCCESSFUL**.
 
-### Desde la consola:
+Para abrirla:
 
-1. Abrir la terminal o símbolo del sistema en la carpeta raíz del proyecto.
-2. Ejecutar el comando correspondiente a tu sistema operativo (requiere que el JDK esté configurado en el PATH del sistema):
+1. Presionar **Ctrl + 2** para mostrar la pestaña **Files / Archivos**.
+2. Expandir el proyecto y abrir las carpetas **build > javadoc**.
+3. Hacer clic derecho en **index.html** y seleccionar **View / Ver**.
+4. La documentación se abrirá en el navegador.
 
-**Windows (Símbolo del sistema / CMD):**
-```cmd
-javadoc -d docs -encoding UTF-8 -sourcepath src\main\java -subpackages TurnosEnfermeria
-```
-*Luego abre el archivo `docs\index.html` en tu navegador.*
+También se puede abrir `build/javadoc/index.html` desde el explorador de archivos del computador.
 
-**Windows (PowerShell):**
-```powershell
-javadoc -d docs -encoding UTF-8 -sourcepath src/main/java -subpackages TurnosEnfermeria
-```
-*Luego abre el archivo `docs\index.html` en tu navegador.*
+La generación y apertura fueron comprobadas en NetBeans 17. Durante la generación pueden aparecer advertencias por comentarios o etiquetas pendientes en algunos métodos. La documentación actual se genera correctamente, aunque no todos los métodos están documentados por completo.
 
-**Linux y macOS (Terminal):**
-```bash
-javadoc -d docs -encoding UTF-8 -sourcepath src/main/java -subpackages TurnosEnfermeria
-```
-*Luego abre el archivo `docs/index.html` en tu navegador.*
+La opción **Clean and Build** elimina la carpeta `build`, incluyendo el Javadoc generado. Para consultarlo después de una limpieza, volver a seleccionar **Generate Javadoc**.
 
 ## Informe
 
