@@ -104,4 +104,4 @@ La opción **Clean and Build** elimina la carpeta `build`, incluyendo el Javadoc
 
 ## Informe
 
-El informe del proyecto se encuentra en `v4Informe.pdf`.
+El informe del proyecto se encuentra en `InformeFinal.pdf`.
