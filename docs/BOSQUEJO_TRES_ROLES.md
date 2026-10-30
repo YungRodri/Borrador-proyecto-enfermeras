@@ -3,6 +3,13 @@
 Estado: propuesta de interfaz ejecutable. No implementa autenticación, permisos,
 solicitudes, cálculos nuevos de cobertura ni guardado del escenario.
 
+El rediseño visual presenta los perfiles como **Enfermera**, **Coordinador** y
+**Administrador**. Corresponden a Enfermería, Coordinación y Jefatura en las tablas
+de este documento y conservan las claves internas `enfermeria`, `coordinacion` y
+`jefatura`. Administrador mantiene el recorrido de consulta de cobertura e informes;
+el cambio de nombre no implementa permisos ni gestión de cuentas.
+Los ajustes visuales se detallan en [CAMBIOS_VISUALES_2026.md](CAMBIOS_VISUALES_2026.md).
+
 El código nuevo se concentra en `TurnosEnfermeria.vista.prototipo`. Su entrada independiente
 es `PrototipoTurnos`. No importa controladores ni el gestor de archivos del sistema.
 El cambio en `Main` añade el modo 3 y permite seleccionar el bosquejo antes de cargar CSV.
@@ -22,7 +29,7 @@ Los modos 1 y 2 conservan el modelo, los controladores y el guardado originales.
 | Cobertura del servicio | Jefatura | Mínimo, asignados efectivos y déficit | Cálculo por intervalo y permisos de consulta. |
 | Informes | Jefatura | Horas planificadas y resumen de incidencias | Filtros, cálculo común con el panel y exportación. |
 
-Los botones abren formularios o detalles. **Ver acción prevista** explica la acción futura;
+Los botones abren formularios o detalles. **Ver qué haría esta acción** explica la acción futura;
 no confirma un resultado ni modifica las tablas. Los controles de área y período muestran
 un único escenario. Las tablas son de consulta, sin edición ni filtros funcionales.
 

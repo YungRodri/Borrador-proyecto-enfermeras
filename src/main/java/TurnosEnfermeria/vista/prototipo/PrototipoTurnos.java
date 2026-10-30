@@ -14,7 +14,7 @@ public final class PrototipoTurnos {
         }
         SwingUtilities.invokeLater(() -> {
             TemaPrototipo.configurar();
-            JFrame window = new JFrame("Turnos de enfermería · Bosquejo de tres roles");
+            JFrame window = new JFrame("Turnos de enfermería · Gestión del servicio");
             window.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             window.setContentPane(new PrototipoPanel());
             Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();

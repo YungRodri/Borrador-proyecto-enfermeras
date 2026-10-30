@@ -8,21 +8,25 @@ import java.awt.*;
 
 /** Componentes visuales compartidos por el bosquejo; no accede al modelo real. */
 final class TemaPrototipo {
-    static final Color FONDO = new Color(244, 247, 250);
-    static final Color TINTA = new Color(27, 43, 62);
-    static final Color SUAVE = new Color(94, 112, 131);
-    static final Color BORDE = new Color(218, 227, 235);
-    static final Color AZUL = new Color(18, 42, 65);
-    static final Color ACENTO = new Color(0, 112, 122);
-    static final Color VERDE = new Color(20, 112, 80);
-    static final Color AMBAR = new Color(145, 88, 13);
-    static final Color ROJO = new Color(164, 47, 66);
+    // Colores tranquilos, pensados para trabajar durante horas sin fatiga visual.
+    static final Color FONDO = new Color(247, 249, 248);
+    static final Color TINTA = new Color(36, 51, 51);
+    static final Color SUAVE = new Color(100, 117, 114);
+    static final Color BORDE = new Color(220, 228, 224);
+    static final Color AZUL = new Color(38, 67, 65);
+    static final Color ACENTO = new Color(42, 108, 94);
+    static final Color VERDE = new Color(42, 111, 73);
+    static final Color AMBAR = new Color(142, 99, 37);
+    static final Color ROJO = new Color(171, 76, 73);
+    static final Color PALIDO = new Color(232, 243, 238);
+    static final Color CREMA = new Color(251, 247, 238);
 
     private TemaPrototipo() { }
 
     static void configurar() {
-        try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); }
-        catch (Exception ignored) { /* El tema del JDK sigue siendo utilizable. */ }
+        // El aspecto nativo evita elementos rígidos propios del tema Metal.
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
+        catch (Exception ignored) { /* El tema disponible sigue funcionando. */ }
         Font normal = fuente(13, false);
         for (String key : new String[]{"Label.font", "Button.font", "ComboBox.font", "TextField.font",
                 "TextArea.font", "Table.font", "TableHeader.font", "OptionPane.messageFont"}) {
@@ -57,18 +61,49 @@ final class TemaPrototipo {
         return panel;
     }
 
+    /** Panel de bordes suaves con relleno liso, sin degradados ni sombras artificiales. */
+    static class PanelSuave extends JPanel {
+        private final Color relleno;
+        private final Color contorno;
+        private final int radio;
+
+        PanelSuave(Color relleno, Color contorno, int radio) {
+            this.relleno = relleno;
+            this.contorno = contorno;
+            this.radio = radio;
+            setOpaque(false);
+        }
+
+        @Override protected void paintComponent(Graphics graphics) {
+            Graphics2D g = (Graphics2D) graphics.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(relleno);
+            g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
+            if (contorno != null) {
+                g.setColor(contorno);
+                g.setStroke(new BasicStroke(1f));
+                g.drawRoundRect(0, 0, getWidth() - 2, getHeight() - 2, radio, radio);
+            }
+            g.dispose();
+            super.paintComponent(graphics);
+        }
+    }
+
     static JPanel tarjeta(String title, String subtitle) {
-        JPanel panel = vertical();
-        panel.setOpaque(true);
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(new CompoundBorder(new LineBorder(BORDE), new EmptyBorder(20, 22, 20, 22)));
+        JPanel panel = new PanelSuave(Color.WHITE, BORDE, 18) {
+            @Override public Dimension getMaximumSize() {
+                return new Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+            }
+        };
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(21, 23, 21, 23));
         if (title != null) {
             agregar(panel, texto(title, 17, true, TINTA));
             if (subtitle != null) {
                 panel.add(Box.createVerticalStrut(7));
                 agregar(panel, parrafo(subtitle, SUAVE));
             }
-            panel.add(Box.createVerticalStrut(16));
+            panel.add(Box.createVerticalStrut(18));
         }
         return panel;
     }
@@ -117,17 +152,52 @@ final class TemaPrototipo {
         return area;
     }
 
+    static final class BotonSuave extends JButton {
+        private final boolean principal;
+
+        BotonSuave(String title, boolean principal) {
+            super(title);
+            this.principal = principal;
+            setFont(fuente(13, true));
+            setForeground(principal ? Color.WHITE : ACENTO);
+            setBackground(principal ? ACENTO : Color.WHITE);
+            setOpaque(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setRolloverEnabled(true);
+            setBorder(new EmptyBorder(11, 16, 11, 16));
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override protected void paintComponent(Graphics graphics) {
+            Graphics2D g = (Graphics2D) graphics.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            Color base = getBackground();
+            boolean over = getModel().isRollover();
+            if (over && isEnabled()) {
+                if (principal) base = base.brighter();
+                else if (base.equals(Color.WHITE)) base = PALIDO;
+                else base = base.darker();
+            }
+            g.setColor(base);
+            g.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 12, 12);
+            if (!principal && base.equals(Color.WHITE)) {
+                g.setColor(BORDE);
+                g.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 12, 12);
+            }
+            if (hasFocus() && isFocusOwner()) {
+                g.setColor(ACENTO);
+                g.setStroke(new BasicStroke(1.5f));
+                g.drawRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 11, 11);
+            }
+            g.dispose();
+            super.paintComponent(graphics);
+        }
+    }
+
     static JButton boton(String title, boolean primary, Runnable action) {
-        JButton button = new JButton(title);
-        button.setFont(fuente(13, true));
-        button.setForeground(primary ? Color.WHITE : ACENTO);
-        button.setBackground(primary ? ACENTO : Color.WHITE);
-        button.setOpaque(true);
-        button.setContentAreaFilled(true);
-        button.setFocusPainted(true);
-        button.setBorder(new CompoundBorder(new LineBorder(primary ? ACENTO : BORDE),
-                new EmptyBorder(11, 17, 11, 17)));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        JButton button = new BotonSuave(title, primary);
         button.addActionListener(e -> action.run());
         return button;
     }
@@ -140,25 +210,23 @@ final class TemaPrototipo {
     }
 
     static JPanel aviso(String title, String message) {
-        JPanel panel = vertical();
-        panel.setOpaque(true);
-        panel.setBackground(new Color(255, 247, 225));
-        panel.setBorder(new CompoundBorder(new MatteBorder(0, 4, 0, 0, new Color(210, 153, 36)),
-                new EmptyBorder(13, 16, 13, 16)));
+        JPanel panel = new PanelSuave(CREMA, new Color(234, 225, 203), 14);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(14, 17, 14, 17));
         agregar(panel, texto(title, 13, true, AMBAR));
-        panel.add(Box.createVerticalStrut(5));
+        panel.add(Box.createVerticalStrut(6));
         agregar(panel, parrafo(message, TINTA));
         return panel;
     }
 
     static JPanel indicadores(String[][] values) {
-        JPanel row = new JPanel(new GridLayout(1, values.length, 14, 0));
+        JPanel row = new JPanel(new GridLayout(1, values.length, 13, 0));
         row.setOpaque(false);
         for (String[] value : values) {
             JPanel card = tarjeta(null, null);
-            agregar(card, texto(value[0], 12, true, SUAVE));
+            agregar(card, texto(value[0], 11, true, SUAVE));
             card.add(Box.createVerticalStrut(10));
-            agregar(card, texto(value[1], 30, true, ACENTO));
+            agregar(card, texto(value[1], 27, true, TINTA));
             card.add(Box.createVerticalStrut(7));
             agregar(card, parrafo(value[2], SUAVE));
             row.add(card);
@@ -172,16 +240,16 @@ final class TemaPrototipo {
         };
         JTable table = new JTable(model);
         table.setFont(fuente(13, false));
-        table.setRowHeight(42);
+        table.setRowHeight(40);
         table.setShowVerticalLines(false);
-        table.setGridColor(BORDE);
+        table.setGridColor(new Color(233, 238, 236));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setSelectionBackground(new Color(225, 243, 245));
+        table.setSelectionBackground(PALIDO);
         table.setSelectionForeground(TINTA);
         table.setFillsViewportHeight(true);
         table.getTableHeader().setReorderingAllowed(false);
         table.getTableHeader().setFont(fuente(12, true));
-        table.getTableHeader().setBackground(new Color(237, 242, 247));
+        table.getTableHeader().setBackground(new Color(240, 244, 242));
         table.getTableHeader().setForeground(SUAVE);
         table.getTableHeader().setPreferredSize(new Dimension(0, 38));
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -191,7 +259,7 @@ final class TemaPrototipo {
                 cell.setBorder(new EmptyBorder(0, 12, 0, 8));
                 cell.setFont(fuente(13, false));
                 cell.setForeground(TINTA);
-                if (!selected) cell.setBackground(row % 2 == 0 ? Color.WHITE : new Color(249, 251, 253));
+                if (!selected) cell.setBackground(row % 2 == 0 ? Color.WHITE : new Color(250, 251, 250));
                 String text = String.valueOf(value);
                 if (text.contains("Pendiente") || text.contains("Ausencia") || text.contains("Por validar") || text.equals("En revisión")) {
                     cell.setForeground(AMBAR);
@@ -204,7 +272,7 @@ final class TemaPrototipo {
                 return cell;
             }
         });
-        int height = 38 + Math.min(8, rows.length) * 42 + 3;
+        int height = 38 + Math.min(8, rows.length) * 40 + 3;
         JScrollPane scroll = new JScrollPane(table);
         scroll.setColumnHeaderView(table.getTableHeader());
         scroll.setBorder(new LineBorder(BORDE));

@@ -39,7 +39,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel agenda(Consumer<String> abrir) {
-        JPanel page = pagina("Mi agenda", "Persona 01 · E-001. Consulta propuesta de turnos propios y cambios de cobertura.");
+        JPanel page = pagina("Mi agenda", "Persona 01 · E-001. Revisa tus próximos turnos y cualquier cambio pendiente.");
         bloque(page, indicadores(new String[][]{
             {"PRÓXIMO TURNO", "17 oct.", "07:00–15:00 · Área piloto A"},
             {"HORAS ASIGNADAS", "8 h", "Un turno a realizar en el ejemplo"},
@@ -62,7 +62,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel solicitudes(Consumer<String> abrir) {
-        JPanel page = pagina("Mis solicitudes", "Seguimiento propuesto de comunicaciones vinculadas a turnos propios.");
+        JPanel page = pagina("Mis solicitudes", "Revisa el estado de las comunicaciones sobre tus turnos.");
         bloque(page, aviso("Canal por validar con el servicio",
                 "Esta función es una propuesta. Su uso y los estados de resolución deben acordarse con las personas entrevistadas."));
         JPanel card = tarjeta("Comunicaciones de Persona 01", "Solicitud de ejemplo en revisión; no corresponde a un envío real.");
@@ -71,7 +71,7 @@ final class PantallasPrototipo {
         }));
         card.add(Box.createVerticalStrut(18));
         agregar(card, acciones(boton("Nueva comunicación", true, () -> abrir.accept("solicitud")),
-                boton("Ver estado previsto", false, () -> abrir.accept("detalle-solicitud"))));
+                boton("Ver estado", false, () -> abrir.accept("detalle-solicitud"))));
         bloque(page, card);
         JPanel steps = tarjeta("Recorrido previsto", "Envío → revisión de coordinación → resolución → consulta del turno vigente.");
         agregar(steps, parrafo("El personal podrá consultar sus solicitudes. La coordinación determinará la acción operativa; una solicitud por sí sola no aprueba un cambio.", TINTA));
@@ -80,7 +80,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel resumen(Consumer<String> abrir) {
-        JPanel page = pagina("Resumen operativo", "Coordinación de turnos · una vista de las tareas del Área piloto A.");
+        JPanel page = pagina("Resumen operativo", "Lo que el equipo necesita revisar esta semana en el Área piloto A.");
         bloque(page, indicadores(new String[][]{
             {"PERSONAL DEL ÁREA", "6", "Dotación registrada en el ejemplo"},
             {"AUSENCIAS", "1", "Turno T-001 por revisar"},
@@ -100,7 +100,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel planificacion(Consumer<String> abrir) {
-        JPanel page = pagina("Planificación de turnos", "Asignaciones manuales del área. La propuesta conserva el núcleo de validación de horarios.");
+        JPanel page = pagina("Planificación de turnos", "Consulta las asignaciones del equipo y revisa posibles conflictos de horario.");
         JPanel card = tarjeta("Asignaciones del escenario", "Ocho registros: siete asignaciones efectivas y un turno afectado por ausencia.");
         agregar(card, filtros());
         card.add(Box.createVerticalStrut(16));
@@ -114,7 +114,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel personal(Consumer<String> abrir) {
-        JPanel page = pagina("Personal del área", "Registros operativos propuestos. Se utilizan únicamente códigos y personas ficticias.");
+        JPanel page = pagina("Personal del área", "Consulta los integrantes del equipo. Los nombres que aparecen son de ejemplo.");
         JPanel card = tarjeta("Dotación · Área piloto A", "Las bajas futuras deberán conservar los turnos y referencias históricas.");
         agregar(card, tabla(new String[]{"Código", "Nombre de ejemplo", "Área", "Situación"}, DatosPrototipo.PERSONAL));
         card.add(Box.createVerticalStrut(18));
@@ -125,7 +125,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel ausencias(Consumer<String> abrir) {
-        JPanel page = pagina("Ausencias y cobertura", "Separación propuesta entre comunicación, ausencia, turno afectado y reemplazante.");
+        JPanel page = pagina("Ausencias y cobertura", "Revisa las ausencias y encuentra turnos que necesitan reemplazo.");
         bloque(page, aviso("Bloque pendiente · 12 oct. · 07:00–15:00",
                 "Titular: E-001. Mínimo del ejemplo: 2; asignados efectivos: 1; déficit: 1. Este mínimo es ficticio y debe validarse para el servicio."));
         JPanel caseCard = tarjeta("Ausencia vinculada a T-001", "La coordinación revisará la incidencia y buscará un reemplazo elegible.");
@@ -146,7 +146,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel cobertura(Consumer<String> abrir) {
-        JPanel page = pagina("Cobertura del servicio", "Jefatura · consulta propuesta de bloques, déficit e incidencias del área.");
+        JPanel page = pagina("Cobertura del servicio", "Consulta cómo está la cobertura de turnos del servicio.");
         bloque(page, indicadores(new String[][]{
             {"BLOQUES DEL EJEMPLO", "4", "Muestra ilustrativa del período"},
             {"COBERTURA COMPLETA", "3 / 4", "Según el mínimo ficticio de 2"},
@@ -166,7 +166,7 @@ final class PantallasPrototipo {
     }
 
     private static JPanel informes(Consumer<String> abrir) {
-        JPanel page = pagina("Informes del período", "Resumen operativo propuesto para jefatura. Exportación y filtros todavía pendientes.");
+        JPanel page = pagina("Informes del período", "Resumen de los turnos de la semana. Los filtros y la exportación aún no están disponibles.");
         JPanel card = tarjeta("Horas planificadas del escenario", "56 horas distribuidas entre siete asignaciones efectivas de ocho horas.");
         agregar(card, tabla(new String[]{"Código", "Persona", "Turnos efectivos", "Horas planificadas"}, new String[][]{
             {"E-001", "Persona 01", "1", "8 h"}, {"E-002", "Persona 02", "1", "8 h"},
@@ -193,18 +193,18 @@ final class PantallasPrototipo {
 
     static String tituloFormulario(String id) {
         switch (id) {
-            case "solicitud": return "Comunicación de ausencia · propuesta";
+            case "solicitud": return "Comunicar una ausencia";
             case "detalle-solicitud": return "Estado de SOL-001 · ejemplo";
-            case "asignar": return "Asignar turno · propuesta";
-            case "editar-turno": return "Editar asignación · propuesta";
+            case "asignar": return "Asignar un turno";
+            case "editar-turno": return "Editar un turno";
             case "conflicto": return "Conflicto de horario · ejemplo";
-            case "personal": return "Registrar personal · propuesta";
-            case "editar-personal": return "Editar personal · propuesta";
-            case "ausencia": return "Revisar ausencia · propuesta";
-            case "resolver": return "Resolver SOL-001 · propuesta";
-            case "sustituir": return "Confirmar sustitución · propuesta";
+            case "personal": return "Registrar personal";
+            case "editar-personal": return "Editar personal";
+            case "ausencia": return "Revisar una ausencia";
+            case "resolver": return "Resolver solicitud SOL-001";
+            case "sustituir": return "Preparar una sustitución";
             case "reporte": return "Vista previa del informe · ejemplo";
-            case "exportar": return "Exportación · implementación pendiente";
+            case "exportar": return "Exportación aún no disponible";
             case "detalle-cobertura": return "Detalle del déficit · ejemplo";
             default: return "Detalle de T-001 · ejemplo";
         }
@@ -213,7 +213,7 @@ final class PantallasPrototipo {
     static JPanel formulario(String id) {
         JPanel body = vertical();
         body.setBorder(new javax.swing.border.EmptyBorder(22, 24, 8, 24));
-        bloque(body, aviso("Bosquejo visual · datos ficticios", "Puedes explorar los campos. Las acciones muestran lo previsto; no registran cambios."));
+        bloque(body, aviso("Datos de demostración", "Puedes revisar los campos y las opciones. Esta versión no registra ni guarda cambios."));
         switch (id) {
             case "solicitud":
                 agregar(body, campo("Turno propio", new JComboBox<>(new String[]{"T-001 · 12 oct. · 07:00–15:00", "T-007 · 17 oct. · 07:00–15:00"})));

@@ -1,0 +1,36 @@
+SISTEMA DE TURNOS DE ENFERMERÍA
+Interfaz revisada — proyecto completo
+
+PARA ABRIR EL PROTOTIPO DE TRES ROLES
+1. Descomprime este ZIP en una carpeta de tu computador.
+2. Abre la carpeta gestion-turnos-enfermeria-is2026-prototipo-tres-roles.
+3. Haz doble clic en EjecutarPrototipo.bat.
+4. Selecciona Enfermera, Coordinador o Administrador.
+
+REQUISITO
+Instalar Java JDK 11 o superior. Para verificarlo, abre CMD y ejecuta:
+    java -version
+    javac -version
+Ambos comandos deben funcionar. Si aparece 'javac no se reconoce', falta el JDK o configurar PATH.
+
+SI USAS INTELLIJ IDEA
+1. File > Open y selecciona la carpeta raíz del proyecto (NO solo src).
+2. Selecciona un JDK 11 o superior en Project Structure > Project SDK.
+3. Abre src/main/java/TurnosEnfermeria/vista/prototipo/PrototipoTurnos.java
+4. Ejecuta su método main().
+
+TAMBIÉN SE CONSERVA LA APLICACIÓN ANTERIOR
+    Ejecutar.bat   -> Programa original con sus modos de ejecución.
+    EjecutarPrototipo.bat -> Interfaz de demostración de tres perfiles.
+
+IMPORTANTE
+Esta interfaz muestra datos ficticios, permite navegar y abrir formularios de ejemplo.
+No implementa guardado ni autenticación, igual que el prototipo original.
+No se cambiaron los modelos, controladores ni el sistema de CSV existente.
+
+RECUPERAR LA VERSION ANTERIOR
+El historial de Git conserva el proyecto previo al rediseño. Se puede consultar en:
+https://github.com/mateocuetoc-hub/gestion-turnos-enfermeria-is2026/tree/c4636a41680d378e450e7cf3d29bf8517099e999
+Desde esa página, Code > Download ZIP permite descargar esa versión.
+
+Dentro de docs/capturas están las imágenes de la interfaz entregadas con el ZIP del equipo.
