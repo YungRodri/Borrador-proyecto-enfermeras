@@ -14,6 +14,7 @@ import TurnosEnfermeria.modelo.TurnoRegular;
 import TurnosEnfermeria.modelo.Utilidades;
 import TurnosEnfermeria.vista.EstilosGUI;
 import TurnosEnfermeria.vista.VentanaPrincipal;
+import TurnosEnfermeria.vista.prototipo.PrototipoTurnos;
 
 import javax.swing.SwingUtilities;
 import java.util.List;
@@ -24,8 +25,9 @@ import java.util.TreeMap;
  * Punto de entrada del Sistema de Gestion de Turnos de Enfermeras.
  * 
  * Al iniciar:
- *   1. Carga datos desde CSV (o semilla si no existen) - SIA-11
- *   2. Ofrece seleccion de interfaz: Consola o GUI - SIA-10
+ *   1. Ofrece consola, GUI original o bosquejo visual de tres roles.
+ *   2. En los modos originales, carga CSV (o semilla si no existen) - SIA-11.
+ * El bosquejo usa únicamente datos ficticios y no accede a CSV.
  *
  * registroGlobal es el TreeMap&lt;RUT, Enfermera&gt; que actua como base de datos en memoria.
  * SOLO los Controladores deben acceder a este campo.
@@ -76,12 +78,8 @@ public class Main {
     // ===================================================================
 
     public static void main(String[] args) {
-        // Cargar datos batch al inicio (SIA-11)
-        try {
-            setRegistroGlobal(GestorArchivos.cargarEnfermeras());
-        } catch (Exception ex) {
-            System.err.println("[ERROR] " + ex.getMessage());
-            System.err.println("Inicio cancelado. No se sobrescribieron los CSV. Revise los archivos y vuelva a ejecutar.");
+        if (args.length > 0 && "--prototipo".equals(args[0])) {
+            PrototipoTurnos.main(new String[0]);
             return;
         }
 
@@ -92,9 +90,23 @@ public class Main {
         System.out.println("  Seleccione el modo de interfaz:");
         System.out.println("    1. Interfaz de Consola (CLI)");
         System.out.println("    2. Interfaz Grafica  (GUI)");
+        System.out.println("    3. Bosquejo visual de tres roles (datos ficticios)");
         System.out.print("  Opcion: ");
 
         int modo = Utilidades.leerEntero(sc);
+        if (modo == 3) {
+            PrototipoTurnos.main(new String[0]);
+            return;
+        }
+
+        // Los modos originales siguen cargando sus datos antes de operar.
+        try {
+            setRegistroGlobal(GestorArchivos.cargarEnfermeras());
+        } catch (Exception ex) {
+            System.err.println("[ERROR] " + ex.getMessage());
+            System.err.println("Inicio cancelado. No se sobrescribieron los CSV. Revise los archivos y vuelva a ejecutar.");
+            return;
+        }
         if (modo == 2) {
             // Lanzar la GUI en el Event Dispatch Thread de Swing (SIA-10)
             EstilosGUI.aplicarLookAndFeel();

@@ -45,6 +45,13 @@
         <echo message="Documentacion generada en: ${javadoc.dir}/index.html"/>
     </target>
 
+    <target name="prototipo" depends="build" description="Abrir bosquejo visual de tres roles con datos ficticios">
+        <java classname="TurnosEnfermeria.vista.prototipo.PrototipoTurnos"
+              fork="true" failonerror="true" dir="${basedir}">
+            <classpath path="${classes.dir}"/>
+        </java>
+    </target>
+
     <target name="clean" description="Eliminar compilacion y documentacion generada">
         <delete dir="build"/>
     </target>

@@ -2,6 +2,46 @@
 
 Proyecto de Programación Avanzada desarrollado en Java, con consola e interfaz gráfica Swing.
 
+## Bosquejo de tres roles · Ingeniería de Software 2026
+
+La rama `prototipo-tres-roles` incorpora un **bosquejo visual ejecutable** del nuevo alcance:
+planificación y cobertura de ausencias en un servicio piloto.
+La base procede de [YungRodri/Borrador-proyecto-enfermeras](https://github.com/YungRodri/Borrador-proyecto-enfermeras)
+y conserva su historial. Las ventanas nuevas representan una propuesta pendiente de implementación.
+
+Para abrir el bosquejo en Linux o macOS, desde la carpeta del proyecto:
+
+```bash
+sh EjecutarPrototipo.sh
+```
+
+En Windows: abrir `EjecutarPrototipo.bat`. Se necesita un JDK 11 o superior
+con `java` y `javac` disponibles. No requiere bibliotecas externas.
+
+En NetBeans se puede ejecutar el proyecto y elegir **3** en la consola.
+Con Ant: `ant prototipo`. También se puede ejecutar `Main` con `--prototipo`.
+
+El selector abre tres recorridos:
+
+- **Enfermera:** Mi agenda y Mis solicitudes.
+- **Coordinador:** Resumen operativo, Planificación, Personal y Ausencias y cobertura.
+- **Administrador:** Cobertura del servicio e Informes.
+
+El nombre visible **Administrador** corresponde al recorrido de consulta antes llamado
+Jefatura y conserva el identificador interno `jefatura`; este rediseño no añade permisos
+ni funciones de administración de cuentas.
+
+Los botones abren formularios y ventanas de detalle. **Ver qué haría esta acción** explica lo
+que deberá hacer la futura operación. Los campos se pueden explorar, pero no guardan
+cambios ni ejecutan reglas de negocio. Los indicadores y tablas son ejemplos fijos.
+El bosquejo no carga ni escribe CSV; elegir un rol no autentica una cuenta ni concede
+permisos reales. Las solicitudes de enfermería siguen siendo una necesidad por validar.
+
+El alcance de las pantallas, el escenario y las implementaciones pendientes se describen
+en [docs/BOSQUEJO_TRES_ROLES.md](docs/BOSQUEJO_TRES_ROLES.md).
+
+Las secciones siguientes corresponden al funcionamiento de los modos originales **1 y 2**.
+
 ## Propósito del sistema
 
 El sistema permite administrar enfermeras y organizar sus turnos por área hospitalaria. Incluye turnos regulares, licencias y cambios de turno con sustituta.
@@ -49,6 +89,7 @@ Al iniciar, escribir una opción y presionar Enter:
 
 - `1`: trabajar en consola.
 - `2`: abrir la interfaz gráfica.
+- `3`: abrir el bosquejo de tres roles con datos ficticios (en esta rama).
 
 ## Opción 2: abrir desde NetBeans
 
@@ -58,7 +99,7 @@ Al iniciar, escribir una opción y presionar Enter:
 4. Hacer clic derecho sobre el proyecto y seleccionar **Clean and Build**.
 5. Comprobar que en **Output** aparezca **BUILD SUCCESSFUL**.
 6. Hacer clic derecho sobre el proyecto y seleccionar **Run**.
-7. En **Output**, escribir `1` para consola o `2` para ventanas y presionar Enter.
+7. En **Output**, escribir `1` para consola, `2` para las ventanas originales o `3` para el prototipo de tres roles y presionar Enter.
 
 La interfaz gráfica se abre después de ingresar `2`; no aparece automáticamente al pulsar Run.
 
@@ -105,3 +146,13 @@ La opción **Clean and Build** elimina la carpeta `build`, incluyendo el Javadoc
 ## Informe
 
 El informe del proyecto se encuentra en `InformeFinal.pdf`.
+
+## Interfaz de tres roles rediseñada (versión visual)
+
+Esta distribución incluye una interfaz más clara para **Enfermera, Coordinador y Administrador**.
+Para abrirla en Windows, descomprime el proyecto y ejecuta `EjecutarPrototipo.bat`.
+También puedes ejecutar `TurnosEnfermeria.vista.prototipo.PrototipoTurnos` desde IntelliJ.
+
+Se mantienen las funciones del prototipo original: navegar entre pantallas y abrir formularios
+con datos de ejemplo. **No guarda cambios**, no conecta cuentas reales ni altera la gestión de CSV.
+Consulta `INSTRUCCIONES_WINDOWS.txt` y `docs/CAMBIOS_VISUALES_2026.md`.
