@@ -263,9 +263,10 @@ final class TemaPrototipo {
                 String text = String.valueOf(value);
                 if (text.contains("Pendiente") || text.contains("Ausencia") || text.contains("Por validar") || text.equals("En revisión")) {
                     cell.setForeground(AMBAR);
-                } else if (text.contains("Ocupado") || text.contains("Déficit")) {
+                } else if (text.contains("Ocupado") || text.contains("Déficit") || text.equals("Ausente") || text.contains("Desactivad")) {
                     cell.setForeground(ROJO);
-                } else if (text.equals("Disponible") || text.equals("Completa") || text.equals("Asignado")) {
+                } else if (text.equals("Disponible") || text.equals("Completa") || text.equals("Asignado")
+                        || text.equals("Aprobada") || text.equals("Presente") || text.equals("Activo") || text.equals("Activa")) {
                     cell.setForeground(VERDE);
                 }
                 cell.setToolTipText(text);

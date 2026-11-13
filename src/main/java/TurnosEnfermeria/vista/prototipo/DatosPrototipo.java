@@ -22,7 +22,7 @@ final class DatosPrototipo {
         {"17 oct.", "07:00–15:00", "2", "2", "Completa"}
     };
     static final String[][] PERSONAL = {
-        {"E-001", "Persona 01", "Área piloto A", "Ausencia el 12 oct."},
+        {"E-001", "Persona 01", "Área piloto A", "Activo"},
         {"E-002", "Persona 02", "Área piloto A", "Activo"},
         {"E-003", "Persona 03", "Área piloto A", "Activo"},
         {"E-004", "Persona 04", "Área piloto A", "Activo"},

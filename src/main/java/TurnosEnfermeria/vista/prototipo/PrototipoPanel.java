@@ -88,17 +88,20 @@ public final class PrototipoPanel extends JPanel {
         eleccion.add(Box.createVerticalStrut(8));
         agregar(eleccion, texto("Elige una opción para ver sus tareas.", 13, false, SUAVE));
         eleccion.add(Box.createVerticalStrut(22));
+
         agregar(eleccion, opcion("Enfermera", "Mis turnos y solicitudes", "EN",
-                "Consultar turnos propios", "Comunicar ausencias (por validar)", "Seguir solicitudes",
+                "Consultar turnos propios y asistencia", "Comunicar ausencias y disponibilidad", "Seguir el estado de solicitudes",
                 "enfermeria"));
         eleccion.add(Box.createVerticalStrut(12));
+
         agregar(eleccion, opcion("Coordinador", "Organización del equipo", "CO",
-                "Organizar las asignaciones", "Revisar ausencias y conflictos", "Preparar sustituciones",
+                "Planificar turnos y registrar asistencia", "Revisar ausencias y sustituciones", "Analizar cobertura e informes",
                 "coordinacion"));
         eleccion.add(Box.createVerticalStrut(12));
-        agregar(eleccion, opcion("Administrador", "Seguimiento del servicio", "AD",
-                "Consultar cobertura por bloque", "Revisar déficits e incidencias", "Consultar informes del período",
-                "jefatura"));
+
+        agregar(eleccion, opcion("Administrador", "Administración del sistema", "AD",
+                "Gestionar cuentas y perfiles", "Registrar y desactivar personal", "Administrar áreas de trabajo",
+                "administracion"));
 
         GridBagConstraints left = new GridBagConstraints();
         left.gridx = 0; left.gridy = 0; left.weightx = .37; left.weighty = 1;
@@ -228,14 +231,14 @@ public final class PrototipoPanel extends JPanel {
                 identidad.setText("E-001 · Persona 01");
                 break;
             case "coordinacion":
-                pages = new String[]{"Resumen operativo", "Planificación", "Personal", "Ausencias y cobertura"};
+                pages = new String[]{"Resumen operativo", "Planificación", "Consulta personal", "Ausencias y cobertura", "Cobertura del servicio", "Informes"};
                 contexto.setText("Coordinador  /  " + DatosPrototipo.PERIODO);
                 identidad.setText("Área piloto A");
                 break;
-            case "jefatura":
-                pages = new String[]{"Cobertura del servicio", "Informes"};
-                contexto.setText("Administrador  /  " + DatosPrototipo.PERIODO);
-                identidad.setText("Vista de consulta");
+            case "administracion":
+                pages = new String[]{"Personal"};
+                contexto.setText("Administrador  /  Configuración del sistema");
+                identidad.setText("Sistema central");
                 break;
             default: throw new IllegalArgumentException("Rol de demostración desconocido: " + role);
         }
@@ -295,10 +298,10 @@ public final class PrototipoPanel extends JPanel {
         scroll.getVerticalScrollBar().setUnitIncrement(20);
         content.add(scroll, BorderLayout.CENTER);
         JPanel actions = acciones(boton("Ver qué haría esta acción", true, () ->
-                JOptionPane.showMessageDialog(dialog,
-                        "<html><body style='width:380px'>" + PantallasPrototipo.accionPrevista(id)
-                        + "<br><br><b>Esta versión de muestra no guarda cambios.</b></body></html>",
-                        "Acerca de esta acción", JOptionPane.INFORMATION_MESSAGE)),
+                        JOptionPane.showMessageDialog(dialog,
+                                "<html><body style='width:380px'>" + PantallasPrototipo.accionPrevista(id)
+                                        + "<br><br><b>Esta versión de muestra no guarda cambios.</b></body></html>",
+                                "Acerca de esta acción", JOptionPane.INFORMATION_MESSAGE)),
                 boton("Cerrar", false, dialog::dispose));
         actions.setBorder(new EmptyBorder(12, 18, 18, 18));
         content.add(actions, BorderLayout.SOUTH);
